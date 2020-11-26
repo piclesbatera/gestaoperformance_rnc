@@ -1,17 +1,23 @@
 <template>
   <div class="content">
-    <router-view></router-view>
+    <Menu />
+    <div class="containerPage">
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
 <script>
+import Menu from "./Menu";
 export default {
-  name: "Content"
+  name: "Content",
+  components: { Menu }
 };
 </script>
 
 <style>
-.content {
+.content { 
+  position: relative;
   grid-area: content;
   padding: 10px;
   background-color: #f7f7f7;
