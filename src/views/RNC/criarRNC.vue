@@ -1,12 +1,12 @@
 <template>
-    <RncPage crudType="c"/>
+    <ControlePage crudType="c"/>
 </template>
 
 <script>
-import RncPage from "./rncPage";
+import ControlePage from "./controlePage";
 export default {
    name: "criarRNC",
-   components: { RncPage },
+   components: { ControlePage },
    data: function() {
     return {
     

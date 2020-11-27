@@ -39,6 +39,7 @@ export default {
   name: "anexos_modalView",
   props: {
      value: Boolean,
+     codigoGrupoFila: String,
      sg: String,
      codigoSg: Number,
      descricaoDocumentacao: String
@@ -106,7 +107,7 @@ export default {
     getAnexos(){
             this.loadingAnexos = true;
 
-            var queryString = ``;
+            var queryString = `?codigoGrupoFila=${this.codigoGrupoFila}`;
             var url = `${baseApi}/rnc/sg/documentacao/anexos/${this.sg}/${this.codigoSg}/${this.descricaoDocumentacao}${queryString}`;
             
             axios.get(url).then(res => {

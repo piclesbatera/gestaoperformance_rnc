@@ -4,7 +4,7 @@
   <v-layout justify-center>
       <v-flex>
         <v-toolbar color="blue" dark>
-            <v-toolbar-title>Criar RNC</v-toolbar-title>
+            <v-toolbar-title>{{pageTitle}}</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-btn class="ma-2 no-outline-focus" icon @click.stop="show=false" title="Fechar" >
                 <v-icon>fa fa-times</v-icon>
@@ -68,12 +68,24 @@
                                                         <b-form-select id="motivo" v-model="motivo" name="motivo" :options="motivos" ></b-form-select>
                                                     </div>
                                                 </div>
-                                                <!-- <div class="col-lg-2" >
+                                                <div class="col-lg-6" >
                                                     <div class="form-group">
-                                                        <label class="bmd-label-floating label-text" for="prazo">Prazo:</label><font color="red"> *</font>
-                                                        <b-form-select id="classificacao" v-model="classificacao" name="classificacao" :options="classificacoes" ></b-form-select>
+                                                        <label class="bmd-label-floating label-text" for="classificacao">Prazo</label><font color="red"> *</font>
+                                                        <b-form-datepicker
+                                                            id="prazo"
+                                                            name="prazo"
+                                                            v-model="prazo"
+                                                            v-bind="datePickerLabels"
+                                                            locale="pt-BR"
+                                                            class="mb-2"
+                                                            :date-format-options="{
+                                                            year: 'numeric',
+                                                            month: 'numeric',
+                                                            day: 'numeric'
+                                                            }"
+                                                        ></b-form-datepicker>
                                                     </div>
-                                                </div> -->
+                                                </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-lg-6">
@@ -158,7 +170,7 @@
                 </div>
             </v-container>
         </v-card>
-        <Anexos_modalView :sg="sg" :codigoSg="codigoSg" :descricaoDocumentacao="descricaoDocumentacaoClicked" v-if="showAnexos_modalView" v-model="showAnexos_modalView" />
+        <Anexos_modalView :codigoGrupoFila="codigoGrupoFila" :sg="sg" :codigoSg="codigoSg" :descricaoDocumentacao="descricaoDocumentacaoClicked" v-if="showAnexos_modalView" v-model="showAnexos_modalView" />
         <ObservacoesHistory_modalView v-if="showObservacoesHistory_modalView" v-model="showObservacoesHistory_modalView" />
       </v-flex>
     </v-layout>
@@ -178,9 +190,11 @@ export default {
     },
   props: {
      value: Boolean,
+     codigoGrupoFila: String,
      sg: String,
      descricaoTituloSg: String,
-     codigoSg: Number
+     codigoSg: Number,
+     crudType: String
   },
   computed: {
     show: {
@@ -190,6 +204,18 @@ export default {
       set (value) {
          this.$emit('input', value);
       }
+    },
+    pageTitle(){
+        var title = "Criar RNC";
+
+        if(this.crudType == 'c'){
+            title = "Criar RNC";
+        } else
+        if(this.crudType == 'e'){
+            title = 'Editar RNC';
+        }
+
+        return title;
     }
   },
   data: function() {
@@ -218,14 +244,29 @@ export default {
         ],
         tipos: [
             { "value": null, "text": "Selecione um tipo" }
-        ]
+        ],
+        datePickerLabels: {
+        labelPrevDecade: "Década anterior",
+        labelPrevYear: "Ano anterior",
+        labelPrevMonth: "Mês passado",
+        labelCurrentMonth: "Mês atual",
+        labelNextMonth: "Próximo mês",
+        labelNextYear: "Próximo ano",
+        labelNextDecade: "Próxima década",
+        labelToday: "Hoje",
+        labelSelected: "Data selecionada",
+        labelNoDateSelected: "Sem data escolhida",
+        labelCalendar: "Calendário",
+        labelNav: "Navegação no calendário",
+        labelHelp: "Navegue pelo calendário com as setas do teclado"
+      }
     }
   },
   methods: {
       getDocumentacao(){
             this.loadingDocumentacao = true;
 
-            var queryString = ``;
+            var queryString = `?codigoGrupoFila=${this.codigoGrupoFila}`;
             var url = `${baseApi}/rnc/sg/documentacao/${this.sg}/${this.codigoSg}${queryString}`;
 
             axios.get(url).then(res => {

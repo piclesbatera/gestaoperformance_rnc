@@ -51,14 +51,14 @@ export default {
           this.$store.commit("setUser", res.data);
           localStorage.setItem(userKey, JSON.stringify(res.data));
           this.$toasted.global.defaultSuccess();
-          this.$router.push({ path: "/" });
+          this.$router.push({ path: "/rnc" });
         })
         .catch(showError);
     }
   },
   created: function(){
     if(this.user && this.user.token){
-      this.$router.push({ path: "/" });
+      this.$router.push({ path: "/rnc" });
     }
   }
 };

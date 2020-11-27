@@ -1,7 +1,7 @@
 <template>
   <header class="header">
     <h1 class="title">{{ title }}</h1>
-    <span v-if="user && user.userProfile" class="d-none d-sm-block welcome-label">Olá, {{ user.userProfile.firstName }}</span>
+    <span v-if="user && user.userProfile" class="d-none d-sm-block welcome-label">Olá, {{ user.username }}</span>
     <UserIcons />
   </header>
 </template>

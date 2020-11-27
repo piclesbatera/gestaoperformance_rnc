@@ -119,6 +119,6 @@ div.v-dialog.v-dialog--active.dialog{
 }
 .containerPage{
     height: calc(100% - 60px);
-    margin: 0.7rem 0px 0px 1rem;
+    margin: 0.7rem 0px 0px 0rem;
 }
 </style>
