@@ -61,9 +61,6 @@ html{
 body {
   margin: 0;
 }
-button, input, optgroup, select, textarea{
-  font: initial !important;
-}
 
 #app {
   -webkit-font-smoothing: antialiased;

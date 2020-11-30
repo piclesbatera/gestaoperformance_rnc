@@ -17,7 +17,7 @@
                                     <span>
                                         {{labelValue}}
                                     </span>   
-                                </label><font color="red"> *</font>
+                                </label><font color="red" v-if="!advancedSearch"> *</font>
                                 <b-form-input id="searchValue" v-model="searchValue" name="searchValue" placeholder="Valor de consulta"></b-form-input>
                             </div>
                         </div>
@@ -38,119 +38,97 @@
                                     class="btn btn-primary form-control"
                                     :loading="loadingSearch"
                                     :disabled="loadingSearch"
-                                    color="primary"
+                                    color="blue"
                                     type="submit"
                                 >
                                 Buscar
                                 </v-btn>
                             </div>
                         </div>
+                        <div class="col-lg-2" right>
+                            <div class="form-group">
+                                <label class="bmd-label-floating blank-label"></label>
+                                <v-btn @click="advancedSearchButton();" class="btn btn-primary form-control" color="blue" dark >
+                                    <v-icon title="Filtros Avançados">mdi-magnify</v-icon>
+                                    Filtros avançados
+                                </v-btn>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" v-if="advancedSearch">
+                        <div class="col-lg-12">
+                            <fieldset class="border p-2">
+                                <legend class="w-auto">Filtros Avançados</legend>
+                                <div v-if="searchFor == 'sgi'">
+                                    <div class="row">
+                                        <div class="col-lg-2" >
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating label-text" for="advancedSearchSgiEmpreiteiraProjeto">
+                                                    <span>
+                                                        Empreiteira Projeto
+                                                    </span>   
+                                                </label>
+                                                <b-form-input id="advancedSearchSgiEmpreiteiraProjeto" v-model="advancedSearchSgiEmpreiteiraProjeto" name="advancedSearchSgiEmpreiteiraProjeto" placeholder="Nome da Empreiteira Projeto"></b-form-input>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2" >
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating label-text" for="advancedSearchSgiEmpreiteiraConstrucao">
+                                                    <span>
+                                                        Empreiteira Construção
+                                                    </span>   
+                                                </label>
+                                                <b-form-input id="advancedSearchSgiEmpreiteiraConstrucao" v-model="advancedSearchSgiEmpreiteiraConstrucao" name="advancedSearchSgiEmpreiteiraConstrucao" placeholder="Nome da Empreiteira Construção"></b-form-input>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-else>
+                                    <div class="row">
+                                        <div class="col-lg-2" >
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating label-text" for="advancedSearchSgpTipoAcionamento">
+                                                    <span>
+                                                        Tipo Acionamento
+                                                    </span>   
+                                                </label>
+                                                <b-form-select id="advancedSearchSgpTipoAcionamento" v-model="advancedSearchSgpTipoAcionamento" name="advancedSearchSgpTipoAcionamento" :options="tipoAcionamentoOptions" ></b-form-select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2" >
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating label-text" for="advancedSearchSgpEmpreiteira">
+                                                    <span>
+                                                        Empreiteira
+                                                    </span>   
+                                                </label>
+                                                <b-form-input id="advancedSearchSgpEmpreiteira" v-model="advancedSearchSgpEmpreiteira" name="advancedSearchSgpEmpreiteira" placeholder="Nome da Empreiteira"></b-form-input>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
                     </div>
                 </form>
-                
         </fieldset>
-        <div class="row" v-if="searchFor == 'sgi'">
-                    <div class="col-lg-12">
-                        <div class="table-responsive-md">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th v-if="crudType == 'e'">RNC</th>
-                                        <th>Fila</th>
-                                        <th>ID</th>
-                                        <th>Projeto</th>
-                                        <th>UF</th>
-                                        <th>ID OPD</th>
-                                        <th>Empreitera Projeto</th>
-                                        <th colspan="2">Empreitera Construção</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="sgi in sgiSearchResult" :key="sgi.id" class="trAlign">
-                                        <td v-if="crudType == 'e'">
-
-                                        </td>
-                                        <td>
-                                            {{sgi.Status}}
-                                        </td>
-                                        <td>
-                                            {{sgi.ID}}
-                                        </td>
-                                        <td>
-                                            {{sgi.Projeto}}
-                                        </td>
-                                        <td>
-                                            {{sgi.UF}}
-                                        </td>
-                                        <td>
-                                            {{sgi.ID_OPD}}
-                                        </td>
-                                        <td>
-                                            {{sgi.Empreiteira}}
-                                        </td>
-                                        <td>
-                                            {{sgi.EmpreiteiraConstrucao}}
-                                        </td>
-                                        <td>
-                                            <i title="Criar RNC" @click="codigoGrupoFilaClicked = ''; sgClicked = 'sgi'; codigoSgClicked = sgi.ID; descricaoTituloSgClicked=sgi.descricaoTituloSg; showRnc_modalForm=true;" class="openDetail fa fa-edit"></i>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="row" v-else>
-                    <div class="col-lg-12">
-                        <div class="table-responsive-md">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th v-if="crudType == 'e'">RNC</th>
-                                        <th>Tipo Acionamento</th>
-                                        <th>GL</th>
-                                        <th>Projeto</th>
-                                        <th>UF</th>
-                                        <th>Cliente</th>
-                                        <th>GP Cliente</th>
-                                        <th colspan="2">Empreiteira</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="sgp in sgpSearchResult" :key="sgp.id" class="trAlign">
-                                        <td v-if="crudType == 'e'">
-                                            
-                                        </td>
-                                        <td>
-                                            {{sgp['TIPO ACIONAMENTO']}}
-                                        </td>
-                                        <td>
-                                            {{sgp.GL}}
-                                        </td>
-                                        <td>
-                                            {{sgp.PROJETO}}
-                                        </td>
-                                        <td>
-                                            {{sgp.UF}}
-                                        </td>
-                                        <td>
-                                            {{sgp.CLIENTE}}
-                                        </td>
-                                        <td>
-                                            {{sgp.GPCliente}}
-                                        </td>
-                                        <td>
-                                            {{sgp.FORNECEDOR}}
-                                        </td>
-                                        <td>
-                                            <i title="Criar RNC" @click="codigoGrupoFilaClicked = sgp.codigoGrupoFila; sgClicked = 'sgp'; codigoSgClicked = sgp.GL; descricaoTituloSgClicked=sgp.descricaoTituloSg; showRnc_modalForm=true;" class="openDetail fa fa-edit"></i>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <v-container fluid grid-list-md>
+                    <v-card-title>
+                    
+                    <v-spacer></v-spacer>
+                    <v-text-field v-model="searchDataTable" append-icon="mdi-magnify" label="Pesquisa" single-line hide-details></v-text-field>
+                    </v-card-title>
+                    <v-divider></v-divider>
+                    <v-data-table :custom-sort="customSort" class="default_color_background" :headers="headersSearch" :items="listaSearch" :search="searchDataTable" :loading="loadingSearch" loading-text="Carregando..." no-data-text="Sem dados disponíveis">
+                        <template v-slot:item.detail="{ item }">
+                            <i title="Criar RNC" @click="clickOpenDetail(item);" class="openDetail fa fa-edit"></i>
+                        </template>
+                    </v-data-table>
+            </v-container>  
+            </div>
+        </div>
         <Rnc_modalForm :crudType="crudType" :sg="sgClicked" :codigoGrupoFila="codigoGrupoFilaClicked" v-if="showRnc_modalForm" :codigoSg="codigoSgClicked" v-model="showRnc_modalForm" :descricaoTituloSg="descricaoTituloSgClicked"/>
     </div>
 </template>
@@ -168,6 +146,20 @@ export default {
         }
     },
     computed: {
+        headersSearch(){
+            if(this.searchFor == 'sgi'){
+                return this.headerSgi;
+            } else {
+                return this.headerSgp;
+            }
+        },
+        listaSearch(){
+            if(this.searchFor == 'sgi'){
+                return this.sgiSearchResult;
+            } else {
+                return this.sgpSearchResult;
+            }
+        },
         pageTitle(){
             var title = "RNC";
             if(this.crudType == 'c'){
@@ -200,6 +192,13 @@ export default {
         },
     data: function() {
         return {
+            searchDataTable: "",
+            tipoAcionamentoOptions: [
+                { "value": "0", "text": "Selec. um Tipo de Acionamento" },
+                { "value": "1", "text": "Survey" },
+                { "value": "2", "text": "Licenciamento" },
+                { "value": "3", "text": "Obra/Abordagem" }
+            ],
             loadingSearch: false,
             codigoGrupoFilaClicked: "",
             sgClicked: "",
@@ -218,13 +217,76 @@ export default {
             ],
             sgpSearchResult: [
 
-            ]
+            ],
+            headerSgi: [
+                { text: 'Fila', value: 'Status' },
+                { text: 'ID', value: 'ID' },
+                { text: 'Projeto', value: 'Projeto' },
+                { text: 'UF', value: 'UF' },
+                { text: 'ID OPD', value: 'ID_OPD' },
+                { text: 'Empreiteira Projeto', value: 'Empreiteira' },
+                { text: 'Empreiteira Construção', value: 'EmpreiteiraConstrucao' },
+                {
+                text: '',
+                sortable: false,
+                value: 'detail',
+                }
+            ],
+            headerSgp: [
+                { text: 'Tipo Acionamento', value: 'TIPO ACIONAMENTO' },
+                { text: 'GL', value: 'GL' },
+                { text: 'Projeto', value: 'PROJETO' },
+                { text: 'UF', value: 'UF' },
+                { text: 'Cliente', value: 'CLIENTE' },
+                { text: 'GP Cliente', value: 'GPCliente' },
+                { text: 'Empreiteira', value: 'FORNECEDOR' },
+                {
+                text: '',
+                sortable: false,
+                value: 'detail',
+                }
+            ],
+            // ADVANCED SEARCH
+            advancedSearch: false,
+
+            // SGI
+            advancedSearchSgiEmpreiteiraProjeto: "",
+            advancedSearchSgiEmpreiteiraConstrucao: "",
+
+            // SGP
+            advancedSearchSgpTipoAcionamento: "0",
+            advancedSearchSgpEmpreiteira: ""
         };
     },
     methods: {
+        clickOpenDetail(sg){
+            if(sg.detail == 'sgi'){
+                this.codigoGrupoFilaClicked = ''; 
+                this.sgClicked = 'sgi'; 
+                this.codigoSgClicked = sg.ID; 
+                this.descricaoTituloSgClicked= sg.descricaoTituloSg;
+                this.showRnc_modalForm=true;
+            } else
+            if(sg.detail == 'sgp') {
+                this.codigoGrupoFilaClicked = sg.codigoGrupoFila;
+                this.sgClicked = 'sgp'; 
+                this.codigoSgClicked = sg.GL; 
+                this.descricaoTituloSgClicked= sg.descricaoTituloSg;
+                this.showRnc_modalForm=true;
+            }
+        },
+        advancedSearchButton(){
+            this.advancedSearch=!this.advancedSearch;
+            this.cleanAdvancedSearchData();
+        },
+        cleanAdvancedSearchData(){
+            this.advancedSearchSgiEmpreiteiraProjeto = "";
+            this.advancedSearchSgpEmpreiteiraConstrucao = "";
+            this.advancedSearchSgpTipoAcionamento = "0";
+            this.advancedSearchSgpEmpreiteira = "";
+        },
         search(){
             var searchFor = this.searchFor;
-            var searchValue = this.searchValue;
             var errors = {};
 
             errors = this.validatesErrorsSg();
@@ -235,8 +297,7 @@ export default {
 
                 this.loadingSearch = true;
 
-                var queryString = ``;
-                var url = `${baseApi}/rnc/sg/${searchFor}/${searchValue}${queryString}`;
+                var url = this.getUrlSg();
 
                 axios.get(url).then(res => {
                     var scope = `#rnc_${this.crudType}`;
@@ -256,32 +317,126 @@ export default {
                 showAllErrorScope(errors, scope);
             }
         },
+        getUrlSg(){
+            var queryString = this.getParametersSg();
+
+            var url = `${baseApi}/rnc/sg/${this.searchFor}/${queryString}`;
+
+            return url;
+        },
+        getParametersSg(){
+            var queryString = '?&';
+
+            if(this.searchValue){
+                queryString += '&codigoEmissao=' + this.searchValue;
+            }
+
+            if(this.searchValueRNC && this.crudType == 'e'){
+                queryString += '&codigoRNC=' + this.searchValueRNC;
+            }
+
+            if(this.advancedSearchSgiEmpreiteiraProjeto && this.advancedSearch && this.searchFor == 'sgi'){
+                queryString += '&descricaoEmpreiteiraProjeto=' + this.advancedSearchSgiEmpreiteiraProjeto;
+            }
+            if(this.advancedSearchSgiEmpreiteiraConstrucao && this.advancedSearch && this.searchFor == 'sgi'){
+                queryString += '&descricaoEmpreiteiraConstrucao=' + this.advancedSearchSgiEmpreiteiraConstrucao;
+            }
+
+            if(this.advancedSearchSgpTipoAcionamento && this.advancedSearchSgpTipoAcionamento != "0" && this.advancedSearch && this.searchFor == 'sgp'){
+                queryString += '&tipoAcionamento=' + this.advancedSearchSgpTipoAcionamento;
+            }
+            if(this.advancedSearchSgpEmpreiteira && this.advancedSearch && this.searchFor == 'sgp'){
+                queryString += '&descricaoEmpreiteira=' + this.advancedSearchSgpEmpreiteira;
+            }
+
+            return queryString;
+
+        },
         validatesErrorsSg(){
             var errors = {};
             var crudType = this.crudType;
 
+
+            // CRIAÇÃO
             if(crudType == 'c'){
                 if(!this.searchFor){
                     errors['searchFor'] = 'é obrigatório';
                 }
-                if(!this.searchValue){
-                    errors['searchValue'] = 'é obrigatório';
+                if(!this.advancedSearch){
+                    if(!this.searchValue){
+                        errors['searchValue'] = 'é obrigatório';
+                    }
+                // ADVANCED VALIDATE
+                } else {
+                    if(this.searchFor == 'sgi'){
+                        if(!this.searchValue && 
+                        // ADVANCED CONDITION
+                        !this.advancedSearchSgiEmpreiteiraProjeto && !this.advancedSearchSgiEmpreiteiraConstrucao){
+
+                            errors['searchValue'] = 'é obrigatório';
+
+                            // ADVANCED FORM
+                            errors['advancedSearchSgiEmpreiteiraProjeto'] = 'é obrigatório';
+                            errors['advancedSearchSgiEmpreiteiraConstrucao'] = 'é obrigatório';
+                        }
+                    } else {
+                        if(!this.searchValue && 
+                        // ADVANCED CONDITION
+                        !this.advancedSearchSgpTipoAcionamento && !this.advancedSearchSgpEmpreiteira){
+
+                            errors['searchValue'] = 'é obrigatório';
+
+                            // ADVANCED FORM
+                            errors['advancedSearchSgpTipoAcionamento'] = 'é obrigatório';
+                            errors['advancedSearchSgpEmpreiteira'] = 'é obrigatório';
+                        }
+                    }
                 }
             } else
+
+
+            // EDITAR
             if(crudType == 'e'){
                 if(!this.searchFor){
                     errors['searchFor'] = 'é obrigatório';
                 }
-                if(!this.searchValue && !this.searchValueRNC){
-                    errors['searchValue'] = 'é obrigatório';
-                    errors['searchValueRNC'] = 'é obrigatório';
-                } else
+                if(!this.advancedSearch){
+                    if(!this.searchValue && !this.searchValueRNC){
+                        errors['searchValue'] = 'é obrigatório';
+                        errors['searchValueRNC'] = 'é obrigatório';
+                    }
+                // ADVANCED VALIDATE
+                } else {
+                    if(this.searchFor == 'sgi'){
+                        if(!this.searchValue && !this.searchValueRNC &&
+                        // ADVANCED CONDITION
+                        !this.advancedSearchSgiEmpreiteiraProjeto && !this.advancedSearchSgiEmpreiteiraConstrucao){
+
+                            errors['searchValue'] = 'é obrigatório';
+                            errors['searchValueRNC'] = 'é obrigatório';
+
+                            // ADVANCED FORM
+                            errors['advancedSearchSgiEmpreiteiraProjeto'] = 'é obrigatório';
+                            errors['advancedSearchSgiEmpreiteiraConstrucao'] = 'é obrigatório';
+                        }
+                    } else {
+                        if(!this.searchValue && !this.searchValueRNC &&
+                        // ADVANCED CONDITION
+                        !this.advancedSearchSgpTipoAcionamento && !this.advancedSearchSgpEmpreiteira){
+
+                            errors['searchValue'] = 'é obrigatório';
+                            errors['searchValueRNC'] = 'é obrigatório';
+
+                            // ADVANCED FORM
+                            errors['advancedSearchSgpTipoAcionamento'] = 'é obrigatório';
+                            errors['advancedSearchSgpEmpreiteira'] = 'é obrigatório';
+                        }
+                    }
+                }
+
                 if(this.searchValue && this.searchValueRNC){
-                    errors['searchValue'] = 'não pode ser preenchido com RNC';
-                    errors['searchValueRNC'] = 'não pode ser preenchido com '+ this.labelValue;
-                } else
-                if(this.searchValueRNC){
-                     errors['searchValueRNC'] = 'está temporariamente desabilitado';
+                    errors['searchValue'] = 'não pode ser preenchido junto a RNC';
+                    errors['searchValueRNC'] = 'não pode ser preenchido junto a '+ this.labelValue;
                 }
             }
 
@@ -297,10 +452,28 @@ export default {
         },
         insertSearchSg(searchFor, data){
             if(searchFor == 'sgi'){
-                this.sgiSearchResult = data;
+                var sgiSearchResult = data;
+
+                sgiSearchResult.forEach( 
+                (item) => 
+                    {
+                    item['detail'] = 'sgi';
+                    }
+                );
+
+                this.sgiSearchResult = sgiSearchResult;
             } else 
             if(searchFor == 'sgp') {
-                this.sgpSearchResult = data;
+                var sgpSearchResult = data;
+
+                sgpSearchResult.forEach( 
+                (item) => 
+                    {
+                    item['detail'] = 'sgp';
+                    }
+                );
+
+                this.sgpSearchResult = sgpSearchResult;
             }
         }
     },
@@ -329,6 +502,10 @@ export default {
 
 <style scoped>
 
+.default_color_background{
+  background-color: #f7f7f7;
+}
+
 label.blank-label::after{
   content: "\a0";
 }
@@ -348,14 +525,9 @@ label.blank-label::after{
 
 
 <style>
-
-.trAlign{
-    text-align: center;
-}
-
-.trAlign td{
-    vertical-align: middle;
+.default_color_background tbody tr {
     background-color: white;
 }
+
 
 </style>

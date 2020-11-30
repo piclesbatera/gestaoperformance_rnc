@@ -23,8 +23,13 @@
                 <v-divider></v-divider>
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="float-right">
-                            <button type="button" @click.stop="show=false" class="btn btn-primary form-control" >Salvar</button>
+                        <div class="float-right"> 
+                            <v-btn @click.stop="show=false" class="btn btn-primary form-control" color="blue" dark >
+                                <v-icon dark left>
+                                    mdi-content-save
+                                </v-icon>
+                                Salvar
+                            </v-btn>
                         </div>
                     </div>
                 </div>
@@ -155,12 +160,39 @@
                                 <v-tab-item>
                                     <v-card flat>
                                         <v-card-text>
-                                            <b-form-group >
-                                                <v-file-input
-                                                    counter
-                                                    show-size
-                                                    truncate-length="50"></v-file-input>
-                                            </b-form-group>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="float-right">
+                                                        <v-btn @click="newirregularidade();" class="btn btn-primary form-control" color="blue" dark >
+                                                            <v-icon dark left>
+                                                                mdi-plus
+                                                            </v-icon>
+                                                            Novo
+                                                        </v-btn>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <v-divider></v-divider>
+                                            <div class="row" v-for="irregularidade in listaIrregularidades" :key="irregularidade.id">
+                                                <b-input-group size="sm" class="m-2">
+                                                    <b-input-group-prepend is-text>
+                                                        <v-icon @click="deleteIrregularidade(irregularidade);" title="Remover">mdi-delete</v-icon>
+                                                    </b-input-group-prepend>
+                                                     <b-input-group-prepend is-text>
+                                                        <v-file-input
+                                                            hide-input
+                                                            v-model="irregularidade.file"
+                                                            :success="irregularidade.file"
+                                                            :id="'file-'+irregularidade.id"
+                                                        ></v-file-input>
+                                                    </b-input-group-prepend>
+                                                    <b-input-group-prepend is-text>
+                                                        <v-icon v-if="irregularidade.file" title="Download" @click="downloadIrregularidadeFile(irregularidade);">mdi-download</v-icon>
+                                                        <v-icon v-else :disabled="true" title="Download">mdi-download</v-icon>
+                                                    </b-input-group-prepend>
+                                                    <b-form-input :id="'descricaoAnexoIrregularidades-'+irregularidade.id" v-model="irregularidade.descricaoAnexoIrregularidades" placeholder="descrição" style="height: 100%;"></b-form-input>
+                                                </b-input-group>
+                                            </div>
                                         </v-card-text>
                                     </v-card>
                                 </v-tab-item>
@@ -220,6 +252,13 @@ export default {
   },
   data: function() {
     return {
+        listaIrregularidades: [
+            {
+                id: 0,
+                descricaoAnexoIrregularidades: "",
+                file: null
+            }
+        ],
         listaDocumentacao: [],
         descricaoDocumentacaoClicked: "",
         showObservacoesHistory_modalView: false,
@@ -263,6 +302,29 @@ export default {
     }
   },
   methods: {
+      isFile(irregularidade){
+          return irregularidade.isFile();
+      },
+      downloadIrregularidadeFile(irregularidade){
+            const index = this.listaIrregularidades.indexOf(irregularidade);
+            var irregularidadeFile = this.listaIrregularidades[index].file;
+
+            const url = window.URL.createObjectURL(irregularidadeFile);
+            window.open(url);
+      },
+      newirregularidade(){
+        var irregularidade = {
+            id: 0,
+            descricaoAnexoIrregularidades: "",
+            file: null
+        };
+        this.listaIrregularidades.push(irregularidade);
+        
+      },
+      deleteIrregularidade(irregularidade){
+          const index = this.listaIrregularidades.indexOf(irregularidade);
+          this.listaIrregularidades.splice(index, 1);
+      },
       getDocumentacao(){
             this.loadingDocumentacao = true;
 
@@ -287,15 +349,16 @@ export default {
 </script>
 
 <style scoped>
+
+.v-text-field {
+    padding-top: 0px;
+    margin-top: 0px;
+}
+
 .col, .col-1, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-10, .col-11, .col-12, .col-auto, .col-lg, .col-lg-1, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-lg-10, .col-lg-11, .col-lg-12, .col-lg-auto, .col-md, .col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12, .col-md-auto, .col-sm, .col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12, .col-sm-auto, .col-xl, .col-xl-1, .col-xl-2, .col-xl-3, .col-xl-4, .col-xl-5, .col-xl-6, .col-xl-7, .col-xl-8, .col-xl-9, .col-xl-10, .col-xl-11, .col-xl-12, .col-xl-auto {
     padding: 3px 12px;
 }
 
-.btn-primary{
-    color: #fff;
-    background-color: #007bff;
-    border-color: #007bff;
-}
 hr{
     margin-top: 5px;
     margin-bottom: 5px;
@@ -304,6 +367,7 @@ hr{
 div.v-card.v-sheet{
   background-color: #f7f7f7;
 }
+
 .openDetail{
     cursor: pointer;
     font-size: x-large;
@@ -315,4 +379,11 @@ div.v-card.v-sheet{
 }
 
 
+</style>
+
+
+<style>
+.v-application--is-ltr .v-input__prepend-outer {
+    margin: 0px;
+}
 </style>

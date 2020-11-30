@@ -17,7 +17,7 @@
 
 <script>
 export default {
-   name: "menu",
+   name: "menu-tab",
    data: function() {
     return {
     };

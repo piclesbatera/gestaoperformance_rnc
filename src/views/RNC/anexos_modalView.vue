@@ -138,7 +138,9 @@ export default {
       axios({ url: url, method: 'GET', responseType: 'blob',}).then((response) => {
         const url = window.URL.createObjectURL(response.data);
         this.listaAnexos[index].loadingAnexo = false;
+
         window.open(url);
+        window.URL.revokeObjectURL();
       }).catch(error => {
         this.listaAnexos[index].loadingAnexo = false;
         showError(error);
