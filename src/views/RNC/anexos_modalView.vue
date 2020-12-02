@@ -195,8 +195,5 @@ div.v-card.v-sheet{
 
 <style>
 
-.default_color_background tbody tr {
-    background-color: white;
-}
 
 </style>

@@ -1,5 +1,5 @@
 <template>
-        <v-app id="vuetify-tab-content">
+        <div id="vuetify-tab-content">
             <v-card>
                 <v-tabs
                     v-model="tab"
@@ -10,7 +10,7 @@
                     
                     <v-tab :href="'#tab-dashboard'" >Dashboard</v-tab>
                     
-                    <v-menu v-if="controleRNC.length">
+                    <v-menu offset-y v-if="controleRNC.length">
                             <template v-slot:activator="{ on, attrs }">
                                 <a
                                 class="v-tab"
@@ -81,7 +81,7 @@
                     </v-tab-item>
                 </v-tabs-items>
             </v-card>
-        </v-app>
+        </div>
 </template>
 
 <script>
@@ -118,7 +118,7 @@ export default {
 }
 
 #vuetify-tab-content{
-    min-height: 100%;
+    height: 100%;
     max-width: 100%;
     background-color: #f7f7f7;
 }

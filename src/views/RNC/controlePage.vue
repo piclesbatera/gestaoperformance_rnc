@@ -17,7 +17,7 @@
                                     <span>
                                         {{labelValue}}
                                     </span>   
-                                </label><font color="red" v-if="!advancedSearch"> *</font>
+                                </label>
                                 <b-form-input id="searchValue" v-model="searchValue" name="searchValue" placeholder="Valor de consulta"></b-form-input>
                             </div>
                         </div>
@@ -27,7 +27,7 @@
                                     <span>
                                         RNC
                                     </span>   
-                                </label><font color="red">*</font>
+                                </label>
                                 <b-form-input id="searchValueRNC" v-model="searchValueRNC" name="searchValueRNC" placeholder="Busca por RNC"></b-form-input>
                             </div>
                         </div>
@@ -61,6 +61,26 @@
                                 <legend class="w-auto">Filtros Avançados</legend>
                                 <div v-if="searchFor == 'sgi'">
                                     <div class="row">
+                                        <div class="col-lg-2" >
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating label-text" for="advancedSearchSgiUF">
+                                                    <span>
+                                                        UF
+                                                    </span>   
+                                                </label>
+                                                <b-form-select id="advancedSearchSgiUF" v-model="advancedSearchSgiUF" name="advancedSearchSgiUF" :options="UFOptions" ></b-form-select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2" >
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating label-text" for="advancedSearchSgiProjeto">
+                                                    <span>
+                                                        Projeto
+                                                    </span>   
+                                                </label>
+                                                <b-form-input id="advancedSearchSgiProjeto" v-model="advancedSearchSgiProjeto" name="advancedSearchSgiProjeto" placeholder="Nome do Projeto"></b-form-input>
+                                            </div>
+                                        </div>
                                         <div class="col-lg-2" >
                                             <div class="form-group">
                                                 <label class="bmd-label-floating label-text" for="advancedSearchSgiEmpreiteiraProjeto">
@@ -97,6 +117,16 @@
                                         </div>
                                         <div class="col-lg-2" >
                                             <div class="form-group">
+                                                <label class="bmd-label-floating label-text" for="advancedSearchSgpUF">
+                                                    <span>
+                                                        UF
+                                                    </span>   
+                                                </label>
+                                                <b-form-select id="advancedSearchSgpUF" v-model="advancedSearchSgpUF" name="advancedSearchSgpUF" :options="UFOptions" ></b-form-select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2" >
+                                            <div class="form-group">
                                                 <label class="bmd-label-floating label-text" for="advancedSearchSgpEmpreiteira">
                                                     <span>
                                                         Empreiteira
@@ -121,22 +151,27 @@
                     <v-text-field v-model="searchDataTable" append-icon="mdi-magnify" label="Pesquisa" single-line hide-details></v-text-field>
                     </v-card-title>
                     <v-divider></v-divider>
-                    <v-data-table :custom-sort="customSort" class="default_color_background" :headers="headersSearch" :items="listaSearch" :search="searchDataTable" :loading="loadingSearch" loading-text="Carregando..." no-data-text="Sem dados disponíveis">
-                        <template v-slot:item.detail="{ item }">
-                            <i title="Criar RNC" @click="clickOpenDetail(item);" class="openDetail fa fa-edit"></i>
-                        </template>
-                    </v-data-table>
+                    <div class="scrollable">
+                        <v-data-table class="default_color_background" :headers="headersSearch" :items="listaSearch" :search="searchDataTable" :loading="loadingSearch" loading-text="Carregando..." no-data-text="Sem dados disponíveis">
+                            <template v-slot:item.detail="{ item }">
+                                <i title="Criar RNC" @click="clickOpenDetail(item);" class="openDetail fa fa-edit"></i>
+                            </template>
+                        </v-data-table>
+                    </div>
             </v-container>  
             </div>
         </div>
         <Rnc_modalForm :crudType="crudType" :sg="sgClicked" :codigoGrupoFila="codigoGrupoFilaClicked" v-if="showRnc_modalForm" :codigoSg="codigoSgClicked" v-model="showRnc_modalForm" :descricaoTituloSg="descricaoTituloSgClicked"/>
-    </div>
+    </div>  
 </template>
 
 <script>
 import Rnc_modalForm from './rnc_modalForm'
 import { baseApi, showError, showAllErrorScope, cleanErrorsScope } from "@/global";
 import axios from "axios";
+import tipoAcionamentoOptions from "@/assets/json/sgp/tipoAcionamento.json";
+import UFOptions from "@/assets/json/brasil/UF.json";
+
 export default {
     name: "controlePage",
     props: {
@@ -189,16 +224,12 @@ export default {
     },
     components: {
         Rnc_modalForm
-        },
+    },
     data: function() {
         return {
             searchDataTable: "",
-            tipoAcionamentoOptions: [
-                { "value": "0", "text": "Selec. um Tipo de Acionamento" },
-                { "value": "1", "text": "Survey" },
-                { "value": "2", "text": "Licenciamento" },
-                { "value": "3", "text": "Obra/Abordagem" }
-            ],
+            UFOptions,
+            tipoAcionamentoOptions,
             loadingSearch: false,
             codigoGrupoFilaClicked: "",
             sgClicked: "",
@@ -252,10 +283,13 @@ export default {
             // SGI
             advancedSearchSgiEmpreiteiraProjeto: "",
             advancedSearchSgiEmpreiteiraConstrucao: "",
+            advancedSearchSgiUF: "",
+            advancedSearchSgiProjeto: "",
 
             // SGP
-            advancedSearchSgpTipoAcionamento: "0",
-            advancedSearchSgpEmpreiteira: ""
+            advancedSearchSgpTipoAcionamento: "",
+            advancedSearchSgpEmpreiteira: "",
+            advancedSearchSgpUF: "",
         };
     },
     methods: {
@@ -277,13 +311,6 @@ export default {
         },
         advancedSearchButton(){
             this.advancedSearch=!this.advancedSearch;
-            this.cleanAdvancedSearchData();
-        },
-        cleanAdvancedSearchData(){
-            this.advancedSearchSgiEmpreiteiraProjeto = "";
-            this.advancedSearchSgpEmpreiteiraConstrucao = "";
-            this.advancedSearchSgpTipoAcionamento = "0";
-            this.advancedSearchSgpEmpreiteira = "";
         },
         search(){
             var searchFor = this.searchFor;
@@ -325,7 +352,7 @@ export default {
             return url;
         },
         getParametersSg(){
-            var queryString = '?&';
+            var queryString = '?';
 
             if(this.searchValue){
                 queryString += '&codigoEmissao=' + this.searchValue;
@@ -335,6 +362,14 @@ export default {
                 queryString += '&codigoRNC=' + this.searchValueRNC;
             }
 
+            if(this.advancedSearchSgiUF && this.advancedSearch && this.searchFor == 'sgi'){
+                queryString += '&UF=' + this.advancedSearchSgiUF;
+            }
+
+            if(this.advancedSearchSgiProjeto && this.advancedSearch && this.searchFor == 'sgi'){
+                queryString += '&descricaoProjeto=' + this.advancedSearchSgiProjeto;
+            }
+
             if(this.advancedSearchSgiEmpreiteiraProjeto && this.advancedSearch && this.searchFor == 'sgi'){
                 queryString += '&descricaoEmpreiteiraProjeto=' + this.advancedSearchSgiEmpreiteiraProjeto;
             }
@@ -342,7 +377,12 @@ export default {
                 queryString += '&descricaoEmpreiteiraConstrucao=' + this.advancedSearchSgiEmpreiteiraConstrucao;
             }
 
-            if(this.advancedSearchSgpTipoAcionamento && this.advancedSearchSgpTipoAcionamento != "0" && this.advancedSearch && this.searchFor == 'sgp'){
+    
+            if(this.advancedSearchSgpUF && this.advancedSearch && this.searchFor == 'sgp'){
+                queryString += '&UF=' + this.advancedSearchSgpUF;
+            }
+
+            if(this.advancedSearchSgpTipoAcionamento && this.advancedSearch && this.searchFor == 'sgp'){
                 queryString += '&tipoAcionamento=' + this.advancedSearchSgpTipoAcionamento;
             }
             if(this.advancedSearchSgpEmpreiteira && this.advancedSearch && this.searchFor == 'sgp'){
@@ -354,90 +394,75 @@ export default {
         },
         validatesErrorsSg(){
             var errors = {};
-            var crudType = this.crudType;
 
+            if(!this.searchFor){
+                errors['searchFor'] = 'é obrigatório';
+            }
+            if(!this.advancedSearch){
+                if(!this.searchValue &&
+                
+                (
+                    (this.crudType == 'e' && !this.searchValueRNC) || (this.crudType != 'e')
+                )
 
-            // CRIAÇÃO
-            if(crudType == 'c'){
-                if(!this.searchFor){
-                    errors['searchFor'] = 'é obrigatório';
-                }
-                if(!this.advancedSearch){
-                    if(!this.searchValue){
-                        errors['searchValue'] = 'é obrigatório';
-                    }
-                // ADVANCED VALIDATE
-                } else {
-                    if(this.searchFor == 'sgi'){
-                        if(!this.searchValue && 
-                        // ADVANCED CONDITION
-                        !this.advancedSearchSgiEmpreiteiraProjeto && !this.advancedSearchSgiEmpreiteiraConstrucao){
+                ){
+                    errors['searchValue'] = 'é obrigatório';
 
-                            errors['searchValue'] = 'é obrigatório';
-
-                            // ADVANCED FORM
-                            errors['advancedSearchSgiEmpreiteiraProjeto'] = 'é obrigatório';
-                            errors['advancedSearchSgiEmpreiteiraConstrucao'] = 'é obrigatório';
-                        }
-                    } else {
-                        if(!this.searchValue && 
-                        // ADVANCED CONDITION
-                        !this.advancedSearchSgpTipoAcionamento && !this.advancedSearchSgpEmpreiteira){
-
-                            errors['searchValue'] = 'é obrigatório';
-
-                            // ADVANCED FORM
-                            errors['advancedSearchSgpTipoAcionamento'] = 'é obrigatório';
-                            errors['advancedSearchSgpEmpreiteira'] = 'é obrigatório';
-                        }
-                    }
-                }
-            } else
-
-
-            // EDITAR
-            if(crudType == 'e'){
-                if(!this.searchFor){
-                    errors['searchFor'] = 'é obrigatório';
-                }
-                if(!this.advancedSearch){
-                    if(!this.searchValue && !this.searchValueRNC){
-                        errors['searchValue'] = 'é obrigatório';
+                    if(this.crudType == 'e' && !this.searchValueRNC){
                         errors['searchValueRNC'] = 'é obrigatório';
                     }
-                // ADVANCED VALIDATE
+                }
+            // ADVANCED VALIDATE
+            } else {
+                if(this.searchFor == 'sgi'){
+                    if(!this.searchValue 
+                    && 
+                    (
+                        (this.crudType == 'e' && !this.searchValueRNC) || (this.crudType != 'e')
+                    ) 
+                    &&
+                    // ADVANCED CONDITION
+                    !this.advancedSearchSgiUF && !this.advancedSearchSgiProjeto && !this.advancedSearchSgiEmpreiteiraProjeto && !this.advancedSearchSgiEmpreiteiraConstrucao){
+
+                        errors['searchValue'] = 'é obrigatório';
+
+                        if(this.crudType == 'e' && !this.searchValueRNC){
+                            errors['searchValueRNC'] = 'é obrigatório';
+                        }
+
+                        // ADVANCED FORM
+                        errors['advancedSearchSgiUF'] = 'é obrigatório';
+                        errors['advancedSearchSgiProjeto'] = 'é obrigatório';
+                        errors['advancedSearchSgiEmpreiteiraProjeto'] = 'é obrigatório';
+                        errors['advancedSearchSgiEmpreiteiraConstrucao'] = 'é obrigatório';
+                    }
                 } else {
-                    if(this.searchFor == 'sgi'){
-                        if(!this.searchValue && !this.searchValueRNC &&
-                        // ADVANCED CONDITION
-                        !this.advancedSearchSgiEmpreiteiraProjeto && !this.advancedSearchSgiEmpreiteiraConstrucao){
+                    if(!this.searchValue 
+                    && 
+                    (
+                        (this.crudType == 'e' && !this.searchValueRNC) || (this.crudType != 'e')
+                    ) 
+                    &&
+                    // ADVANCED CONDITION
+                    !this.advancedSearchSgpTipoAcionamento && !this.advancedSearchSgpUF && !this.advancedSearchSgpEmpreiteira){
 
-                            errors['searchValue'] = 'é obrigatório';
+                        errors['searchValue'] = 'é obrigatório';
+
+                        if(this.crudType == 'e' && !this.searchValueRNC){
                             errors['searchValueRNC'] = 'é obrigatório';
-
-                            // ADVANCED FORM
-                            errors['advancedSearchSgiEmpreiteiraProjeto'] = 'é obrigatório';
-                            errors['advancedSearchSgiEmpreiteiraConstrucao'] = 'é obrigatório';
                         }
-                    } else {
-                        if(!this.searchValue && !this.searchValueRNC &&
-                        // ADVANCED CONDITION
-                        !this.advancedSearchSgpTipoAcionamento && !this.advancedSearchSgpEmpreiteira){
 
-                            errors['searchValue'] = 'é obrigatório';
-                            errors['searchValueRNC'] = 'é obrigatório';
-
-                            // ADVANCED FORM
-                            errors['advancedSearchSgpTipoAcionamento'] = 'é obrigatório';
-                            errors['advancedSearchSgpEmpreiteira'] = 'é obrigatório';
-                        }
+                        // ADVANCED FORM
+                        errors['advancedSearchSgpTipoAcionamento'] = 'é obrigatório';
+                        errors['advancedSearchSgpUF'] = 'é obrigatório';
+                        errors['advancedSearchSgpEmpreiteira'] = 'é obrigatório';
                     }
                 }
+            }
 
-                if(this.searchValue && this.searchValueRNC){
-                    errors['searchValue'] = 'não pode ser preenchido junto a RNC';
-                    errors['searchValueRNC'] = 'não pode ser preenchido junto a '+ this.labelValue;
-                }
+            if(this.searchValue && this.searchValueRNC && this.crudType == 'e'){
+                errors['searchValue'] = 'não pode ser preenchido junto a RNC';
+                errors['searchValueRNC'] = 'não pode ser preenchido junto a '+ this.labelValue;
             }
 
             return errors;
@@ -506,10 +531,6 @@ export default {
   background-color: #f7f7f7;
 }
 
-label.blank-label::after{
-  content: "\a0";
-}
-
 .btn-primary{
     color: #fff;
     background-color: #007bff;
@@ -523,11 +544,14 @@ label.blank-label::after{
 
 </style>
 
-
-<style>
-.default_color_background tbody tr {
-    background-color: white;
+<style >
+/* .scrollable{
+    max-height: 830px;
+    overflow-y: auto;
 }
-
-
+.scrollable .v-data-footer{
+    position: sticky;
+    background-color: #f7f7f7;
+    bottom: 0px;
+} */
 </style>

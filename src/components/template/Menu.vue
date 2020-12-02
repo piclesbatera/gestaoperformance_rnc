@@ -1,5 +1,5 @@
 <template>
-    <v-app id="vuetify-menu-content" >
+    <div id="vuetify-menu-content" >
         <v-card>
           <v-tabs
               dark
@@ -12,7 +12,7 @@
               <v-tab to="/rnc">RNC</v-tab>
           </v-tabs>
         </v-card>
-    </v-app>
+    </div>
 </template>
 
 <script>
@@ -29,9 +29,6 @@ export default {
 #vuetify-menu-content{
   max-width: 100%;
   background-color: #f7f7f7;
-}
-#vuetify-menu-content div.v-application--wrap {
-  min-height: 100%;
 }
 
 </style>

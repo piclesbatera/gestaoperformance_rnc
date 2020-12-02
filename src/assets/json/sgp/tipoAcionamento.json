@@ -1,0 +1,6 @@
+[
+    { "value": "", "text": "Selec. um Tipo de Acionamento" },
+    { "value": "1", "text": "Survey" },
+    { "value": "2", "text": "Licenciamento" },
+    { "value": "3", "text": "Obra/Abordagem" }
+]

@@ -75,7 +75,7 @@
                                                 </div>
                                                 <div class="col-lg-6" >
                                                     <div class="form-group">
-                                                        <label class="bmd-label-floating label-text" for="classificacao">Prazo</label><font color="red"> *</font>
+                                                        <label class="bmd-label-floating label-text" for="prazo">Prazo</label><font color="red"> *</font>
                                                         <b-form-datepicker
                                                             id="prazo"
                                                             name="prazo"
@@ -99,6 +99,36 @@
                                                         <b-form-select id="tipo" v-model="tipo" name="tipo" :options="tipos" ></b-form-select>
                                                     </div>
                                                 </div>
+                                                <template v-if="crudType == 'e'">
+                                                    <div class="col-lg-5">
+                                                        <div class="form-group">
+                                                            <label class="bmd-label-floating label-text" for="prazoEstendido">Prazo Estendido</label>
+                                                            <b-form-datepicker
+                                                                :disabled="!estenderPrazo"
+                                                                id="prazoEstendido"
+                                                                name="prazoEstendido"
+                                                                v-model="prazoEstendido"
+                                                                v-bind="datePickerLabels"
+                                                                locale="pt-BR"
+                                                                class="mb-2"
+                                                                :date-format-options="{
+                                                                year: 'numeric',
+                                                                month: 'numeric',
+                                                                day: 'numeric'
+                                                                }"
+                                                            ></b-form-datepicker>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-1">
+                                                        <div class="form-group">
+                                                            <label class="bmd-label-floating blank-label"></label>
+                                                            <v-checkbox
+                                                                v-model="estenderPrazo"
+                                                                style="margin-top:0px;">
+                                                            </v-checkbox>
+                                                        </div>
+                                                    </div>
+                                                </template>
                                             </div>
                                             <div class="row">
                                                 <div class="col-lg-12">
@@ -252,6 +282,7 @@ export default {
   },
   data: function() {
     return {
+        estenderPrazo: false,
         listaIrregularidades: [
             {
                 id: 0,
@@ -270,6 +301,7 @@ export default {
         classificacao: null,
         motivo: null,
         prazo: null,
+        prazoEstendido: null,
         tipo: null,
         observacoes: null,
         areasDemandantes: [

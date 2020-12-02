@@ -17,7 +17,6 @@ export default {
 
 <style>
 .content { 
-  position: relative;
   grid-area: content;
   padding: 10px;
   background-color: #f7f7f7;

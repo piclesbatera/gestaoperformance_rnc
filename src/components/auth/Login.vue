@@ -73,9 +73,6 @@ export default {
   align-items: center;
 }
 
-#app-login{
-  min-height: 100vh;
-}
 
 .form-control:focus {
 	border-color: #0b369adb;
