@@ -1,11 +1,11 @@
 <template>
-    <ControlePage crudType="e"/>
+    <ControlePage crudType="v"/>
 </template>
 
 <script>
 import ControlePage from "./controlePage";
 export default {
-   name: "editarRNC",
+   name: "validarRNC",
    components: { ControlePage },
    data: function() {
     return {

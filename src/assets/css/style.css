@@ -84,3 +84,6 @@ div.v-dialog.v-dialog--active.dialog{
     outline: 0px;
 }
   
+div.v-card.v-sheet div.v-window{
+    background-color: #f7f7f7;
+  }

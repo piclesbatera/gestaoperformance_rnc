@@ -7,7 +7,7 @@
                     <div class="row">
                         <div class="col-lg-2">
                             <div class="form-group">
-                                <label class="bmd-label-floating label-text" for="dateInstall">Consulta por</label><font color="red"> *</font>
+                                <label class="bmd-label-floating label-text" for="searchFor">Consulta por</label><font color="red"> *</font>
                                 <b-form-select id="searchFor" v-model="searchFor" name="searchFor" :options="searchForOptions" ></b-form-select>
                             </div>
                         </div>
@@ -21,9 +21,9 @@
                                 <b-form-input id="searchValue" v-model="searchValue" name="searchValue" placeholder="Valor de consulta"></b-form-input>
                             </div>
                         </div>
-                        <div class="col-lg-2" v-if="crudType == 'e'">
+                        <div class="col-lg-2" v-if="needRNC">
                             <div class="form-group">
-                                <label class="bmd-label-floating label-text" for="searchValue">
+                                <label class="bmd-label-floating label-text" for="searchValueRNC">
                                     <span>
                                         RNC
                                     </span>   
@@ -154,7 +154,7 @@
                     <div class="scrollable">
                         <v-data-table class="default_color_background" :headers="headersSearch" :items="listaSearch" :search="searchDataTable" :loading="loadingSearch" loading-text="Carregando..." no-data-text="Sem dados disponíveis">
                             <template v-slot:item.detail="{ item }">
-                                <i title="Criar RNC" @click="clickOpenDetail(item);" class="openDetail fa fa-edit"></i>
+                                <i :title="titleDetail" @click="clickOpenDetail(item);" class="openDetail fa fa-edit"></i>
                             </template>
                         </v-data-table>
                     </div>
@@ -176,11 +176,30 @@ export default {
     name: "controlePage",
     props: {
         crudType: {
-            default: "s",
+            default: "invalid",
             type: String
         }
     },
     computed: {
+        titleDetail(){
+            var titleDetail = "";
+            if(this.crudType == 'c'){
+                titleDetail = "Criar RNC";
+            } else
+            if(this.crudType == 't'){
+                titleDetail = "Tratar RNC";
+            } else
+            if(this.crudType == 'v'){
+                titleDetail = "Validar RNC";
+            }
+            return titleDetail;
+        },
+        needRNC(){
+            if(this.crudType == 't' || this.crudType == 'v'){
+                return true;
+            }
+            return false;
+        },
         headersSearch(){
             if(this.searchFor == 'sgi'){
                 return this.headerSgi;
@@ -200,11 +219,11 @@ export default {
             if(this.crudType == 'c'){
                 title = 'Criação de RNC';
             } else
-            if(this.crudType == 'e'){
-                title = 'Edição de RNC';
+            if(this.crudType == 't'){
+                title = 'Tratar RNC';
             } else
-            if(this.crudType == 's'){
-                title = 'Consulta de RNC';
+            if(this.crudType == 'v'){
+                title = 'Validar RNC';
             } else {
                 title = 'RNC';
             }
@@ -358,7 +377,7 @@ export default {
                 queryString += '&codigoEmissao=' + this.searchValue;
             }
 
-            if(this.searchValueRNC && this.crudType == 'e'){
+            if(this.searchValueRNC && this.this.needRNC){
                 queryString += '&codigoRNC=' + this.searchValueRNC;
             }
 
@@ -402,13 +421,13 @@ export default {
                 if(!this.searchValue &&
                 
                 (
-                    (this.crudType == 'e' && !this.searchValueRNC) || (this.crudType != 'e')
+                    (this.needRNC && !this.searchValueRNC) || (this.crudType != 't')
                 )
 
                 ){
                     errors['searchValue'] = 'é obrigatório';
 
-                    if(this.crudType == 'e' && !this.searchValueRNC){
+                    if(this.needRNC && !this.searchValueRNC){
                         errors['searchValueRNC'] = 'é obrigatório';
                     }
                 }
@@ -418,7 +437,7 @@ export default {
                     if(!this.searchValue 
                     && 
                     (
-                        (this.crudType == 'e' && !this.searchValueRNC) || (this.crudType != 'e')
+                        (this.needRNC && !this.searchValueRNC) || (this.crudType != 't')
                     ) 
                     &&
                     // ADVANCED CONDITION
@@ -426,7 +445,7 @@ export default {
 
                         errors['searchValue'] = 'é obrigatório';
 
-                        if(this.crudType == 'e' && !this.searchValueRNC){
+                        if(this.needRNC && !this.searchValueRNC){
                             errors['searchValueRNC'] = 'é obrigatório';
                         }
 
@@ -440,7 +459,7 @@ export default {
                     if(!this.searchValue 
                     && 
                     (
-                        (this.crudType == 'e' && !this.searchValueRNC) || (this.crudType != 'e')
+                        (this.needRNC && !this.searchValueRNC) || (this.crudType != 't')
                     ) 
                     &&
                     // ADVANCED CONDITION
@@ -448,7 +467,7 @@ export default {
 
                         errors['searchValue'] = 'é obrigatório';
 
-                        if(this.crudType == 'e' && !this.searchValueRNC){
+                        if(this.needRNC && !this.searchValueRNC){
                             errors['searchValueRNC'] = 'é obrigatório';
                         }
 
@@ -460,7 +479,7 @@ export default {
                 }
             }
 
-            if(this.searchValue && this.searchValueRNC && this.crudType == 'e'){
+            if(this.searchValue && this.searchValueRNC && this.needRNC){
                 errors['searchValue'] = 'não pode ser preenchido junto a RNC';
                 errors['searchValueRNC'] = 'não pode ser preenchido junto a '+ this.labelValue;
             }

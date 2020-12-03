@@ -58,10 +58,17 @@
                             </v-card-text>
                         </v-card>
                     </v-tab-item>
-                    <v-tab-item :value="'tab-editarRNC'">
+                    <v-tab-item :value="'tab-tratarRNC'">
                         <v-card flat>
                             <v-card-text>
-                                <EditarRNC/>
+                                <TratarRNC/>
+                            </v-card-text>
+                        </v-card>
+                    </v-tab-item>
+                    <v-tab-item :value="'tab-validarRNC'">
+                        <v-card flat>
+                            <v-card-text>
+                                <ValidarRNC/>
                             </v-card-text>
                         </v-card>
                     </v-tab-item>
@@ -86,10 +93,11 @@
 
 <script>
 import CriarRNC from "./criarRNC";
-import EditarRNC from "./editarRNC";
+import TratarRNC from "./tratarRNC";
+import ValidarRNC from "./validarRNC";
 export default {
    name: "rnc",
-   components: { CriarRNC, EditarRNC },
+   components: { CriarRNC, TratarRNC, ValidarRNC },
    data: function() {
     return {
         tab: null,
@@ -99,8 +107,12 @@ export default {
                 text:'Criação RNC'
             },
             {
-                id:"editarRNC",
-                text:'Editar RNC'
+                id:"tratarRNC",
+                text:'Tratar RNC'
+            },
+            {
+                id:"validarRNC",
+                text:"Validar RNC"
             }
         ]
     };
@@ -124,7 +136,6 @@ export default {
 }
 
 #vuetify-tab-content div.v-card.v-sheet div.v-window{
-  background-color: #f7f7f7;
   padding: 10px;
 }
 

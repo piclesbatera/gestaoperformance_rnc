@@ -140,7 +140,7 @@ export default {
         this.listaAnexos[index].loadingAnexo = false;
 
         window.open(url);
-        window.URL.revokeObjectURL();
+        window.URL.revokeObjectURL(url);
       }).catch(error => {
         this.listaAnexos[index].loadingAnexo = false;
         showError(error);
