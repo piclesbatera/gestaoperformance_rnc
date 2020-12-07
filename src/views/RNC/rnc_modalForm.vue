@@ -46,7 +46,8 @@
                                 <v-tab :href="'#detalhes'">Detalhes</v-tab>
                                 <v-tab :href="'#anexos'">Anexos</v-tab>
                                 <v-tab :href="'#irregularidades'">Irregularidades</v-tab>
-                                <v-tab :href="'#prazos'" v-if="visualizaAbaPrazo">Prazos</v-tab>
+                                <v-tab :href="'#prazos'" v-if="previewTabPrazo">Prazos</v-tab>
+                                <v-tab :href="'#evidencias'" v-if="previewTabEvidencias">Evidências</v-tab>
                             </v-tabs>
                             <v-tabs-items v-model="tab">
                                 <!-- Detalhes -->
@@ -141,7 +142,7 @@
                                     <v-card flat>
                                         <v-card-text>
                                             <div class="container-fluid">
-                                                <div class="row">
+                                                <div class="row" v-if="permissionAlterIrregularidades">
                                                     <div class="col-md-12">
                                                         <div class="float-right">
                                                             <v-btn @click="newirregularidade();" class="btn btn-primary form-control" color="blue" dark >
@@ -163,21 +164,23 @@
                                                     <div class="row">
                                                         <b-input-group size="sm" class="m-2">
                                                             <b-input-group-prepend is-text>
-                                                                <v-icon @click="deleteIrregularidade(irregularidade);" title="Remover">mdi-delete</v-icon>
+                                                                <v-icon @click="deleteIrregularidade(irregularidade);" :disabled="!permissionAlterIrregularidades && !irregularidade.id" title="Remover">mdi-delete</v-icon>
                                                             </b-input-group-prepend>
                                                             <b-input-group-prepend is-text>
                                                                 <v-file-input
+                                                                    v-if="!irregularidade.loadingFile"
+                                                                    @change="uploadTempFile(irregularidade, 'irregularidades', listaIrregularidades.indexOf(irregularidade))"
                                                                     hide-input
+                                                                    :disabled="!permissionAlterIrregularidades"
                                                                     v-model="irregularidade.file"
                                                                     :success="irregularidade.file != null"
-                                                                    :id="'file-'+irregularidade.id"
                                                                 ></v-file-input>
+                                                                <v-progress-circular :size="24" v-else indeterminate color="primary" ></v-progress-circular>
                                                             </b-input-group-prepend>
                                                             <b-input-group-prepend is-text>
-                                                                <v-icon v-if="irregularidade.file" title="Download" @click="downloadIrregularidadeFile(irregularidade);">mdi-download</v-icon>
-                                                                <v-icon v-else :disabled="true" title="Download">mdi-download</v-icon>
+                                                                <v-icon :disabled="!irregularidade.file" title="Download" @click="downloadIrregularidadeFile(irregularidade);">mdi-download</v-icon>
                                                             </b-input-group-prepend>
-                                                            <b-form-input :id="'descricaoAnexoIrregularidades-'+irregularidade.id" v-model="irregularidade.descricaoAnexoIrregularidades" placeholder="descrição" style="height: 100%;"></b-form-input>
+                                                            <b-form-input v-model="irregularidade.descricaoAnexoIrregularidade" placeholder="descrição" style="height: 100%;"></b-form-input>
                                                         </b-input-group>
                                                     </div>
                                                 </div>
@@ -189,7 +192,7 @@
 
 
                                 <!-- Prazos -->
-                                <v-tab-item :value="'prazos'" v-if="visualizaAbaPrazo">
+                                <v-tab-item :value="'prazos'" v-if="previewTabPrazo">
                                     <v-card flat>
                                         <v-card-text>
                                             <div class="container-fluid">
@@ -243,6 +246,62 @@
                                         </v-card-text>
                                     </v-card>
                                 </v-tab-item>
+
+
+                                 <!-- Evidências -->
+                                <v-tab-item :value="'evidencias'" v-if="previewTabEvidencias">
+                                    <v-card flat>
+                                        <v-card-text>
+                                            <div class="container-fluid">
+                                                <div class="row" v-if="permissionAlterEvidencias">
+                                                    <div class="col-md-12">
+                                                        <div class="float-right">
+                                                            <v-btn @click="newEvidencia();" class="btn btn-primary form-control" color="blue" dark >
+                                                                <v-icon dark left>
+                                                                    mdi-plus
+                                                                </v-icon>
+                                                                Novo
+                                                            </v-btn>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <v-divider></v-divider>
+                                                <div v-for="evidencia in listaEvidencias" :key="evidencia.id">
+                                                    <div class="row">
+                                                        <div class="col-lg-12">
+                                                            <h6 v-if="evidencia.file">{{evidencia.file.name}}</h6>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <b-input-group size="sm" class="m-2">
+                                                            <b-input-group-prepend is-text>
+                                                                <v-icon @click="deleteEvidencia(evidencia);" :disabled="!permissionAlterEvidencias" title="Remover">mdi-delete</v-icon>
+                                                            </b-input-group-prepend>
+                                                            <b-input-group-prepend is-text>
+                                                                <v-file-input
+                                                                    v-if="!evidencia.loadingFile"
+                                                                    @change="uploadTempFile(evidencia, 'evidencias', listaEvidencias.indexOf(evidencia))"
+                                                                    hide-input
+                                                                    :disabled="!permissionAlterEvidencias"
+                                                                    v-model="evidencia.file"
+                                                                    :success="evidencia.file != null"
+                                                                ></v-file-input>
+                                                                <v-progress-circular :size="24" v-else indeterminate color="primary" ></v-progress-circular>
+                                                            </b-input-group-prepend>
+                                                            <b-input-group-prepend is-text>
+                                                                <v-icon v-if="evidencia.file" title="Download" @click="downloadEvidenciaFile(evidencia);">mdi-download</v-icon>
+                                                                <v-icon v-else :disabled="true" title="Download">mdi-download</v-icon>
+                                                            </b-input-group-prepend>
+                                                            <b-form-input v-model="evidencia.descricaoAnexoEvidencia" placeholder="descrição" style="height: 100%;"></b-form-input>
+                                                        </b-input-group>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </v-card-text>
+                                    </v-card>
+                                </v-tab-item>
+
+
                             </v-tabs-items>
                         </v-card>
                     </div>
@@ -259,7 +318,7 @@
 <script>
 import Anexos_modalView from './anexos_modalView'
 import ObservacoesHistory_modalView from './observacoesHistory_modalView'
-import { baseApi, showError, caracteresAEsquerda, getDateCalculated } from "@/global";
+import { baseApi, showError, getDateCalculated } from "@/global";
 import axios from "axios";
 export default {
     name: "rnc_modalForm",
@@ -299,28 +358,33 @@ export default {
 
         return title;
     },
-    visualizaAbaPrazo(){
+    previewTabPrazo(){
         if(this.crudType == 't' || this.crudType == 'v'){
             return true;
         }
         return false;
+    },
+    previewTabEvidencias(){
+        return ((Array.isArray(this.listaPrazos) && this.listaPrazos.length) && (this.listaPrazos[this.listaPrazos.length - 1].state == true) && (this.crudType == 'v' || this.crudType == 't'));
+    },
+    permissionAlterEvidencias(){
+        return ((Array.isArray(this.listaPrazos) && this.listaPrazos.length) && (this.listaPrazos[this.listaPrazos.length - 1].state == true) && (this.crudType == 't'));
+    },
+    permissionAlterIrregularidades(){
+        return ((this.crudType == 'c' || this.crudType == 'v'));
     }
   },
   data: function() {
     return {
         loadingSave: false,
         havingPrazoToAccept: false,
-        listaIrregularidades: [
-            {
-                id: 0,
-                descricaoAnexoIrregularidades: "",
-                file: null
-            }
-        ],
+        listaIrregularidades: null,
+        listaEvidencias: null,
         listaPrazos: [
             {
                 id: 1,
                 codigo: '001',
+                dataCadastro: "2020-12-04",
                 dataPrazo: "2020-12-20",
                 state: false,
                 observacaoPrazo: "Observação de teste - 001"
@@ -328,6 +392,7 @@ export default {
             {
                 id: 2,
                 codigo: '002',
+                dataCadastro: "2020-12-04",
                 dataPrazo: "2020-12-15",
                 state: true,
                 observacaoPrazo: "Observação de teste - 002"
@@ -382,6 +447,24 @@ export default {
     }
   },
   methods: {
+        uploadTempFile(object, folder, index){
+            let formData = new FormData();
+            formData.append('file', object.file);
+
+            var queryString = (index) ? `?index=${index}` : "";
+
+            var url = `${baseApi}/upload/temp/${folder}${queryString}`;
+
+            object.loadingFile = true;
+
+            axios.post(url, formData, { headers: {'Content-Type': 'multipart/form-data'} }).then(res => {
+                object.loadingFile = false;
+            }).catch(error => {
+                object.file = null;
+                object.loadingFile = false;
+                showError(error);
+            });
+        },
         salvar(){
             this.loadingSave = true;
             setTimeout(
@@ -418,24 +501,67 @@ export default {
             return enableObservacaoPrazo;
         },
         downloadIrregularidadeFile(irregularidade){
-            const index = this.listaIrregularidades.indexOf(irregularidade);
-            var irregularidadeFile = this.listaIrregularidades[index].file;
+            var irregularidadeFile = irregularidade.file;
 
             const url = window.URL.createObjectURL(irregularidadeFile);
-            window.open(url);
+            var a = document.createElement("a");
+            a.href = url;
+            a.download = irregularidadeFile.name;
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+            // window.open(url);
         },
         newirregularidade(){
-        var irregularidade = {
-            id: 0,
-            descricaoAnexoIrregularidades: "",
-            file: null
-        };
-        this.listaIrregularidades.push(irregularidade);
-        
+            if(this.permissionAlterIrregularidades){
+                if(!this.listaIrregularidades){
+                    this.listaIrregularidades = [];
+                }
+
+                var irregularidade = {
+                    id: null,
+                    descricaoAnexoIrregularidade: "",
+                    file: null,
+                    loadingFile: false
+                };
+                this.listaIrregularidades.push(irregularidade);
+            }
+            
         },
         deleteIrregularidade(irregularidade){
             const index = this.listaIrregularidades.indexOf(irregularidade);
             this.listaIrregularidades.splice(index, 1);
+        },
+        downloadEvidenciaFile(evidencia){
+            var evidenciaFile = evidencia.file;
+
+            const url = window.URL.createObjectURL(evidenciaFile);
+            var a = document.createElement("a");
+            a.href = url;
+            a.download = evidenciaFile.name;
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+            // window.open(url);
+        },
+        newEvidencia(){
+            if(this.previewTabEvidencias && this.permissionAlterEvidencias){
+                if(!this.listaEvidencias){
+                    this.listaEvidencias = [];
+                }
+
+                var evidencia = {
+                    id: null,
+                    descricaoAnexoEvidencia: "",
+                    file: null,
+                    loadingFile: false
+                };
+                this.listaEvidencias.push(evidencia);
+            }
+        },
+        deleteEvidencia(evidencia){
+            const index = this.listaEvidencias.indexOf(evidencia);
+            this.listaEvidencias.splice(index, 1);
         },
         getDocumentacao(){
             this.loadingDocumentacao = true;
@@ -453,17 +579,23 @@ export default {
                 showError(error);
             });
         },
-        inicializaTratarRNC(){
+        initCriacaoRNC(){
+            if(this.crudType == 'c'){
+                this.initIrregularidades();
+            }
+        },
+        initTratarRNC(){
             if(this.crudType == 't'){
-            this.criaPrazos();
+                this.criaPrazos();
+                this.initEvidencias();
             }
         },
         criaPrazos(){
             var minDate = new Date();
             if(Array.isArray(this.listaPrazos) && this.listaPrazos.length){
                 if(this.listaPrazos[this.listaPrazos.length - 1].state == false){
-                    var codigo = parseInt(this.listaPrazos[this.listaPrazos.length - 1].codigo) + 1;
-                    codigo = caracteresAEsquerda(codigo, 3);
+                    var codigo = (parseInt(this.listaPrazos[this.listaPrazos.length - 1].codigo) + 1).toString();
+                    codigo = codigo.padStart(3, "0");
                     var maxDate = getDateCalculated(this.listaPrazos[this.listaPrazos.length-1].dataPrazo, -5);
                     var prazoEstendido = {
                         id: null,
@@ -484,15 +616,23 @@ export default {
                         dataPrazo: "",
                         state: null,
                         observacaoPrazo: "",
-                        minDate: minDate
+                        minDate: minDate,
+                        createdDate: new Date()
                     }
                 ];
             }
         },
-        inicializaValidarRNC(){
+        initValidarRNC(){
             if(this.crudType == 'v'){
                 this.initHavingPrazoToAccept();
+                this.initIrregularidades();
             }
+        },
+        initIrregularidades(){
+            this.newirregularidade();
+        },
+        initEvidencias(){
+            this.newEvidencia()
         },
         observationField(prazo){
             return this.crudType == 'v' || (this.crudType == 't' && prazo.state != null);
@@ -510,8 +650,9 @@ export default {
   },
   created: function(){
       this.getDocumentacao();
-      this.inicializaTratarRNC();
-      this.inicializaValidarRNC();
+      this.initCriacaoRNC();
+      this.initTratarRNC();
+      this.initValidarRNC();
   }
 }
 </script>

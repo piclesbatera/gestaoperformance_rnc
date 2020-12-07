@@ -139,12 +139,27 @@ export default {
         const url = window.URL.createObjectURL(response.data);
         this.listaAnexos[index].loadingAnexo = false;
 
-        window.open(url);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = arquivo;
+        a.click();
+        a.remove();
         window.URL.revokeObjectURL(url);
       }).catch(error => {
         this.listaAnexos[index].loadingAnexo = false;
         showError(error);
       });
+
+      // axios({ url: url, method: 'GET'}).then(function(response) {
+      //     var blob = new Blob([response.data], {
+      //           type: response.data.type
+      //     });
+      //     var url = window.URL.createObjectURL(blob)
+      //     window.open(url);
+      //   })
+      //   .catch(function(error) {
+      //         console.log(error)
+      // });
 
       
     },

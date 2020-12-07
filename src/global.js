@@ -95,11 +95,6 @@ export function cleanErrorsScope(scope){
 
 }
 
-export function caracteresAEsquerda(string, maxLength, caracter) {
-  var length = maxLength - string.toString().length + 1;
-  return Array(length).join(caracter || '0') + string;
-}
-
 export function getDateCalculated(dateStr, calc){
   var vDate = new Date(dateStr);
   var dateTimeConvertedTimeZone = new Date( vDate.getTime() + ( vDate.getTimezoneOffset() * 60000 ) );
