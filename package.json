@@ -16,6 +16,7 @@
     "font-awesome": "^4.7.0",
     "jquery": "^3.5.1",
     "mutationobserver-shim": "^0.3.7",
+    "object-to-formdata": "^4.1.0",
     "popper.js": "^1.16.1",
     "register-service-worker": "^1.7.1",
     "vue": "^2.6.11",
