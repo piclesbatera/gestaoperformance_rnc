@@ -60,7 +60,15 @@ input.invalid-element:focus{
 .no-outline-focus:focus{
     outline: 0px;
 }
+
+button:focus{
+    outline: 0px;
+}
   
+div.v-card.v-sheet{
+    background-color: #f7f7f7;
+}
+
 div.v-dialog.v-dialog--active.dialog{
     padding: 0px;
     margin-right: 1rem;

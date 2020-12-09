@@ -181,7 +181,7 @@ export default {
         }
     },
     computed: {
-        titleDetail(){
+        titleDetail: function(){
             var titleDetail = "";
             if(this.crudType == 'c'){
                 titleDetail = "Criar RNC";
@@ -194,27 +194,27 @@ export default {
             }
             return titleDetail;
         },
-        needRNC(){
+        needRNC: function(){
             if(this.crudType == 't' || this.crudType == 'v'){
                 return true;
             }
             return false;
         },
-        headersSearch(){
+        headersSearch: function(){
             if(this.searchFor == 'sgi'){
                 return this.headerSgi;
             } else {
                 return this.headerSgp;
             }
         },
-        listaSearch(){
+        listaSearch: function(){
             if(this.searchFor == 'sgi'){
                 return this.sgiSearchResult;
             } else {
                 return this.sgpSearchResult;
             }
         },
-        pageTitle(){
+        pageTitle: function(){
             var title = "RNC";
             if(this.crudType == 'c'){
                 title = 'Criação de RNC';
@@ -230,7 +230,7 @@ export default {
 
             return title;
         },
-        labelValue(){
+        labelValue: function(){
             var label = "GL";
 
             if(this.searchFor == 'sgi'){

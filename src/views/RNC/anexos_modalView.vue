@@ -6,7 +6,7 @@
         <v-toolbar color="blue" dark>
             <v-toolbar-title>Anexos</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn class="ma-2 no-outline-focus" icon @click.stop="show=false" title="Fechar" >
+            <v-btn class="ma-2" icon @click.stop="show=false" title="Fechar" >
                 <v-icon>fa fa-times</v-icon>
             </v-btn>
         </v-toolbar>
@@ -194,10 +194,6 @@ export default {
 hr{
     margin-top: 5px;
     margin-bottom: 5px;
-}
-
-div.v-card.v-sheet{
-  background-color: #f7f7f7;
 }
 
 .openDetail{

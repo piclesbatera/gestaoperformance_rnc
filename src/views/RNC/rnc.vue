@@ -51,24 +51,10 @@
 
 
                     <!-- CONTROLE RNC -->
-                    <v-tab-item :value="'tab-criacaoRNC'">
+                    <v-tab-item v-for="(rnc, index) in controleRNC" :key="index" :value="'tab-'+rnc.id">
                         <v-card flat>
                             <v-card-text>
-                                <CriarRNC/>
-                            </v-card-text>
-                        </v-card>
-                    </v-tab-item>
-                    <v-tab-item :value="'tab-tratarRNC'">
-                        <v-card flat>
-                            <v-card-text>
-                                <TratarRNC/>
-                            </v-card-text>
-                        </v-card>
-                    </v-tab-item>
-                    <v-tab-item :value="'tab-validarRNC'">
-                        <v-card flat>
-                            <v-card-text>
-                                <ValidarRNC/>
+                                <ControlePage :crudType="rnc.crudType"/>
                             </v-card-text>
                         </v-card>
                     </v-tab-item>
@@ -92,27 +78,28 @@
 </template>
 
 <script>
-import CriarRNC from "./criarRNC";
-import TratarRNC from "./tratarRNC";
-import ValidarRNC from "./validarRNC";
+import ControlePage from "./controlePage";
 export default {
    name: "rnc",
-   components: { CriarRNC, TratarRNC, ValidarRNC },
+   components: { ControlePage },
    data: function() {
     return {
         tab: null,
         controleRNC: [
             {
                 id:"criacaoRNC",
-                text:'Criação RNC'
+                text:'Criação RNC',
+                crudType: 'c'
             },
             {
                 id:"tratarRNC",
-                text:'Tratar RNC'
+                text:'Tratar RNC',
+                crudType: 't'
             },
             {
                 id:"validarRNC",
-                text:"Validar RNC"
+                text:"Validar RNC",
+                crudType: 'v'
             }
         ]
     };
@@ -125,27 +112,17 @@ export default {
 <style scoped>
 
 #vuetify-tab-content div.v-card.v-sheet{
-  background-color: #f7f7f7;
   min-height: 100%;
 }
 
 #vuetify-tab-content{
     height: 100%;
     max-width: 100%;
-    background-color: #f7f7f7;
 }
 
 #vuetify-tab-content div.v-card.v-sheet div.v-window{
   padding: 10px;
 }
 
-
-</style>
-
-<style>
-
-#vuetify-tab-content div.v-application--wrap {
-  min-height: 100%;
-}
 
 </style>
