@@ -38,7 +38,7 @@
                     <b-input-group-prepend is-text>
                         <v-icon :disabled="!object.file" title="Download" @click="downloadFile(object);">mdi-download</v-icon>
                     </b-input-group-prepend>
-                    <b-form-input v-model="object.descricaoAnexo" placeholder="descrição" style="height: 100%;"></b-form-input>
+                    <b-form-input v-model="object.descricaoAnexo" :disabled="!permissionAlterComponent" placeholder="descrição" style="height: 100%;"></b-form-input>
                 </b-input-group>
             </div>
         </div>
@@ -54,15 +54,31 @@ export default {
 
     },
     props: {
-        permissionAlterComponent: Boolean,
-        newObject: Object,
-        listObject: Array,
+        value: {
+            type: Array,
+            default: () => []
+        },
+        permissionAlterComponent: {
+            type: Boolean,
+            default: true
+        },
+        newObjectString: {
+            type: String,
+            default: '{ "id": null,  "descricaoAnexo": "", "file": null, "filename": null, "loadingFile": false }'
+        },
         folder: String,
         id: String,
         initialRow: Boolean
     },
     computed: {
-
+        listObject: {
+            get () {
+                return this.value
+            },
+            set (value) {
+                this.$emit('input', value);
+            }
+        }
     },
   data: function() {
     return {
@@ -138,7 +154,6 @@ export default {
             a.click();
             a.remove();
             window.URL.revokeObjectURL(url);
-            // window.open(url);
         },
         newRow(){
             if(this.permissionAlterComponent){
@@ -146,9 +161,12 @@ export default {
                     this.listObject = [];
                 }
 
-                var object = (this.newObject) ? JSON.parse(this.newObject) : {};
+                var object = (this.newObjectString) ? JSON.parse(this.newObjectString) : {};
 
-                this.listObject.push(object);
+                var componentListObject = this.listObject;
+                componentListObject.push(object);
+
+                this.listObject = componentListObject;
             }
             
         },

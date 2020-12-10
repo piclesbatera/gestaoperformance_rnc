@@ -2,11 +2,12 @@
         <div id="vuetify-tab-content">
             <v-card>
                 <v-tabs
+                    hide-slider
                     v-model="tab"
                     dark
                     background-color="blue"
                     show-arrows>
-                    <v-tabs-slider style="display:none;" color="teal lighten-4"></v-tabs-slider>
+                    <v-tabs-slider color="teal lighten-4"></v-tabs-slider>
                     
                     <v-tab :href="'#tab-dashboard'" >Dashboard</v-tab>
                     
@@ -35,13 +36,37 @@
                             </v-list>
                     </v-menu>
                     
-                    <v-tab :href="'#tab-empreiteiraRNC'" >Empreitera RNC</v-tab>
+                    <v-menu offset-y v-if="empreiteiraRNC.length">
+                            <template v-slot:activator="{ on, attrs }">
+                                <a
+                                class="v-tab"
+                                v-bind="attrs"
+                                v-on="on">
+                                    Empreiteira RNC
+                                    <v-icon right>
+                                        mdi-menu-down
+                                    </v-icon>
+                                </a>
+                            </template>
+                
+                            <v-list class="grey lighten-3">
+                                <v-tab 
+                                    v-for="item in empreiteiraRNC"
+                                    :key="item.id"
+                                    :href="'#tab-' + item.id">
+                                    <v-list-item>
+                                        {{ item.text }}
+                                    </v-list-item>
+                                </v-tab>
+                            </v-list>
+                    </v-menu>
+
                     <v-tab :href="'#tab-relatorios'" >Relatórios</v-tab>
 
                     
 
                 </v-tabs>
-                <v-tabs-items v-model="tab">
+                <v-tabs-items v-model="tab" touchless>
                     <!-- DASHBOARD -->
                     <v-tab-item :value="'tab-dashboard'">
                         <v-card flat>
@@ -51,21 +76,24 @@
 
 
                     <!-- CONTROLE RNC -->
-                    <v-tab-item v-for="(rnc, index) in controleRNC" :key="index" :value="'tab-'+rnc.id">
+                    <v-tab-item v-for="(rnc) in controleRNC" :key="rnc.id" :value="'tab-'+rnc.id">
                         <v-card flat>
                             <v-card-text>
-                                <ControlePage :crudType="rnc.crudType"/>
+                                <RncPage :crudType="rnc.crudType"/>
                             </v-card-text>
                         </v-card>
                     </v-tab-item>
 
 
                     <!-- EMPREITERA RNC -->
-                    <v-tab-item :value="'tab-empreiteiraRNC'">
+                    <v-tab-item v-for="(rnc) in empreiteiraRNC" :key="rnc.id" :value="'tab-'+rnc.id">
                         <v-card flat>
-                            <v-card-text>Empreitera RNC</v-card-text>
+                            <v-card-text>
+                                <RncPage :crudType="rnc.crudType"/>
+                            </v-card-text>
                         </v-card>
                     </v-tab-item>
+
                     <!-- RELATÓRIOS -->
                     <v-tab-item :value="'tab-relatorios'">
                         <v-card flat>
@@ -78,10 +106,10 @@
 </template>
 
 <script>
-import ControlePage from "./controlePage";
+import RncPage from "./rncPage";
 export default {
    name: "rnc",
-   components: { ControlePage },
+   components: { RncPage },
    data: function() {
     return {
         tab: null,
@@ -92,14 +120,16 @@ export default {
                 crudType: 'c'
             },
             {
-                id:"tratarRNC",
-                text:'Tratar RNC',
-                crudType: 't'
-            },
-            {
                 id:"validarRNC",
                 text:"Validar RNC",
                 crudType: 'v'
+            }
+        ],
+        empreiteiraRNC: [
+            {
+                id:"tratarRNC",
+                text:'Tratar RNC',
+                crudType: 't'
             }
         ]
     };

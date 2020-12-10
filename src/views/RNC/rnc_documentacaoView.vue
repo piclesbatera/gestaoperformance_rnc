@@ -44,7 +44,7 @@ import Anexos_modalView from './anexos_modalView'
 import { baseApi, showError } from "@/global";
 import axios from "axios";
 export default {
-    name: "rnc_anexos_modalForm",
+    name: "rnc_documentacaoView",
     components: {
         Anexos_modalView
     },

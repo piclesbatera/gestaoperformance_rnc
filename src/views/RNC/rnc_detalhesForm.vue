@@ -58,66 +58,7 @@
                                     <!-- ICONS -->
                                 </v-expansion-panel-header>
                                 <v-expansion-panel-content>
-                                    <v-tabs v-model="row.tab" light background-color="#f7f7f7" show-arrows>
-                                        <v-tabs-slider color="#cbc6c6"></v-tabs-slider>
-                                
-                                        <v-tab :href="'#motivos'">Motivos</v-tab>
-                                        <v-tab :href="'#evidencias'">Evidencias</v-tab>
-                                    </v-tabs>
-                                    <v-tabs-items v-model="row.tab">
-                                        <!-- Motivos -->
-                                        <v-tab-item :value="'motivos'">
-                                            <v-card flat>
-                                                <v-card-text>
-                                                    <div class="row">
-                                                        <div class="col-lg-5">
-                                                            <div class="form-group">
-                                                                <label class="bmd-label-floating label-text" for="motivo">Motivo</label><font color="red"> *</font>
-                                                                <b-form-select :disabled="true" id="motivo" v-model="row.motivo" :options="motivos" ></b-form-select>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-lg-5">
-                                                            <div class="form-group">
-                                                                <label class="bmd-label-floating label-text" for="tipo">Tipo</label><font color="red"> *</font>
-                                                                <b-form-select :disabled="true" id="tipo" v-model="row.tipo" :options="tipos" ></b-form-select>
-                                                            </div>
-                                                        </div>
-                                                        <template v-if="crudType == 'v' && row.initStatus == null">
-                                                            <div class="col-lg-1">
-                                                                <div class="form-group">
-                                                                    <label class="bmd-label-floating blank-label"></label>
-                                                                    <v-btn class="btn btn-danger form-control" color="red" dark @click="row.status = false;">
-                                                                        <v-icon dark >
-                                                                            mdi-cancel
-                                                                        </v-icon>
-                                                                    </v-btn>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-1">
-                                                                <div class="form-group">
-                                                                    <label class="bmd-label-floating blank-label"></label>
-                                                                    <v-btn class="btn btn-primary form-control" color="blue" dark @click="row.status = true;">
-                                                                        <v-icon dark >
-                                                                            mdi-checkbox-marked-circle
-                                                                        </v-icon>
-                                                                    </v-btn>
-                                                                </div>
-                                                            </div>
-                                                        </template>
-                                                    </div>
-                                                </v-card-text>
-                                            </v-card>
-                                        </v-tab-item>
-
-                                        <!-- Evidências -->
-                                        <v-tab-item :value="'evidencias'">
-                                            <v-card flat>
-                                                <v-card-text>
-                                                    Evidencias
-                                                </v-card-text>
-                                            </v-card>
-                                        </v-tab-item>
-                                    </v-tabs-items>
+                                    <Rnc_detalhes_tabsMotivoForm  :motivo="row" :crudType="crudType" />
                                 </v-expansion-panel-content>
                             </v-expansion-panel>
                         </v-expansion-panels>
@@ -171,16 +112,26 @@
 
 <script>
 import ObservacoesHistory_modalView from './observacoesHistory_modalView'
+import Rnc_detalhes_tabsMotivoForm from './rnc_detalhes_tabsMotivoForm'
 export default {
-    name: "rnc_detalhes_modalForm",
+    name: "rnc_detalhesForm",
     components: {
-        ObservacoesHistory_modalView
+        ObservacoesHistory_modalView,
+        Rnc_detalhes_tabsMotivoForm
     },
     props: {
-        detalhes: Object,
+        value: Object,
         crudType: String
     },
     computed: {
+        detalhes: {
+            get () {
+                return this.value
+            },
+            set (value) {
+                this.$emit('input', value);
+            }
+        },
         desabilitaDetalhes: function(){
             if(this.crudType != 'c'){
                 return true;
@@ -190,7 +141,6 @@ export default {
     },
   data: function() {
     return {
-        tab: null,
         showObservacoesHistory_modalView: false,
         areasDemandantes: [
             { "value": null, "text": "Selecione uma área demandante" },

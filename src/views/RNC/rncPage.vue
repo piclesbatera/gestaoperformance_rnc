@@ -173,7 +173,7 @@ import tipoAcionamentoOptions from "@/assets/json/sgp/tipoAcionamento.json";
 import UFOptions from "@/assets/json/brasil/UF.json";
 
 export default {
-    name: "controlePage",
+    name: "rncPage",
     props: {
         crudType: {
             default: "invalid",

@@ -1,6 +1,6 @@
 <template>
 <!-- INICIA RNC MODAL FORM -->
-<v-dialog v-model="show" content-class="container dialog" >
+<v-dialog v-model="show"  content-class="container dialog" >
   <v-layout justify-center>
       <v-flex>
         <v-toolbar color="blue" dark>
@@ -47,14 +47,13 @@
                                     <v-tab :href="'#detalhes'">Detalhes</v-tab>
                                     <v-tab :href="'#anexos'">Anexos</v-tab>
                                     <v-tab :href="'#irregularidades'">Irregularidades</v-tab>
-                                    <v-tab :href="'#prazos'" v-if="previewTabPrazo">Prazos</v-tab>
                                 </v-tabs>
-                                <v-tabs-items v-model="tab">
+                                <v-tabs-items v-model="tab" touchless>
                                     <!-- Detalhes -->
                                     <v-tab-item :value="'detalhes'">
                                         <v-card flat>
                                             <v-card-text>
-                                                <Rnc_detalhes_modalForm :detalhes="detalhes" :crudType="crudType" />
+                                                <Rnc_detalhesForm v-model="detalhes" :crudType="crudType" />
                                             </v-card-text>
                                         </v-card>
                                     </v-tab-item>
@@ -64,7 +63,7 @@
                                     <v-tab-item :value="'anexos'">
                                         <v-card flat>
                                             <v-card-text>
-                                                <Rnc_anexos_modalForm :codigoGrupoFila="codigoGrupoFila" :sg="sg" :codigoSg="codigoSg" :crudType="crudType"/>
+                                                <Rnc_documentacaoView :codigoGrupoFila="codigoGrupoFila" :sg="sg" :codigoSg="codigoSg" :crudType="crudType"/>
                                             </v-card-text>
                                         </v-card>
                                     </v-tab-item>
@@ -74,59 +73,7 @@
                                     <v-tab-item :value="'irregularidades'">
                                         <v-card flat>
                                             <v-card-text>
-                                                <Rnc_uploadDetailForm :initialRow="permissionAlterIrregularidades" :newObject="newIrregularidadeObject" :permissionAlterComponent="permissionAlterIrregularidades" :listObject="listaIrregularidades" :folder="'irregularidades'" />
-                                            </v-card-text>
-                                        </v-card>
-                                    </v-tab-item>
-
-
-
-                                    <!-- Prazos -->
-                                    <v-tab-item :value="'prazos'" v-if="previewTabPrazo">
-                                        <v-card flat>
-                                            <v-card-text>
-                                                <div class="container-fluid">
-                                                    <div v-for="prazo in listaPrazos" :key="prazo.codigo">
-                                                        <div class="row">
-                                                            <div class="col-lg-6" >
-                                                                <div class="form-group">
-                                                                    <label class="bmd-label-floating label-text" :for="'dataPrazo_'+prazo.codigo">Prazo</label><font color="red" v-if="crudType == 't'"> *</font>
-                                                                    <b-form-datepicker :min="prazo.minDate" :max="prazo.maxDate" :state="prazo.state" :disabled="crudType == 'v' || prazo.state != null" :id="'dataPrazo_'+prazo.codigo" v-model="prazo.dataPrazo" v-bind="datePickerLabels" locale="pt-BR" class="mb-2"
-                                                                        :date-format-options="{
-                                                                            year: 'numeric',
-                                                                            month: 'numeric',
-                                                                            day: 'numeric'
-                                                                        }"></b-form-datepicker>
-                                                                </div>
-                                                            </div>
-                                                            <template v-if="validationButtonsPrazo(prazo)">
-                                                                <div class="col-lg-3">
-                                                                    <div class="form-group">
-                                                                        <label class="bmd-label-floating blank-label"></label>
-                                                                        <v-btn class="btn btn-danger form-control" color="red" dark @click="prazo.state = false;">
-                                                                            Rejeitar
-                                                                            <v-icon dark right >
-                                                                                mdi-cancel
-                                                                            </v-icon>
-                                                                        </v-btn>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-lg-3">
-                                                                    <div class="form-group">
-                                                                        <label class="bmd-label-floating blank-label"></label>
-                                                                        <v-btn class="btn btn-primary form-control" color="blue" dark @click="prazo.state = true;">
-                                                                            Aceitar
-                                                                            <v-icon dark right >
-                                                                                mdi-checkbox-marked-circle
-                                                                            </v-icon>
-                                                                        </v-btn>
-                                                                    </div>
-                                                                </div>
-                                                            </template>
-                                                        </div>
-                                                        <v-divider></v-divider>
-                                                    </div>
-                                                </div>
+                                                <Rnc_uploadDetailForm :initialRow="permissionAlterIrregularidades" :newObject="newIrregularidadeObject" :permissionAlterComponent="permissionAlterIrregularidades" v-model="listaIrregularidades" :folder="'irregularidades'" />
                                             </v-card-text>
                                         </v-card>
                                     </v-tab-item>
@@ -143,16 +90,16 @@
 </template>
 
 <script>
-import Rnc_detalhes_modalForm from './rnc_detalhes_modalForm'
-import Rnc_anexos_modalForm from './rnc_anexos_modalForm'
+import Rnc_detalhesForm from './rnc_detalhesForm'
+import Rnc_documentacaoView from './rnc_documentacaoView'
 import Rnc_uploadDetailForm from './rnc_uploadDetailForm'
-import { baseApi, showError, getDateCalculated } from "@/global";
+import { baseApi, showError } from "@/global";
 import axios from "axios";
 export default {
     name: "rnc_modalForm",
     components: {
-        Rnc_detalhes_modalForm,
-        Rnc_anexos_modalForm,
+        Rnc_detalhesForm,
+        Rnc_documentacaoView,
         Rnc_uploadDetailForm
     },
     props: {
@@ -187,18 +134,6 @@ export default {
 
             return title;
         },
-        previewTabPrazo: function(){
-            if(this.crudType == 't' || this.crudType == 'v'){
-                return true;
-            }
-            return false;
-        },
-        previewTabEvidencias: function(){
-            return ((Array.isArray(this.listaPrazos) && this.listaPrazos.length) && (this.listaPrazos[this.listaPrazos.length - 1].state == true) && (this.crudType == 'v' || this.crudType == 't'));
-        },
-        permissionAlterEvidencias: function(){
-            return ((Array.isArray(this.listaPrazos) && this.listaPrazos.length) && (this.listaPrazos[this.listaPrazos.length - 1].state == true) && (this.crudType == 't'));
-        },
         permissionAlterIrregularidades: function(){
             return ((this.crudType == 'c' || this.crudType == 'v'));
         },
@@ -211,7 +146,6 @@ export default {
         dealRequestData: function(){
             var requestData = {};
             requestData['listaMotivos'] = this.detalhes.listaMotivos;
-            requestData['prazos'] = this.prazos;
             return requestData;
         },
         validateRequestData: function(){
@@ -263,39 +197,15 @@ export default {
   data: function() {
     return {
         loadingSave: false,
-        havingPrazoToAccept: false,
-        listaIrregularidades: null,
+        listaIrregularidades: [],
         newIrregularidadeObject: '{ "id": null,  "descricaoAnexo": "", "file": null, "filename": null, "loadingFile": false }',
-        listaEvidencias: null,
-        newEvidenciaObject: '{ "id": null,  "descricaoAnexo": "", "file": null, "filename": null, "loadingFile": false }',
-        listaPrazos: [
-            // {
-            //     id: 1,
-            //     codigo: '001',
-            //     dataCadastro: "2020-12-04",
-            //     dataPrazo: "2020-12-20",
-            //     state: false
-            // },
-            // {
-            //     id: 2,
-            //     codigo: '002',
-            //     dataCadastro: "2020-12-04",
-            //     dataPrazo: "2020-12-15",
-            //     state: true
-            // },
-            // {
-            //     id: 3,
-            //     codigo: '003',
-            //     dataPrazo: "2020-12-10",
-            //     state: null
-            // }
-        ],
         tab: null,
         detalhes: {
             areaDemandante: null,
             classificacao: null,
             listaMotivos: [
                 {
+                    id: 1,
                     motivo: 1,
                     tipo: 3,
                     status: null,
@@ -306,9 +216,32 @@ export default {
                             file: null,
                             loadingFile: false
                         }
+                    ],
+                    listaPrazos: [
+                        {
+                            id: 1,
+                            codigo: '001',
+                            dataCadastro: "2020-12-04",
+                            dataPrazo: "2020-12-20",
+                            state: false
+                        },
+                        {
+                            id: 2,
+                            codigo: '002',
+                            dataCadastro: "2020-12-08",
+                            dataPrazo: "2020-12-15",
+                            state: true
+                        },
+                        // {
+                        //     id: 3,
+                        //     codigo: '003',
+                        //     dataPrazo: "2020-12-10",
+                        //     state: null
+                        // }
                     ]
                 },
                 {
+                    id: 2,
                     motivo: 2,
                     tipo: 1,
                     status: true,
@@ -322,28 +255,14 @@ export default {
                     ]
                 },
                 {
+                    id: 3,
                     motivo: 1,
                     tipo: 3,
                     status: null
                 }
             ],
             observacoes: null,
-        },
-        datePickerLabels: {
-        labelPrevDecade: "Década anterior",
-        labelPrevYear: "Ano anterior",
-        labelPrevMonth: "Mês passado",
-        labelCurrentMonth: "Mês atual",
-        labelNextMonth: "Próximo mês",
-        labelNextYear: "Próximo ano",
-        labelNextDecade: "Próxima década",
-        labelToday: "Hoje",
-        labelSelected: "Data selecionada",
-        labelNoDateSelected: "Sem data escolhida",
-        labelCalendar: "Calendário",
-        labelNav: "Navegação no calendário",
-        labelHelp: "Navegue pelo calendário com as setas do teclado"
-      }
+        }
     }
   },
   methods: {
@@ -391,69 +310,20 @@ export default {
                 showError(error);
             }
         },
-        initHavingPrazoToAccept(){
-            if( this.crudType == 'v' && (this.listaPrazos[this.listaPrazos.length-1] && this.listaPrazos[this.listaPrazos.length-1].state == null) ){
-                this.havingPrazoToAccept = true;
-            }
-        },
-        validationButtonsPrazo(prazo){
-            const index = this.listaPrazos.indexOf(prazo);
-            var showValidationButtonsPrazo = 
-            (
-                (this.havingPrazoToAccept)
-                &&
-                (index == (this.listaPrazos.length-1))
-            );
-            return showValidationButtonsPrazo;
-        },
         initCriacaoRNC(){
             // if(this.crudType == 'c'){
                 
             // }
         },
         initTratarRNC(){
-            if(this.crudType == 't'){
-                this.criaPrazos();
-            }
-        },
-        criaPrazos(){
-            var minDate = new Date();
-            var maxDate = null;
-            if(Array.isArray(this.listaPrazos) && this.listaPrazos.length){
-                if(this.listaPrazos[this.listaPrazos.length - 1].state == false){
-                    var codigo = (parseInt(this.listaPrazos[this.listaPrazos.length - 1].codigo) + 1).toString();
-                    codigo = codigo.padStart(3, "0");
-                    maxDate = getDateCalculated(this.listaPrazos[this.listaPrazos.length-1].dataPrazo, -5);
-                    var prazoEstendido = {
-                        id: null,
-                        codigo: codigo,
-                        dataPrazo: "",
-                        state: null,
-                        maxDate: maxDate,
-                        minDate: minDate
-                    };
-                    this.listaPrazos.push(prazoEstendido);
-                }
-            } else {
-                maxDate = new Date();
-                maxDate.setDate(maxDate.getDate() + 20);
-                this.listaPrazos = [
-                    {
-                        id: null,
-                        codigo: '001',
-                        dataPrazo: "",
-                        state: null,
-                        maxDate: maxDate,
-                        minDate: minDate,
-                        createdDate: null
-                    }
-                ];
-            }
+            // if(this.crudType == 't'){
+
+            // }
         },
         initValidarRNC(){
-            if(this.crudType == 'v'){
-                this.initHavingPrazoToAccept();
-            }
+            // if(this.crudType == 'v'){
+                
+            // }
         }
   },
   created: function(){
