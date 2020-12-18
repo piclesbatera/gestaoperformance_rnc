@@ -18,7 +18,7 @@
             <v-text-field v-model="search" append-icon="mdi-magnify" label="Pesquisa" single-line hide-details></v-text-field>
             </v-card-title>
             <v-divider></v-divider>
-            <v-data-table :custom-sort="customSort" class="default_color_background" :headers="headers" :items="listaObservacoesHistory" :search="search" loading-text="Carregando..." no-data-text="Sem dados disponíveis">
+            <v-data-table :custom-sort="customSort" class="default_color_background" :headers="headers" :items="listaObservacoes" :search="search" loading-text="Carregando..." no-data-text="Sem dados disponíveis">
             </v-data-table>
           </v-container>
         </v-card>
@@ -28,12 +28,11 @@
 </template>
 
 <script>
-import { baseApi, showError } from "@/global";
-import axios from "axios";
 export default {
   name: "observacoesHistory_modalView",
   props: {
-     value: Boolean
+     value: Boolean,
+     listaObservacoes: Array
   },
   computed: {
     show: {
@@ -48,23 +47,11 @@ export default {
   data: function() {
     return {
       headers: [
-        {
-          text: 'Usuário', value: 'username',
-        },
-        { text: 'Observações', value: 'comments' },
-        { text: 'Data Alteração', value: 'changeDate' }
-        ],
-        listaObservacoesHistory: [
           {
-            username: 'Usuário 1',
-            comments: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi leo nisl, mollis eget placerat placerat, semper at libero. Maecenas commodo massa at felis pharetra viverra. Sed aliquam diam ut dolor consectetur bibendum. Vivamus et mauris scelerisque, ultricies velit sit amet, commodo velit. Fusce tristique justo a justo hendrerit vestibulum eget vitae dolor. Maecenas sagittis mollis interdum. Sed gravida dui enim, eget sodales nunc rhoncus in. Integer sed hendrerit urna, in lacinia risus. Ut suscipit elit vitae luctus sodales. Aenean eu magna a nisi commodo pulvinar at id mauris. Donec fermentum eros sit amet mi vestibulum ultricies. Nullam vel est nibh. Mauris facilisis lobortis arcu nec finibus. Praesent lobortis massa tortor, eu congue enim facilisis ut. Mauris et quam at nisl egestas finibus. Pellentesque ultrices pulvinar purus. Pellentesque ligula nunc, commodo in nunc a, sodales ultricies leo. Mauris ullamcorper libero dolor, et eleifend enim sollicitudin et. Phasellus ultrices dapibus nisi ut varius. Nulla eget eleifend nisl. Cras ornare ultrices vulputate. Duis dui mi, efficitur sit amet hendrerit a, suscipit vitae purus. Aliquam id lorem in quam consequat bibendum et vitae leo. Nunc tincidunt mauris nec venenatis aliquam. Curabitur aliquam pretium vehicula. Suspendisse elementum elementum porttitor. Maecenas a imperdiet odio. Vivamus vehicula metus vulputate erat dapibus convallis. Sed pellentesque pharetra malesuada. Sed eu vestibulum massa. In rutrum dolor quam, eget auctor risus blandit tempor. Proin at ante at purus mattis suscipit. Proin tristique nibh sed venenatis varius. Ut leo metus, iaculis sit amet consequat ac, viverra eleifend nisl. In tellus leo, mollis non ultricies nec, suscipit in felis. Praesent sollicitudin, lacus ut semper tempus, quam nulla ornare elit, a consequat metus nibh non quam. Donec eget libero auctor odio vestibulum gravida non at dui. Mauris eu fringilla quam, eu auctor odio. Nam consectetur condimentum scelerisque. Donec condimentum cursus ligula, quis gravida lorem dapibus vel. Suspendisse nisl massa, scelerisque eu pretium sed, finibus sed tellus. Aenean consequat id eros in tempus. Phasellus laoreet suscipit urna nec vestibulum.",
-            changeDate: '25/11/2020 14:46:20'
+            text: 'Usuário', value: 'usuarioCriador',
           },
-          {
-            username: 'Usuário 2',
-            comments: 'Sed malesuada eleifend risus, nec elementum quam congue egestas. Pellentesque bibendum justo quis lobortis sagittis. Etiam magna tortor, condimentum id vehicula non, dictum non purus. Maecenas ut dui tellus. Fusce accumsan iaculis nulla.',
-            changeDate: '26/11/2020 14:41:20'
-          }
+          { text: 'Observações', value: 'descricaoObservacao' },
+          { text: 'Data Alteração', value: 'dataCriacao' }
         ],
         search: ""
     }
@@ -72,7 +59,7 @@ export default {
   methods: {
     customSort(items, index, isDesc) {
       items.sort((a, b) => {
-        if (index[0] === "Data_Inclusao") {
+        if (index[0] === "dataCriacao") {
           if (!isDesc[0]) {
             return this.convertBrazilDateLocaleStringToISO(a[index]).getTime() - this.convertBrazilDateLocaleStringToISO(b[index]).getTime();
           } else {
@@ -101,28 +88,9 @@ export default {
       var isoString = date.split("/")[2] + "-" + date.split("/")[1] + "-" + date.split("/")[0];
       var iso = new Date(isoString + " " + hours);
       return iso;
-    },
-    getObservacoesHistory(){
-
-      var queryString = ``;
-      var url = `${baseApi}/rnc/observacoesHistory/${this.id}${queryString}`;
-      
-      axios.get(url).then(res => {
-          var listaObservacoesHistory = res.data;
-          listaObservacoesHistory.forEach( 
-          (item) => 
-          {
-            item['changeDate'] = this.dateTimeIsoToStringReadable(item['Data_Inclusao']);
-          }
-          );
-          this.listaObservacoesHistory = res.data;
-      }).catch(error => {
-          showError(error);
-      });
     }
   },
   created: function(){
-    // this.getObservacoesHistory();
   },
   filters: {
   }

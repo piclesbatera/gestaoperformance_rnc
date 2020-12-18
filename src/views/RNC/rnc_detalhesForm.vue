@@ -1,6 +1,11 @@
 <template>
     <div>
-        <div class="container-fluid">
+         <div v-if="loadingDetalhe">
+            <span>Carregando...</span>
+            <!-- <v-progress-linear color="deep-purple accent-4" indeterminate rounded height="6"></v-progress-linear> -->
+            <v-progress-linear indeterminate color="blue" ></v-progress-linear>
+        </div>
+        <div v-else class="container-fluid">
             <div class="row">
                 <div class="col-lg-5">
                     <div class="form-group">
@@ -15,112 +20,100 @@
                     </div>
                 </div>
             </div>
-            <template v-if="desabilitaDetalhes">
-                <div class="row">
-                    <div class="col-lg-10">
-                        <v-expansion-panels inset hover>
-                            <v-expansion-panel style="background-color: #f7f7f7;" v-for="(row, index) in detalhes.listaMotivos" :key="index">
-                                <v-expansion-panel-header :disable-icon-rotate="row.status != null">
-                                    <v-row no-gutters>
-                                        <v-col cols="4">
-                                            Motivo: {{row.motivo}}
-                                        </v-col>
-                                        <!-- <v-col cols="8" class="text--secondary" >
-                                            <v-row no-gutters style="width: 100%" >
-                                                <v-col cols="6">
-                                                    Motivo: {{ 'Motivo 1' }}
-                                                </v-col>
-                                                <v-col cols="6">
-                                                    Tipo: {{  'Tipo 1' }}
-                                                </v-col>
-                                            </v-row>
-                                        </v-col> -->
-                                    </v-row>
+            <div class="row">
+                <div class="col-lg-10">
+                    <v-expansion-panels  hover>
+                        <div class="w-100 mb-1">
+                            <div class="float-right">
+                                <v-btn @click="newRNC();" v-if="crudType == 'c'" class="btn btn-primary form-control" color="blue" dark >
+                                    <v-icon dark left>
+                                        mdi-folder-plus
+                                    </v-icon>
+                                    Adicionar RNC
+                                </v-btn>
+                            </div>
+                        </div>
+                        <v-expansion-panel style="background-color: #f7f7f7;" v-for="(row, index) in detalhes.listaRNCs" :key="index">
+                            <v-expansion-panel-header :disable-icon-rotate="row.status != null">
+                                <v-row no-gutters>
+                                    <v-col cols="4" v-if="row.id">
+                                        RNC: {{row.id}}
+                                    </v-col>
+                                    <v-col cols="8" v-else class="text--secondary" >
+                                        <v-row no-gutters style="width: 100%" >
+                                            <v-col cols="6">
+                                                Motivo: {{ row.motivo }}
+                                            </v-col>
+                                            <v-col cols="6">
+                                                Tipo: {{  row.tipo }}
+                                            </v-col>
+                                        </v-row>
+                                    </v-col>
+                                </v-row>
 
-                                    <!-- ICONS -->
-                                    <template v-if="row.status == null" v-slot:actions>
-                                        <v-icon color="primary">
-                                            $expand
-                                        </v-icon>
-                                    </template>
+                                <!-- ICONS -->
+                                <template v-if="row.status == null" v-slot:actions>
+                                    <v-icon color="primary">
+                                        $expand
+                                    </v-icon>
+                                </template>
 
-                                    <template v-else-if="row.status" v-slot:actions>
-                                        <v-icon color="teal">
-                                            mdi-check
-                                        </v-icon>
-                                    </template>
+                                <template v-else-if="row.status" v-slot:actions>
+                                    <v-icon color="teal">
+                                        mdi-check
+                                    </v-icon>
+                                </template>
 
-                                    <template v-else v-slot:actions>
-                                        <v-icon color="error">
-                                            mdi-alert-circle
-                                        </v-icon>
-                                    </template>
-                                    <!-- ICONS -->
-                                </v-expansion-panel-header>
-                                <v-expansion-panel-content>
-                                    <Rnc_detalhes_tabsMotivoForm  :motivo="row" :crudType="crudType" />
-                                </v-expansion-panel-content>
-                            </v-expansion-panel>
-                        </v-expansion-panels>
-                    </div>
+                                <template v-else v-slot:actions>
+                                    <v-icon color="error">
+                                        mdi-alert-circle
+                                    </v-icon>
+                                </template>
+                                <!-- ICONS -->
+                            </v-expansion-panel-header>
+                            <v-expansion-panel-content :eager="true">
+                                <div class="w-100 mb-1">
+                                    <div class="float-right">
+                                        <v-btn @click="removeRNC(row);" v-if="crudType == 'c' && !row.id" class="btn btn-primary form-control" style="z-index: 999" color="blue" dark >
+                                            <v-icon dark left>
+                                                mdi-delete
+                                            </v-icon>
+                                            Remover RNC
+                                        </v-btn>
+                                    </div>
+                                </div>
+                                <Rnc_detalhes_tabsRNCForm :desabilitaDetalhes="desabilitaDetalhes"  :rnc="row" :crudType="crudType" />
+                            </v-expansion-panel-content>
+                        </v-expansion-panel>
+                    </v-expansion-panels>
                 </div>
-            </template>
-            <template v-else>
-                <div class="row" v-for="(row, index) in detalhes.listaMotivos" :key="index">
-                    <div class="col-lg-5">
-                        <div class="form-group">
-                            <template v-if="index == 0"> <label class="bmd-label-floating label-text" for="motivo">Motivo</label><font color="red"> *</font> </template>
-                            <b-form-select id="motivo" v-model="row.motivo" :options="motivos" ></b-form-select>
-                        </div>
-                    </div>
-                    <div class="col-lg-5">
-                        <div class="form-group">
-                            <template v-if="index == 0"> <label class="bmd-label-floating label-text" for="tipo">Tipo</label><font color="red"> *</font> </template>
-                            <b-form-select id="tipo" v-model="row.tipo" :options="tipos" ></b-form-select>
-                        </div>
-                    </div>
-                    <div class="col-md-1">
-                        <div>
-                            <label v-if="index == 0" class="bmd-label-floating blank-label"></label>
-                            <v-btn @click="newMotivo();" v-if="index == 0" class="btn btn-primary form-control" color="blue" dark >
-                                <v-icon dark >
-                                    mdi-plus
-                                </v-icon>
-                            </v-btn>
-                            <v-btn @click="removeMotivo(row);" v-else class="btn btn-primary form-control" color="blue" dark >
-                                <v-icon dark >
-                                    mdi-window-minimize
-                                </v-icon>
-                            </v-btn>
-                        </div>
-                    </div>
-                </div>
-            </template>
+            </div>
             <div class="row">
                 <div class="col-lg-12">
                     <label class="bmd-label-floating label-text" for="observacoes">Observações</label>
-                    <b-form-textarea id="observacoes" :disabled="desabilitaDetalhes" no-resize v-model="detalhes.observacoes" placeholder="Digite uma observação" rows="6" maxLength="200"></b-form-textarea>
+                    <b-form-textarea id="observacoes" no-resize v-model="detalhes.observacoes" placeholder="Digite uma observação" rows="6" maxLength="200"></b-form-textarea>
                     <a @click="showObservacoesHistory_modalView=true;" style="float: right;" title="Abrir o histórico de observações">
                         <i class="fa fa-history"></i>
                         Visualizar histórico</a>
                 </div>
             </div>
         </div>
-        <ObservacoesHistory_modalView v-if="showObservacoesHistory_modalView" v-model="showObservacoesHistory_modalView" />
+        <ObservacoesHistory_modalView v-if="showObservacoesHistory_modalView" :listaObservacoes="detalhes.listaObservacoes" v-model="showObservacoesHistory_modalView" />
     </div>
 </template>
 
 <script>
 import ObservacoesHistory_modalView from './observacoesHistory_modalView'
-import Rnc_detalhes_tabsMotivoForm from './rnc_detalhes_tabsMotivoForm'
+import Rnc_detalhes_tabsRNCForm from './rnc_detalhes_tabsRNCForm'
 export default {
     name: "rnc_detalhesForm",
     components: {
         ObservacoesHistory_modalView,
-        Rnc_detalhes_tabsMotivoForm
+        Rnc_detalhes_tabsRNCForm
     },
     props: {
         value: Object,
+        loadingDetalhe: Boolean,
         crudType: String
     },
     computed: {
@@ -133,10 +126,7 @@ export default {
             }
         },
         desabilitaDetalhes: function(){
-            if(this.crudType != 'c'){
-                return true;
-            }
-            return false;
+            return this.crudType != 'c';
         }
     },
   data: function() {
@@ -145,50 +135,39 @@ export default {
         areasDemandantes: [
             { "value": null, "text": "Selecione uma área demandante" },
             { "value": '1', "text": "Value 1" },
-            { "value": '2', "text": "Value 2" }
+            { "value": '2', "text": "Value 2" },
+            { "value": '3', "text": "Value 3" }
         ],
         classificacoes: [
             { "value": null, "text": "Selecione uma classificação" },
             { "value": '1', "text": "Value 1" },
-            { "value": '2', "text": "Value 2" }
-        ],
-        motivos: [
-            { "value": null, "text": "Selecione um motivo" },
-            { "value": '1', "text": "Value 1" },
-            { "value": '2', "text": "Value 2" }
-        ],
-        tipos: [
-            { "value": null, "text": "Selecione um tipo" }
-        ],
+            { "value": '2', "text": "Value 2" },
+            { "value": '3', "text": "Value 3" }
+        ]
     }
   },
   methods: {
-        newMotivo(){
-            if(!this.detalhes.listaMotivos){
-                this.detalhes.listaMotivos = [];
+        newRNC(){
+            if(!this.detalhes.listaRNCs){
+                this.detalhes.listaRNCs = [];
             }
 
-            var motivo = {
-                motivo: null,
-                tipo: null,
-            };
-            this.detalhes.listaMotivos.push(motivo);
+            var rnc =  {
+                        id: null,
+                        motivo: null,
+                        tipo: null,
+                        status: null,
+                        listaIrregularidades: [
+                        ]
+                    };
+            this.detalhes.listaRNCs.push(rnc);
         },
-        removeMotivo(motivo){
-            const index = this.detalhes.listaMotivos.indexOf(motivo);
-            this.detalhes.listaMotivos.splice(index, 1);
-        },
-        initialMotivos(){
-            this.detalhes.listaMotivos.forEach( 
-                (item) => 
-                {
-                    item['initStatus'] = item.status;
-                }
-            );
+        removeRNC(rnc){
+            const index = this.detalhes.listaRNCs.indexOf(rnc);
+            this.detalhes.listaRNCs.splice(index, 1);
         }
   },
   created: function(){
-      this.initialMotivos();
   }
 }
 </script>

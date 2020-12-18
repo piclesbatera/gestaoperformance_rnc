@@ -22,23 +22,23 @@
             <div class="row">
                 <b-input-group size="sm" class="m-2">
                     <b-input-group-prepend is-text>
-                        <v-icon @click="deleteRow(object);" :disabled="!permissionAlterComponent || (permissionAlterComponent && object.id) || object.loadingFile" title="Remover">mdi-delete</v-icon>
+                        <v-icon @click="deleteRow(object);" :disabled="!permissionAlterComponent || (permissionAlterComponent && !object.new) || object.loadingFile" title="Remover">mdi-delete</v-icon>
                     </b-input-group-prepend>
                     <b-input-group-prepend is-text>
                         <v-file-input
                             v-if="!object.loadingFile"
-                            @change="uploadTempFile(object)"
+                            @change="changeObjectFile(object)"
                             hide-input
-                            :disabled="!permissionAlterComponent"
+                            :disabled="!permissionAlterComponent || (permissionAlterComponent && !object.new) || object.loadingFile"
                             v-model="object.file"
                             :success="object.file != null"
                         ></v-file-input>
                         <v-progress-circular :size="24" v-else indeterminate color="primary" ></v-progress-circular>
                     </b-input-group-prepend>
                     <b-input-group-prepend is-text>
-                        <v-icon :disabled="!object.file" title="Download" @click="downloadFile(object);">mdi-download</v-icon>
+                        <v-icon :disabled="object.new" title="Download" @click="downloadFile(object);">mdi-download</v-icon>
                     </b-input-group-prepend>
-                    <b-form-input v-model="object.descricaoAnexo" :disabled="!permissionAlterComponent" placeholder="descrição" style="height: 100%;"></b-form-input>
+                    <b-form-input v-model="object.descricaoAnexo" :disabled="!permissionAlterComponent || (permissionAlterComponent && !object.new) || object.loadingFile" placeholder="descrição" style="height: 100%;"></b-form-input>
                 </b-input-group>
             </div>
         </div>
@@ -66,8 +66,12 @@ export default {
             type: String,
             default: '{ "id": null,  "descricaoAnexo": "", "file": null, "filename": null, "loadingFile": false }'
         },
+        uploadTemp: {
+            type: Boolean,
+            default: false
+        },
         folder: String,
-        id: String,
+        id: Number,
         initialRow: Boolean
     },
     computed: {
@@ -85,13 +89,22 @@ export default {
     }
   },
   methods: {
-        uploadTempFile(object){
-            let formData = new FormData();
-            formData.append('file', object.file);
+        changeObjectFile(object){
 
             if(!this.filesValidation(object)){
                 return false;
             }
+
+            object.filename = object.file.name;
+
+            if(this.uploadTemp){
+                uploadTempFile(object);
+            }
+
+        },
+        uploadTempFile(object){
+            let formData = new FormData();
+            formData.append('file', object.file);
 
             var queryString = (this.id != null && this.id != undefined) ? `?id=${this.id}` : "";
 
@@ -101,7 +114,6 @@ export default {
 
             axios.post(url, formData, { headers: {'Content-Type': 'multipart/form-data'} }).then(res => {
                 res;
-                object.filename = object.file.name;
                 object.loadingFile = false;
             }).catch(error => {
                 object.filename = null;

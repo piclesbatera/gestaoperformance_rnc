@@ -14,6 +14,11 @@ export function showError(e) {
   }
 }
 
+
+
+
+
+
 export function appendError(key, msgError){
   var divError = document.createElement("div");
   divError.classList.add("invalid-msg");

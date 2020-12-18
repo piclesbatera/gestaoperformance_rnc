@@ -46,34 +46,24 @@
                             
                                     <v-tab :href="'#detalhes'">Detalhes</v-tab>
                                     <v-tab :href="'#anexos'">Anexos</v-tab>
-                                    <v-tab :href="'#irregularidades'">Irregularidades</v-tab>
+                                    
                                 </v-tabs>
                                 <v-tabs-items v-model="tab" touchless>
                                     <!-- Detalhes -->
                                     <v-tab-item :value="'detalhes'">
                                         <v-card flat>
                                             <v-card-text>
-                                                <Rnc_detalhesForm v-model="detalhes" :crudType="crudType" />
+                                                <Rnc_detalhesForm v-model="detalhes" :loadingDetalhe="loadingDetalhe" :crudType="crudType" />
                                             </v-card-text>
                                         </v-card>
                                     </v-tab-item>
 
 
                                     <!-- Anexos -->
-                                    <v-tab-item :value="'anexos'">
+                                    <v-tab-item :value="'anexos'" :eager="true">
                                         <v-card flat>
                                             <v-card-text>
                                                 <Rnc_documentacaoView :codigoGrupoFila="codigoGrupoFila" :sg="sg" :codigoSg="codigoSg" :crudType="crudType"/>
-                                            </v-card-text>
-                                        </v-card>
-                                    </v-tab-item>
-
-
-                                    <!-- Irregularidades -->
-                                    <v-tab-item :value="'irregularidades'">
-                                        <v-card flat>
-                                            <v-card-text>
-                                                <Rnc_uploadDetailForm :initialRow="permissionAlterIrregularidades" :newObject="newIrregularidadeObject" :permissionAlterComponent="permissionAlterIrregularidades" v-model="listaIrregularidades" :folder="'irregularidades'" />
                                             </v-card-text>
                                         </v-card>
                                     </v-tab-item>
@@ -92,15 +82,13 @@
 <script>
 import Rnc_detalhesForm from './rnc_detalhesForm'
 import Rnc_documentacaoView from './rnc_documentacaoView'
-import Rnc_uploadDetailForm from './rnc_uploadDetailForm'
 import { baseApi, showError } from "@/global";
 import axios from "axios";
 export default {
     name: "rnc_modalForm",
     components: {
         Rnc_detalhesForm,
-        Rnc_documentacaoView,
-        Rnc_uploadDetailForm
+        Rnc_documentacaoView
     },
     props: {
         value: Boolean,
@@ -134,50 +122,133 @@ export default {
 
             return title;
         },
-        permissionAlterIrregularidades: function(){
-            return ((this.crudType == 'c' || this.crudType == 'v'));
-        },
         createRequestData: function(){
-            var requestData = {};
-            requestData['detalhes'] = this.detalhes;
-            requestData['irregularidades'] = this.listaIrregularidades;
-            return requestData;
+            var formData = new FormData();
+            var requestData = this.detalhes;
+            var listaRNCsRequest = this.detalhes.listaRNCs;
+
+            listaRNCsRequest.forEach( 
+                (rnc, index) => 
+                { 
+                    var irregularidades = rnc.listaIrregularidades;
+                    var irregularidade = null;
+                    for(irregularidade of irregularidades){
+                        formData.append('files-irregularidades-'+index, irregularidade.file);
+                    }
+                }
+            );
+
+            formData.append('data', JSON.stringify(requestData));
+            return formData;
         },
         dealRequestData: function(){
+            var formData = new FormData();
             var requestData = {};
-            requestData['listaMotivos'] = this.detalhes.listaMotivos;
-            return requestData;
+            var listaRNCsRequest = this.detalhes.listaRNCs;
+            
+            listaRNCsRequest.forEach( 
+                (rnc) => 
+                { 
+                    rnc['prazo'] = rnc.listaPrazos.filter(function(prazo){ return (prazo.new && prazo.prazo) });
+                    rnc['evidencias'] = rnc.listaEvidencias.filter(function(evidencia){ return evidencia.new });
+                    var evidencia = null;
+                    for(evidencia of rnc['evidencias']){
+                        formData.append('files-evidencias-'+rnc.id, evidencia.file);
+                    }
+                }
+            );
+            requestData['listaRNCs'] = listaRNCsRequest;
+            formData.append('data', JSON.stringify(requestData));
+            return formData;
         },
         validateRequestData: function(){
+            var formData = new FormData();
             var requestData = {};
-            requestData['listaMotivos'] = this.detalhes.listaMotivos;
-            requestData['irregularidades'] = this.listaIrregularidades;
-            return requestData;
+            var listaRNCsRequest = this.detalhes.listaRNCs;
+            
+            listaRNCsRequest.forEach( 
+                (rnc, index) => 
+                { 
+                    rnc['prazo'] = rnc.listaPrazos.filter(function(prazo){ return prazo.updated });
+                    rnc['irregularidades'] = rnc.listaIrregularidades.filter(function(irregularidade){ return irregularidade.new });
+                    var irregularidade = null;
+                    for(irregularidade of rnc['irregularidades']){
+                        formData.append('files-irregularidades-'+rnc.id, irregularidade.file);
+                    }
+                }
+            );
+            requestData['listaRNCs'] = listaRNCsRequest;
+            requestData['observacoes'] = this.detalhes.observacoes
+            formData.append('data', JSON.stringify(requestData));
+            return formData;
         },
-        // validationSave: function(){
-        //     var requestData = this.requestRNCData;
+        validationSave: function(){
+            var requestData = this.requestRNCData;
+            
+            if(!requestData.areaDemandante ||
+               !requestData.classificacao){
+                   return false;
+            }
+            if(requestData.listaRNCs){
+                var rnc;
+                for (rnc of requestData.listaRNCs){
+                    if(!rnc.motivo || !rnc.tipo){
+                        return false;
+                    }
+                    if(rnc.listaIrregularidades){
+                        var irregularidade;
+                        for (irregularidade of requestData.listaIrregularidades){
+                            if(!irregularidade.file || !irregularidade.descricaoAnexo){
+                                return false;
+                            }
+                        }
+                    }
+                    if(rnc.listaEvidencias){
+                        var evidencia;
+                        for (evidencia of requestData.listaEvidencias){
+                            if(!evidencia.file || !evidencia.descricaoAnexo){
+                                return false;
+                            }
+                        }
+                    }
+                    if(rnc.listaPrazos){
+                        var prazo;
+                        for (prazo of requestData.listaPrazos){
+                            if(!prazo.prazo){
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            
 
-        //     if(this.crudType == 'c'){
-        //         var detalhes = requestData.detalhes;
-                
+            return true;
+        },
+        requestParameters: function(){
+            var requestParameters = {};
 
+            requestParameters['url'] = this.requestRNCURL;
+            requestParameters['method'] = this.requestRNCMethod;
+            requestParameters['data'] = this.requestRNCData;
 
-        //     } else
-        //     if(this.crudType == 't'){
+            return requestParameters;
+        },
+        requestRNCMethod: function(){
+            var requestMethod = "";
 
+            if(this.crudType == 'c'){
+                requestMethod = "post";
+            } else
+            if(this.crudType == 't'){
+                requestMethod = "patch";
+            } else
+            if(this.crudType == 'v'){
+                requestMethod = "patch";
+            }
 
-
-
-        //     } else
-        //     if(this.crudType == 'v'){
-
-
-
-
-        //     }
-
-        //     return true;
-        // },
+            return requestMethod;
+        },
         requestRNCData: function(){
             var requestData = null;
 
@@ -192,112 +263,59 @@ export default {
             }
 
             return requestData;
+        },
+        requestRNCURL: function(){
+            var requestURL = '';
+            var id = this.detalhes.id;
+
+            if(this.crudType == 'c'){
+                requestURL = `${baseApi}/rnc`;
+            } else
+            if(this.crudType == 't'){
+                requestURL = `${baseApi}/rnc/tratar/${id}`;
+            } else
+            if(this.crudType == 'v'){
+                requestURL = `${baseApi}/rnc/validar/${id}`;
+            }
+
+            return requestURL;
         }
   },
   data: function() {
     return {
+        loadingDetalhe: false,
         loadingSave: false,
         listaIrregularidades: [],
-        newIrregularidadeObject: '{ "id": null,  "descricaoAnexo": "", "file": null, "filename": null, "loadingFile": false }',
         tab: null,
-        detalhes: {
-            areaDemandante: null,
-            classificacao: null,
-            listaMotivos: [
-                {
-                    id: 1,
-                    motivo: 1,
-                    tipo: 3,
-                    status: null,
-                    listaEvidencias: [
-                        {
-                            id: null,
-                            descricaoAnexoEvidencia: "",
-                            file: null,
-                            loadingFile: false
-                        }
-                    ],
-                    listaPrazos: [
-                        {
-                            id: 1,
-                            codigo: '001',
-                            dataCadastro: "2020-12-04",
-                            dataPrazo: "2020-12-20",
-                            state: false
-                        },
-                        {
-                            id: 2,
-                            codigo: '002',
-                            dataCadastro: "2020-12-08",
-                            dataPrazo: "2020-12-15",
-                            state: true
-                        },
-                        // {
-                        //     id: 3,
-                        //     codigo: '003',
-                        //     dataPrazo: "2020-12-10",
-                        //     state: null
-                        // }
-                    ]
-                },
-                {
-                    id: 2,
-                    motivo: 2,
-                    tipo: 1,
-                    status: true,
-                    listaEvidencias: [
-                        {
-                            id: null,
-                            descricaoAnexoEvidencia: "",
-                            file: null,
-                            loadingFile: false
-                        }
-                    ]
-                },
-                {
-                    id: 3,
-                    motivo: 1,
-                    tipo: 3,
-                    status: null
-                }
-            ],
-            observacoes: null,
+        detalhes: 
+        {
         }
     }
   },
   methods: {
-        newMotivo(){
-                if(!this.detalhes.listaMotivos){
-                    this.detalhes.listaMotivos = [];
-                }
-
-                var motivo = {
-                    motivo: null,
-                    tipo: null,
-                };
-                this.detalhes.listaMotivos.push(motivo);
-            
-        },
         save(){
-
-            // if(!this.validationSave()){
-            //     return false;
-            // }
+            
+            var requestParameters = this.requestParameters;
 
             var queryString = "";
 
-            var url = `${baseApi}/rnc/${queryString}`;
+            var url = `${requestParameters.url}${queryString}`;
+
+            var requestData = requestParameters.data;
 
             this.loadingSave = true;
 
-            var requestData = this.requestRNCData;
-
-            axios.post(url, requestData, { headers: {'Content-Type': 'application/json'} }).then(res => {
+            axios({
+                method: requestParameters.method,
+                url: url,
+                data: requestData
+            }).then(res => {
                 res;
                 this.finnalySave(true);
             }).catch(error => {
                 this.finnalySave(false, error);
             });
+
             
         },
         finnalySave(save, error){
@@ -310,20 +328,83 @@ export default {
                 showError(error);
             }
         },
+        initDetalhes(){
+            this.detalhes = {
+                id: null,
+                areaDemandante: null,
+                classificacao: null,
+                listaRNCs: [
+                    {
+                        id: null,
+                        motivo: null,
+                        tipo: null,
+                        status: null,
+                        listaIrregularidades: [
+                        ]
+                    }
+                ],
+                listaObservacoes: [
+                    
+                ]
+            }
+        },
         initCriacaoRNC(){
-            // if(this.crudType == 'c'){
-                
-            // }
+            if(this.crudType == 'c'){
+                this.initDetalhes();
+            }
         },
         initTratarRNC(){
-            // if(this.crudType == 't'){
-
-            // }
+            if(this.crudType == 't'){
+                this.getDetalhesRNC();
+            }
         },
         initValidarRNC(){
-            // if(this.crudType == 'v'){
-                
-            // }
+            if(this.crudType == 'v'){
+                this.getDetalhesRNC();
+            }
+        },
+        dateTimeIsoToStringReadable(value) {
+      
+            if(!value || value == "" || value == undefined){
+                return "";
+            }
+
+            var dateTimeISOString = value;
+            var dateTime = new Date(dateTimeISOString);
+            var dateTimeConvertedTimeZone = new Date( dateTime.getTime() + ( dateTime.getTimezoneOffset() * 60000 ) );
+            return dateTimeConvertedTimeZone.toLocaleString();
+        },
+        getDetalhesRNC(){
+            var queryString = `?id=1`;
+            var url = `${baseApi}/rnc${queryString}`;
+
+            this.loadingDetalhe = true;
+            axios.get(url).then(res => {
+                this.detalhes = res.data;
+               
+                // CONVERTER DATA DO HISTORICO DE OBSERVAÇÕES
+                this.detalhes.listaObservacoes.forEach( 
+                    (item) => 
+                    {
+                    item['dataCriacao'] = new Date(item['dataCriacao']).toLocaleString();
+                    }
+                );
+
+                // ARMAZENAR O STATUS INICIAL DOS RNCs RECUPERADOS
+                if(this.detalhes && this.detalhes.listaRNCs){
+                    this.detalhes.listaRNCs.forEach( 
+                        (item) => 
+                        {
+                            item['initStatus'] = item.status;
+                        }
+                    );
+                }
+
+                this.loadingDetalhe = false;
+            }).catch(error => {
+                this.loadingDetalhe = false;
+                showError(error);
+            });
         }
   },
   created: function(){
