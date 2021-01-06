@@ -92,6 +92,7 @@ export default {
     },
     props: {
         value: Boolean,
+        identificadorSolicitacaoRNC: Number,
         codigoGrupoFila: String,
         sg: String,
         descricaoTituloSg: String,
@@ -106,6 +107,20 @@ export default {
             set (value) {
                 this.$emit('input', value);
             }
+        },
+        codigo: function(){
+            var codigo = null;
+            if(this.sg == 'sgi'){
+                codigo = this.codigoSg;
+            }
+            return codigo;
+        },
+        codigoGL: function(){
+            var codigoGL = null;
+            if(this.sg == 'sgp'){
+                codigoGL = this.codigoSg;
+            }
+            return codigoGL;
         },
         pageTitle: function(){
             var title = "Criar RNC";
@@ -134,6 +149,9 @@ export default {
                     var irregularidade = null;
                     for(irregularidade of irregularidades){
                         formData.append('files-irregularidades-'+index, irregularidade.file);
+                        if(irregularidade.descricaoAnexo && irregularidade.descricaoAnexo.trim() == ""){
+                            irregularidade.descricaoAnexo = null;
+                        }
                     }
                 }
             );
@@ -154,10 +172,14 @@ export default {
                     var evidencia = null;
                     for(evidencia of rnc['evidencias']){
                         formData.append('files-evidencias-'+rnc.id, evidencia.file);
+                        if(evidencia.descricaoAnexo && evidencia.descricaoAnexo.trim() == ""){
+                            evidencia.descricaoAnexo = null;
+                        }
                     }
                 }
             );
             requestData['listaRNCs'] = listaRNCsRequest;
+            requestData['observacoes'] = this.detalhes.observacoes;
             formData.append('data', JSON.stringify(requestData));
             return formData;
         },
@@ -167,64 +189,67 @@ export default {
             var listaRNCsRequest = this.detalhes.listaRNCs;
             
             listaRNCsRequest.forEach( 
-                (rnc, index) => 
+                (rnc) => 
                 { 
                     rnc['prazo'] = rnc.listaPrazos.filter(function(prazo){ return prazo.updated });
                     rnc['irregularidades'] = rnc.listaIrregularidades.filter(function(irregularidade){ return irregularidade.new });
                     var irregularidade = null;
                     for(irregularidade of rnc['irregularidades']){
                         formData.append('files-irregularidades-'+rnc.id, irregularidade.file);
+                        if(irregularidade.descricaoAnexo && irregularidade.descricaoAnexo.trim() == ""){
+                            irregularidade.descricaoAnexo = null;
+                        }
                     }
                 }
             );
             requestData['listaRNCs'] = listaRNCsRequest;
-            requestData['observacoes'] = this.detalhes.observacoes
+            requestData['observacoes'] = this.detalhes.observacoes;
             formData.append('data', JSON.stringify(requestData));
             return formData;
         },
-        validationSave: function(){
-            var requestData = this.requestRNCData;
+        // validationSave: function(){
+        //     var requestData = this.requestRNCData;
             
-            if(!requestData.areaDemandante ||
-               !requestData.classificacao){
-                   return false;
-            }
-            if(requestData.listaRNCs){
-                var rnc;
-                for (rnc of requestData.listaRNCs){
-                    if(!rnc.motivo || !rnc.tipo){
-                        return false;
-                    }
-                    if(rnc.listaIrregularidades){
-                        var irregularidade;
-                        for (irregularidade of requestData.listaIrregularidades){
-                            if(!irregularidade.file || !irregularidade.descricaoAnexo){
-                                return false;
-                            }
-                        }
-                    }
-                    if(rnc.listaEvidencias){
-                        var evidencia;
-                        for (evidencia of requestData.listaEvidencias){
-                            if(!evidencia.file || !evidencia.descricaoAnexo){
-                                return false;
-                            }
-                        }
-                    }
-                    if(rnc.listaPrazos){
-                        var prazo;
-                        for (prazo of requestData.listaPrazos){
-                            if(!prazo.prazo){
-                                return false;
-                            }
-                        }
-                    }
-                }
-            }
+        //     if(!requestData.areaDemandante ||
+        //        !requestData.classificacao){
+        //            return false;
+        //     }
+        //     if(requestData.listaRNCs){
+        //         var rnc;
+        //         for (rnc of requestData.listaRNCs){
+        //             if(!rnc.motivo || !rnc.tipo){
+        //                 return false;
+        //             }
+        //             if(rnc.listaIrregularidades){
+        //                 var irregularidade;
+        //                 for (irregularidade of requestData.listaIrregularidades){
+        //                     if(!irregularidade.file || !irregularidade.descricaoAnexo){
+        //                         return false;
+        //                     }
+        //                 }
+        //             }
+        //             if(rnc.listaEvidencias){
+        //                 var evidencia;
+        //                 for (evidencia of requestData.listaEvidencias){
+        //                     if(!evidencia.file || !evidencia.descricaoAnexo){
+        //                         return false;
+        //                     }
+        //                 }
+        //             }
+        //             if(rnc.listaPrazos){
+        //                 var prazo;
+        //                 for (prazo of requestData.listaPrazos){
+        //                     if(!prazo.prazo){
+        //                         return false;
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
             
 
-            return true;
-        },
+        //     return true;
+        // },
         requestParameters: function(){
             var requestParameters = {};
 
@@ -304,6 +329,8 @@ export default {
             var requestData = requestParameters.data;
 
             this.loadingSave = true;
+            this.$store.commit("setMist", true);
+            this.$store.commit("setMistVisible", false);
 
             axios({
                 method: requestParameters.method,
@@ -319,12 +346,12 @@ export default {
             
         },
         finnalySave(save, error){
+            this.$store.commit("setMist", false);
+            this.loadingSave = false;
             if(save){
-                this.loadingSave = false;
                 this.show=false;
                 this.$toasted.global.defaultSuccess();
             } else {
-                this.loadingSave = false;
                 showError(error);
             }
         },
@@ -333,6 +360,10 @@ export default {
                 id: null,
                 areaDemandante: null,
                 classificacao: null,
+                sg: this.sg,
+                codigo: this.codigo,
+                codigoGl: this.codigoGl,
+                codigoGrupoFila: this.codigoGrupoFila,
                 listaRNCs: [
                     {
                         id: null,
@@ -375,7 +406,7 @@ export default {
             return dateTimeConvertedTimeZone.toLocaleString();
         },
         getDetalhesRNC(){
-            var queryString = `?id=1`;
+            var queryString = `?id=${this.identificadorSolicitacaoRNC}`;
             var url = `${baseApi}/rnc${queryString}`;
 
             this.loadingDetalhe = true;

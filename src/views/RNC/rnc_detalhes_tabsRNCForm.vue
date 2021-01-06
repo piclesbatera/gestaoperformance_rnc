@@ -199,8 +199,8 @@ export default {
   data: function() {
     return {
         havingPrazoToAccept: false,
-        newEvidenciaObject: '{ "id": null,  "descricaoAnexo": "", "file": null, "filename": null, "loadingFile": false, "new": true }',
-        newIrregularidadeObject: '{ "id": null,  "descricaoAnexo": "", "file": null, "filename": null, "loadingFile": false, "new": true }',
+        newEvidenciaObject: '{ "id": null,  "descricaoAnexo": null, "file": null, "filename": null, "loadingFile": false, "new": true }',
+        newIrregularidadeObject: '{ "id": null,  "descricaoAnexo": null, "file": null, "filename": null, "loadingFile": false, "new": true }',
         motivos: [
             { "value": null, "text": "Selecione um motivo" },
             { "value": '1', "text": "Value 1" },

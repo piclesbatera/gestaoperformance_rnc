@@ -4,6 +4,8 @@ export const baseApi = "http://localhost:5000";
 
 export const userKey = "registered_user";
 
+
+// ERROR GLOBAL
 export function showError(e) {
   if (e && e.response && e.response.data && e.response.data.message) {
     Vue.toasted.global.defaultError({ msg: e.response.data.message });
@@ -18,7 +20,7 @@ export function showError(e) {
 
 
 
-
+// ERROR FIELD
 export function appendError(key, msgError){
   var divError = document.createElement("div");
   divError.classList.add("invalid-msg");
@@ -56,7 +58,7 @@ export function cleanErrors(){
 
 
 
-// #scope
+// ERROR SCOPE
 
 export function appendErrorScope(key, msgError, scope){
   var divError = document.createElement("div");

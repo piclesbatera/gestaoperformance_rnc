@@ -6,7 +6,9 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    user: null
+    user: null,
+    mistVisible: false,
+    mist: false
   },
   mutations: {
     setUser(state, user) {
@@ -25,6 +27,12 @@ export default new Vuex.Store({
         state.user['userProfile'] = userProfile;
         console.log(state.user.userProfile);
       }
+    },
+    setMistVisible(state, mistVisible){
+      state.mistVisible = mistVisible;
+    },
+    setMist(state, mist){
+      state.mist = mist;
     }
   },
   actions: {},

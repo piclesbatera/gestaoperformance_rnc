@@ -1,6 +1,7 @@
 <template>
   <v-app>
     <div class="app">
+      <Mist :visible="mistVisible" :activated="mist"></Mist>
       <template v-if="userConnected" >
         <Header title="SGQ - Sistema de Gestão de Qualidade" />
         <Content />
@@ -18,13 +19,14 @@ import Header from "@/components/template/Header";
 import Footer from "@/components/template/Footer";
 import Content from "@/components/template/Content";
 import Login from "@/components/auth/Login";
+import Mist from "@/components/utils/mist";
 
 import { mapState } from "vuex";
 import { userKey } from "@/global";
 export default {
-  components: { Header, Footer, Content, Login },
+  components: { Header, Footer, Content, Login, Mist },
   computed: {
-    ...mapState(["user"]),
+    ...mapState(["user", "mistVisible", "mist"]),
     userConnected(){
       return (this.user && this.user.token);
     }

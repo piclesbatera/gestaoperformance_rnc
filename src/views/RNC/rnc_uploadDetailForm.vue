@@ -16,7 +16,7 @@
         <div v-for="(object, index) in listObject" :key="index">
             <div class="row">
                 <div class="col-lg-12">
-                    <h6 v-if="object.file">{{object.file.name}}</h6>
+                    <h6 v-if="object.filename">{{object.filename}}</h6>
                 </div>
             </div>
             <div class="row">
@@ -36,9 +36,10 @@
                         <v-progress-circular :size="24" v-else indeterminate color="primary" ></v-progress-circular>
                     </b-input-group-prepend>
                     <b-input-group-prepend is-text>
-                        <v-icon :disabled="object.new" title="Download" @click="downloadFile(object);">mdi-download</v-icon>
+                        <v-icon :disabled="object.new" v-if="!object.loadingDownloadAnexo" title="Download" @click="downloadFile(object);">mdi-download</v-icon>
+                        <v-progress-circular v-else indeterminate color="primary" ></v-progress-circular>
                     </b-input-group-prepend>
-                    <b-form-input v-model="object.descricaoAnexo" :disabled="!permissionAlterComponent || (permissionAlterComponent && !object.new) || object.loadingFile" placeholder="descrição" style="height: 100%;"></b-form-input>
+                    <b-form-input trim v-model="object.descricaoAnexo" :maxLength="descricaoLength" :disabled="!permissionAlterComponent || (permissionAlterComponent && !object.new) || object.loadingFile" placeholder="descrição" style="height: 100%;"></b-form-input>
                 </b-input-group>
             </div>
         </div>
@@ -72,7 +73,11 @@ export default {
         },
         folder: String,
         id: Number,
-        initialRow: Boolean
+        initialRow: Boolean,
+        descricaoLength: {
+            type: String,
+            default: "50"
+        }
     },
     computed: {
         listObject: {
@@ -98,7 +103,7 @@ export default {
             object.filename = object.file.name;
 
             if(this.uploadTemp){
-                uploadTempFile(object);
+                this.uploadTempFile(object);
             }
 
         },
@@ -126,46 +131,79 @@ export default {
         filesValidation(object){
             var contains = false;
             var highSize = false;
-            this.listObject.forEach( 
-                (item) => 
-                {
-                    if(item.file && item != object){
-                        if(object.file.name == item.file.name){
-                            contains = true;
+            
+            if(object && object.file){
+                this.listObject.forEach( 
+                    (item) => 
+                    {
+                        if(item.file && item != object){
+                            if(object.file.name == item.file.name){
+                                contains = true;
+                            }
                         }
                     }
+                );
+                if(object.file.size > 15728640){
+                    highSize = true;
                 }
-            );
-            if(object.file.size > 15728640){
-                highSize = true;
-            }
 
-            if(contains || highSize){
-                if(contains){
-                    object.filename = null;
-                    object.file = null;
-                    showError('O nome do arquivo já está sendo utilizado.');
+                if(contains || highSize){
+                    if(contains){
+                        object.filename = null;
+                        object.file = null;
+                        showError('O nome do arquivo já está sendo utilizado.');
+                    }
+                    if(highSize){
+                        object.filename = null;
+                        object.file = null;
+                        showError('O arquivo não pode ser maior do que 15MB');
+                    }
+                    return false;
                 }
-                if(highSize){
-                    object.filename = null;
-                    object.file = null;
-                    showError('O arquivo não pode ser maior do que 15MB');
-                }
+            } else {
+                object.filename = null;
                 return false;
             }
 
             return true;
         },
         downloadFile(object){
-            var file = object.file;
+            var filename = object.filename;
+            var index = this.listObject.indexOf(object);
+            var queryString = (this.id != null && this.id != undefined) ? `?id=${this.id}` : "";
+            var folderAPI = (this.folder != null && this.folder != undefined) ? `${this.folder}/` : "";
+            var url = `${baseApi}/download/${folderAPI}${filename}${queryString}`;
 
-            const url = window.URL.createObjectURL(file);
-            var a = document.createElement("a");
-            a.href = url;
-            a.download = file.name;
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
+            // this.listObject[index]['loadingDownloadAnexo'] = true;
+
+            console.log(this.listObject);
+
+            axios({ url: url, method: 'GET', responseType: 'blob',}).then((response) => {
+                const url = window.URL.createObjectURL(response.data);
+                // this.listObject[index].loadingDownloadAnexo = false;
+
+                var a = document.createElement("a");
+                a.href = url;
+                a.download = filename;
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            }).catch(error => {
+                // this.listObject[index].loadingDownloadAnexo = false;
+                showError(error);
+            });
+
+            // axios({ url: url, method: 'GET'}).then(function(response) {
+            //     var blob = new Blob([response.data], {
+            //           type: response.data.type
+            //     });
+            //     var url = window.URL.createObjectURL(blob)
+            //     window.open(url);
+            //   })
+            //   .catch(function(error) {
+            //         console.log(error)
+            // });
+
         },
         newRow(){
             if(this.permissionAlterComponent){

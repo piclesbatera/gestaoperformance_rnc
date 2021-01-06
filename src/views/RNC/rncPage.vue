@@ -161,7 +161,7 @@
             </v-container>  
             </div>
         </div>
-        <Rnc_modalForm :crudType="crudType" :sg="sgClicked" :codigoGrupoFila="codigoGrupoFilaClicked" v-if="showRnc_modalForm" :codigoSg="codigoSgClicked" v-model="showRnc_modalForm" :descricaoTituloSg="descricaoTituloSgClicked"/>
+        <Rnc_modalForm :crudType="crudType" :identificadorSolicitacaoRNC="identificadorSolicitacaoRNCClicked" :sg="sgClicked" :codigoGrupoFila="codigoGrupoFilaClicked" v-if="showRnc_modalForm" :codigoSg="codigoSgClicked" v-model="showRnc_modalForm" :descricaoTituloSg="descricaoTituloSgClicked"/>
     </div>  
 </template>
 
@@ -239,138 +239,15 @@ export default {
                 label = "GL";
             }
             return label;
-        }
-    },
-    components: {
-        Rnc_modalForm
-    },
-    data: function() {
-        return {
-            searchDataTable: "",
-            UFOptions,
-            tipoAcionamentoOptions,
-            loadingSearch: false,
-            codigoGrupoFilaClicked: "",
-            sgClicked: "",
-            descricaoTituloSgClicked: "",
-            codigoSgClicked: "",
-            searchFor: "sgi",
-            searchValue: "",
-            searchValueRNC: "",
-            showRnc_modalForm: false,
-            searchForOptions: [
-                { "value": "sgi", "text": "SGI" },
-                { "value": "sgp", "text": "SGP" }
-            ],
-            sgiSearchResult: [
-                
-            ],
-            sgpSearchResult: [
-
-            ],
-            headerSgi: [
-                { text: 'Fila', value: 'Status' },
-                { text: 'ID', value: 'ID' },
-                { text: 'Projeto', value: 'Projeto' },
-                { text: 'UF', value: 'UF' },
-                { text: 'ID OPD', value: 'ID_OPD' },
-                { text: 'Empreiteira Projeto', value: 'Empreiteira' },
-                { text: 'Empreiteira Construção', value: 'EmpreiteiraConstrucao' },
-                {
-                text: '',
-                sortable: false,
-                value: 'detail',
-                }
-            ],
-            headerSgp: [
-                { text: 'Tipo Acionamento', value: 'TIPO ACIONAMENTO' },
-                { text: 'GL', value: 'GL' },
-                { text: 'Projeto', value: 'PROJETO' },
-                { text: 'UF', value: 'UF' },
-                { text: 'Cliente', value: 'CLIENTE' },
-                { text: 'GP Cliente', value: 'GPCliente' },
-                { text: 'Empreiteira', value: 'FORNECEDOR' },
-                {
-                text: '',
-                sortable: false,
-                value: 'detail',
-                }
-            ],
-            // ADVANCED SEARCH
-            advancedSearch: false,
-
-            // SGI
-            advancedSearchSgiEmpreiteiraProjeto: "",
-            advancedSearchSgiEmpreiteiraConstrucao: "",
-            advancedSearchSgiUF: "",
-            advancedSearchSgiProjeto: "",
-
-            // SGP
-            advancedSearchSgpTipoAcionamento: "",
-            advancedSearchSgpEmpreiteira: "",
-            advancedSearchSgpUF: "",
-        };
-    },
-    methods: {
-        clickOpenDetail(sg){
-            if(sg.detail == 'sgi'){
-                this.codigoGrupoFilaClicked = ''; 
-                this.sgClicked = 'sgi'; 
-                this.codigoSgClicked = sg.ID; 
-                this.descricaoTituloSgClicked= sg.descricaoTituloSg;
-                this.showRnc_modalForm=true;
-            } else
-            if(sg.detail == 'sgp') {
-                this.codigoGrupoFilaClicked = sg.codigoGrupoFila;
-                this.sgClicked = 'sgp'; 
-                this.codigoSgClicked = sg.GL; 
-                this.descricaoTituloSgClicked= sg.descricaoTituloSg;
-                this.showRnc_modalForm=true;
-            }
         },
-        advancedSearchButton(){
-            this.advancedSearch=!this.advancedSearch;
-        },
-        search(){
-            var searchFor = this.searchFor;
-            var errors = {};
+        urlSg: function(){
+            var queryString = this.parametersSg;
 
-            errors = this.validatesErrorsSg();
-
-            this.deleteSearchSg();
-
-            if(Object.keys(errors).length === 0){
-
-                this.loadingSearch = true;
-
-                var url = this.getUrlSg();
-
-                axios.get(url).then(res => {
-                    var scope = `#rnc_${this.crudType}`;
-                    cleanErrorsScope(scope);
-
-                    this.insertSearchSg(searchFor, res.data);
-
-                    this.loadingSearch = false;
-                })
-                .catch(error => {
-                    this.loadingSearch = false;
-                    showError(error);
-                });
-
-            } else {
-                var scope = `#rnc_${this.crudType}`;
-                showAllErrorScope(errors, scope);
-            }
-        },
-        getUrlSg(){
-            var queryString = this.getParametersSg();
-
-            var url = `${baseApi}/rnc/sg/${this.searchFor}/${queryString}`;
+            var url = `${baseApi}/rnc/sg/${this.crudType}/${this.searchFor}${queryString}`;
 
             return url;
         },
-        getParametersSg(){
+        parametersSg: function(){
             var queryString = '?';
 
             if(this.searchValue){
@@ -410,6 +287,131 @@ export default {
 
             return queryString;
 
+        },
+    },
+    components: {
+        Rnc_modalForm
+    },
+    data: function() {
+        return {
+            searchDataTable: "",
+            UFOptions,
+            tipoAcionamentoOptions,
+            loadingSearch: false,
+            identificadorSolicitacaoRNCClicked: null,
+            codigoGrupoFilaClicked: null,
+            sgClicked: "",
+            descricaoTituloSgClicked: "",
+            codigoSgClicked: "",
+            searchFor: "sgi",
+            searchValue: "",
+            searchValueRNC: "",
+            showRnc_modalForm: false,
+            searchForOptions: [
+                { "value": "sgi", "text": "SGI" },
+                { "value": "sgp", "text": "SGP" }
+            ],
+            sgiSearchResult: [
+                
+            ],
+            sgpSearchResult: [
+
+            ],
+            headerSgi: [
+                { text: 'Fila', value: 'Status' },
+                { text: 'ID', value: 'ID' },
+                { text: 'Projeto', value: 'Projeto' },
+                { text: 'UF', value: 'UF' },
+                { text: 'ID OPD', value: 'ID_OPD' },
+                { text: 'Empreiteira Projeto', value: 'Empreiteira' },
+                { text: 'Empreiteira Construção', value: 'EmpreiteiraConstrucao' },
+                {
+                text: '',
+                sortable: false,
+                value: 'detail',
+                filterable: false
+                }
+            ],
+            headerSgp: [
+                { text: 'Tipo Acionamento', value: 'TIPO ACIONAMENTO' },
+                { text: 'GL', value: 'GL' },
+                { text: 'Projeto', value: 'PROJETO' },
+                { text: 'UF', value: 'UF' },
+                { text: 'Cliente', value: 'CLIENTE' },
+                { text: 'GP Cliente', value: 'GPCliente' },
+                { text: 'Empreiteira', value: 'FORNECEDOR' },
+                {
+                text: '',
+                sortable: false,
+                value: 'detail',
+                filterable: false
+                }
+            ],
+            // ADVANCED SEARCH
+            advancedSearch: false,
+
+            // SGI
+            advancedSearchSgiEmpreiteiraProjeto: "",
+            advancedSearchSgiEmpreiteiraConstrucao: "",
+            advancedSearchSgiUF: "",
+            advancedSearchSgiProjeto: "",
+
+            // SGP
+            advancedSearchSgpTipoAcionamento: "",
+            advancedSearchSgpEmpreiteira: "",
+            advancedSearchSgpUF: "",
+        };
+    },
+    methods: {
+        clickOpenDetail(sg){
+            if(sg.detail == 'sgi'){
+                this.codigoGrupoFilaClicked = null; 
+                this.sgClicked = 'sgi'; 
+                this.codigoSgClicked = sg.ID; 
+            } else
+            if(sg.detail == 'sgp') {
+                this.codigoGrupoFilaClicked = sg.codigoGrupoFila;
+                this.sgClicked = 'sgp'; 
+                this.codigoSgClicked = sg.GL;
+            }
+            this.identificadorSolicitacaoRNCClicked = sg.identificadorSolicitacaoRNC;
+            this.descricaoTituloSgClicked= sg.descricaoTituloSg;
+            this.showRnc_modalForm=true;
+        },
+        advancedSearchButton(){
+            this.advancedSearch=!this.advancedSearch;
+        },
+        search(){
+            var searchFor = this.searchFor;
+            var errors = {};
+
+            errors = this.validatesErrorsSg();
+
+            this.deleteSearchSg();
+
+            if(Object.keys(errors).length === 0){
+
+                this.loadingSearch = true;
+
+                var url = this.urlSg;
+
+                axios.get(url).then(res => {
+                    var scope = `#rnc_${this.crudType}`;
+                    cleanErrorsScope(scope);
+
+                    this.insertSearchSg(searchFor, res.data);
+
+                    this.loadingSearch = false;
+                })
+                .catch(error => {
+                    this.loadingSearch = false;
+                    showError(error);
+                });
+
+            } else {
+                var scope = `#rnc_${this.crudType}`;
+                showAllErrorScope(errors, scope);
+            }
         },
         validatesErrorsSg(){
             var errors = {};

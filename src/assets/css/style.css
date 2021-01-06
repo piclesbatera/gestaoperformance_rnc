@@ -96,3 +96,18 @@ div.v-dialog.v-dialog--active.dialog{
 div.v-card.v-sheet div.v-window{
     background-color: #f7f7f7;
   }
+
+.mist-invisible{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    z-index: 999;
+}
+
+.mist-visible{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    z-index: 999;
+    background-color: rgba(240, 248, 255, 0.19);
+}
