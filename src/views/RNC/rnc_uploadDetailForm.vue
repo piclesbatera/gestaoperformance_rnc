@@ -169,7 +169,7 @@ export default {
         },
         downloadFile(object){
             var filename = object.filename;
-            var index = this.listObject.indexOf(object);
+            // var index = this.listObject.indexOf(object);
             var queryString = (this.id != null && this.id != undefined) ? `?id=${this.id}` : "";
             var folderAPI = (this.folder != null && this.folder != undefined) ? `${this.folder}/` : "";
             var url = `${baseApi}/download/${folderAPI}${filename}${queryString}`;
