@@ -141,8 +141,11 @@ export default {
         crudType: String
     },
     computed: {
+        permissionAlterRNC: function(){
+            return (this.rnc.status == null);
+        },
         permissionAlterIrregularidades: function(){
-            return ((this.crudType == 'c' || this.crudType == 'v'));
+            return ((this.permissionAlterRNC) && (this.crudType == 'c' || this.crudType == 'v'));
         },
         completeRNCButtons(){
             return (this.crudType == 'v' && this.rnc.initStatus == null && (Array.isArray(this.listaEvidencias) && this.listaEvidencias.length));
@@ -193,7 +196,7 @@ export default {
             return ( (this.crudType != 'c') && (Array.isArray(this.listaPrazos) && this.listaPrazos.length) && (this.listaPrazos[this.listaPrazos.length - 1].state == true) && (!this.havingPrazoToAccept));
         },
         permissionAlterEvidencias: function(){
-            return (this.previewTabEvidencias && (this.crudType == 't'));
+            return ((this.permissionAlterRNC) &&  (this.previewTabEvidencias) && (this.crudType == 't'));
         },
     },
   data: function() {

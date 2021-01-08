@@ -145,6 +145,7 @@ export default {
             listaRNCsRequest.forEach( 
                 (rnc, index) => 
                 { 
+                    rnc.listaIrregularidades = rnc.listaIrregularidades.filter(function(irregularidade){return irregularidade.filename && irregularidade.descricaoAnexo})
                     var irregularidades = rnc.listaIrregularidades;
                     var irregularidade = null;
                     for(irregularidade of irregularidades){
@@ -168,7 +169,7 @@ export default {
                 (rnc) => 
                 { 
                     rnc['prazo'] = rnc.listaPrazos.filter(function(prazo){ return (prazo.new && prazo.prazo) });
-                    rnc['evidencias'] = rnc.listaEvidencias.filter(function(evidencia){ return evidencia.new });
+                    rnc['evidencias'] = rnc.listaEvidencias.filter(function(evidencia){ return this.isNewUploadObject(evidencia) });
                     var evidencia = null;
                     for(evidencia of rnc['evidencias']){
                         formData.append('files-evidencias-'+rnc.id, evidencia.file);
@@ -192,7 +193,7 @@ export default {
                 (rnc) => 
                 { 
                     rnc['prazo'] = rnc.listaPrazos.filter(function(prazo){ return prazo.updated });
-                    rnc['irregularidades'] = rnc.listaIrregularidades.filter(function(irregularidade){ return irregularidade.new });
+                    rnc['irregularidades'] = rnc.listaIrregularidades.filter(function(irregularidade){ return this.isNewUploadObject(irregularidade) });
                     var irregularidade = null;
                     for(irregularidade of rnc['irregularidades']){
                         formData.append('files-irregularidades-'+rnc.id, irregularidade.file);
@@ -362,7 +363,7 @@ export default {
                 classificacao: null,
                 sg: this.sg,
                 codigo: this.codigo,
-                codigoGl: this.codigoGl,
+                codigoGL: this.codigoGL,
                 codigoGrupoFila: this.codigoGrupoFila,
                 listaRNCs: [
                     {
@@ -436,6 +437,9 @@ export default {
                 this.loadingDetalhe = false;
                 showError(error);
             });
+        },
+        isNewUploadObject(uploadObject){
+            return (uploadObject.new && uploadObject.filename && uploadObject.descricaoAnexo)
         }
   },
   created: function(){

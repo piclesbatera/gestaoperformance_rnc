@@ -333,13 +333,13 @@ export default {
                 }
             ],
             headerSgp: [
-                { text: 'Tipo Acionamento', value: 'TIPO ACIONAMENTO' },
+                { text: 'Tipo Acionamento', value: 'Tipo Acionamento' },
                 { text: 'GL', value: 'GL' },
-                { text: 'Projeto', value: 'PROJETO' },
+                { text: 'Projeto', value: 'Projeto' },
                 { text: 'UF', value: 'UF' },
-                { text: 'Cliente', value: 'CLIENTE' },
+                { text: 'Cliente', value: 'Cliente' },
                 { text: 'GP Cliente', value: 'GPCliente' },
-                { text: 'Empreiteira', value: 'FORNECEDOR' },
+                { text: 'Empreiteira', value: 'Empreiteira' },
                 {
                 text: '',
                 sortable: false,
