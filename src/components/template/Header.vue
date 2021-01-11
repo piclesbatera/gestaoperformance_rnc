@@ -13,10 +13,13 @@ export default {
   name: "Header",
   components: { UserIcons },
   props: {
-    title: String
+    
   },
   computed: {
-    ...mapState(["user"])
+    ...mapState(["user"]),
+    title: function(){
+      return process.env.VUE_APP_TITLE;
+    }
   },
   methods: {
   }

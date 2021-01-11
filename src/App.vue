@@ -3,7 +3,7 @@
     <div class="app">
       <Mist :visible="mistVisible" :activated="mist"></Mist>
       <template v-if="userConnected" >
-        <Header title="SGQ - Sistema de Gestão de Qualidade" />
+        <Header/>
         <Content />
         <Footer />
       </template>

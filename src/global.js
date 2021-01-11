@@ -1,6 +1,6 @@
 import Vue from "vue";
 
-export const baseApi = "http://localhost:5000";
+export const baseApi = process.env.VUE_APP_BASE_API;
 
 export const userKey = "registered_user";
 
