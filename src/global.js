@@ -1,8 +1,9 @@
 import Vue from "vue";
+import moment from 'moment'
 
 export const baseApi = process.env.VUE_APP_BASE_API;
 
-export const userKey = "registered_user";
+export const chaveUsuario = "usuario_registrado";
 
 
 // ERROR GLOBAL
@@ -106,9 +107,9 @@ export function getDateCalculated(dateStr, calc){
   var vDate = new Date(dateStr);
   var dateTimeConvertedTimeZone = new Date( vDate.getTime() + ( vDate.getTimezoneOffset() * 60000 ) );
 
-  var dateCalculated = new Date();
-  dateCalculated.setDate(dateTimeConvertedTimeZone.getDate() + calc);
-  return dateCalculated;
+  var dateCalculated = moment(dateTimeConvertedTimeZone);
+  dateCalculated.add(calc, 'days');
+  return dateCalculated.format('YYYY-MM-DD');
 }
 
-export default { userKey, baseApi, showError };
+export default { chaveUsuario, baseApi, showError };

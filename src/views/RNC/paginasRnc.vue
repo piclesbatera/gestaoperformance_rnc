@@ -1,34 +1,34 @@
 <template>
     <div :id="'rnc_'+crudType" :class="'rnc_'+crudType">
-        <h3>{{pageTitle}}</h3>
+        <h3>{{tituloPagina}}</h3>
         <fieldset class="border p-2">
             <legend class="w-auto">Consulta</legend>
-                <form @submit.prevent="search">
+                <form @submit.prevent="consulta">
                     <div class="row">
                         <div class="col-lg-2">
                             <div class="form-group">
-                                <label class="bmd-label-floating label-text" for="searchFor">Consulta por</label><font color="red"> *</font>
-                                <b-form-select id="searchFor" v-model="searchFor" name="searchFor" :options="searchForOptions" ></b-form-select>
+                                <label class="bmd-label-floating label-text" for="consultaPor">Consulta por</label><font color="red"> *</font>
+                                <b-form-select id="consultaPor" v-model="consultaPor" name="consultaPor" :options="consultaPorOptions" ></b-form-select>
                             </div>
                         </div>
                         <div class="col-lg-2" >
                             <div class="form-group">
-                                <label class="bmd-label-floating label-text" for="searchValue">
+                                <label class="bmd-label-floating label-text" for="valorConsulta">
                                     <span>
-                                        {{labelValue}}
+                                        {{valorLabel}}
                                     </span>   
                                 </label>
-                                <b-form-input id="searchValue" v-model="searchValue" name="searchValue" placeholder="Valor de consulta"></b-form-input>
+                                <b-form-input id="valorConsulta" v-model="valorConsulta" name="valorConsulta" placeholder="Valor de consulta"></b-form-input>
                             </div>
                         </div>
-                        <div class="col-lg-2" v-if="needRNC">
+                        <div class="col-lg-2" v-if="temRNC">
                             <div class="form-group">
-                                <label class="bmd-label-floating label-text" for="searchValueRNC">
+                                <label class="bmd-label-floating label-text" for="valorConsultaRNC">
                                     <span>
                                         RNC
                                     </span>   
                                 </label>
-                                <b-form-input id="searchValueRNC" v-model="searchValueRNC" name="searchValueRNC" placeholder="Busca por RNC"></b-form-input>
+                                <b-form-input id="valorConsultaRNC" v-model="valorConsultaRNC" name="valorConsultaRNC" placeholder="Busca por RNC"></b-form-input>
                             </div>
                         </div>
                         <div class="col-lg-2">
@@ -36,8 +36,8 @@
                                 <label class="bmd-label-floating blank-label"></label>
                                 <v-btn
                                     class="btn btn-primary form-control"
-                                    :loading="loadingSearch"
-                                    :disabled="loadingSearch"
+                                    :loading="loadingConsulta"
+                                    :disabled="loadingConsulta"
                                     color="blue"
                                     type="submit"
                                 >
@@ -48,57 +48,57 @@
                         <div class="col-lg-2" right>
                             <div class="form-group">
                                 <label class="bmd-label-floating blank-label"></label>
-                                <v-btn @click="advancedSearchButton();" class="btn btn-primary form-control" color="blue" dark >
+                                <v-btn @click="consultaAvancadaButton();" class="btn btn-primary form-control" color="blue" dark >
                                     <v-icon title="Filtros Avançados">mdi-magnify</v-icon>
                                     Filtros avançados
                                 </v-btn>
                             </div>
                         </div>
                     </div>
-                    <div class="row" v-if="advancedSearch">
+                    <div class="row" v-if="consultaAvancada">
                         <div class="col-lg-12">
                             <fieldset class="border p-2">
                                 <legend class="w-auto">Filtros Avançados</legend>
-                                <div v-if="searchFor == 'sgi'">
+                                <div v-if="consultaPor == 'sgi'">
                                     <div class="row">
                                         <div class="col-lg-2" >
                                             <div class="form-group">
-                                                <label class="bmd-label-floating label-text" for="advancedSearchSgiUF">
+                                                <label class="bmd-label-floating label-text" for="consultaAvancadaSgiUF">
                                                     <span>
                                                         UF
                                                     </span>   
                                                 </label>
-                                                <b-form-select id="advancedSearchSgiUF" v-model="advancedSearchSgiUF" name="advancedSearchSgiUF" :options="UFOptions" ></b-form-select>
+                                                <b-form-select id="consultaAvancadaSgiUF" v-model="consultaAvancadaSgiUF" name="consultaAvancadaSgiUF" :options="UFOptions" ></b-form-select>
                                             </div>
                                         </div>
                                         <div class="col-lg-2" >
                                             <div class="form-group">
-                                                <label class="bmd-label-floating label-text" for="advancedSearchSgiProjeto">
+                                                <label class="bmd-label-floating label-text" for="consultaAvancadaSgiProjeto">
                                                     <span>
                                                         Projeto
                                                     </span>   
                                                 </label>
-                                                <b-form-input id="advancedSearchSgiProjeto" v-model="advancedSearchSgiProjeto" name="advancedSearchSgiProjeto" placeholder="Nome do Projeto"></b-form-input>
+                                                <b-form-input id="consultaAvancadaSgiProjeto" v-model="consultaAvancadaSgiProjeto" name="consultaAvancadaSgiProjeto" placeholder="Nome do Projeto"></b-form-input>
                                             </div>
                                         </div>
                                         <div class="col-lg-2" >
                                             <div class="form-group">
-                                                <label class="bmd-label-floating label-text" for="advancedSearchSgiEmpreiteiraProjeto">
+                                                <label class="bmd-label-floating label-text" for="consultaAvancadaSgiEmpreiteiraProjeto">
                                                     <span>
                                                         Empreiteira Projeto
                                                     </span>   
                                                 </label>
-                                                <b-form-input id="advancedSearchSgiEmpreiteiraProjeto" v-model="advancedSearchSgiEmpreiteiraProjeto" name="advancedSearchSgiEmpreiteiraProjeto" placeholder="Nome da Empreiteira Projeto"></b-form-input>
+                                                <b-form-input id="consultaAvancadaSgiEmpreiteiraProjeto" v-model="consultaAvancadaSgiEmpreiteiraProjeto" name="consultaAvancadaSgiEmpreiteiraProjeto" placeholder="Nome da Empreiteira Projeto"></b-form-input>
                                             </div>
                                         </div>
                                         <div class="col-lg-2" >
                                             <div class="form-group">
-                                                <label class="bmd-label-floating label-text" for="advancedSearchSgiEmpreiteiraConstrucao">
+                                                <label class="bmd-label-floating label-text" for="consultaAvancadaSgiEmpreiteiraConstrucao">
                                                     <span>
                                                         Empreiteira Construção
                                                     </span>   
                                                 </label>
-                                                <b-form-input id="advancedSearchSgiEmpreiteiraConstrucao" v-model="advancedSearchSgiEmpreiteiraConstrucao" name="advancedSearchSgiEmpreiteiraConstrucao" placeholder="Nome da Empreiteira Construção"></b-form-input>
+                                                <b-form-input id="consultaAvancadaSgiEmpreiteiraConstrucao" v-model="consultaAvancadaSgiEmpreiteiraConstrucao" name="consultaAvancadaSgiEmpreiteiraConstrucao" placeholder="Nome da Empreiteira Construção"></b-form-input>
                                             </div>
                                         </div>
                                     </div>
@@ -107,32 +107,32 @@
                                     <div class="row">
                                         <div class="col-lg-2" >
                                             <div class="form-group">
-                                                <label class="bmd-label-floating label-text" for="advancedSearchSgpTipoAcionamento">
+                                                <label class="bmd-label-floating label-text" for="consultaAvancadaSgpTipoAcionamento">
                                                     <span>
                                                         Tipo Acionamento
                                                     </span>   
                                                 </label>
-                                                <b-form-select id="advancedSearchSgpTipoAcionamento" v-model="advancedSearchSgpTipoAcionamento" name="advancedSearchSgpTipoAcionamento" :options="tipoAcionamentoOptions" ></b-form-select>
+                                                <b-form-select id="consultaAvancadaSgpTipoAcionamento" v-model="consultaAvancadaSgpTipoAcionamento" name="consultaAvancadaSgpTipoAcionamento" :options="tipoAcionamentoOptions" ></b-form-select>
                                             </div>
                                         </div>
                                         <div class="col-lg-2" >
                                             <div class="form-group">
-                                                <label class="bmd-label-floating label-text" for="advancedSearchSgpUF">
+                                                <label class="bmd-label-floating label-text" for="consultaAvancadaSgpUF">
                                                     <span>
                                                         UF
                                                     </span>   
                                                 </label>
-                                                <b-form-select id="advancedSearchSgpUF" v-model="advancedSearchSgpUF" name="advancedSearchSgpUF" :options="UFOptions" ></b-form-select>
+                                                <b-form-select id="consultaAvancadaSgpUF" v-model="consultaAvancadaSgpUF" name="consultaAvancadaSgpUF" :options="UFOptions" ></b-form-select>
                                             </div>
                                         </div>
                                         <div class="col-lg-2" >
                                             <div class="form-group">
-                                                <label class="bmd-label-floating label-text" for="advancedSearchSgpEmpreiteira">
+                                                <label class="bmd-label-floating label-text" for="consultaAvancadaSgpEmpreiteira">
                                                     <span>
                                                         Empreiteira
                                                     </span>   
                                                 </label>
-                                                <b-form-input id="advancedSearchSgpEmpreiteira" v-model="advancedSearchSgpEmpreiteira" name="advancedSearchSgpEmpreiteira" placeholder="Nome da Empreiteira"></b-form-input>
+                                                <b-form-input id="consultaAvancadaSgpEmpreiteira" v-model="consultaAvancadaSgpEmpreiteira" name="consultaAvancadaSgpEmpreiteira" placeholder="Nome da Empreiteira"></b-form-input>
                                             </div>
                                         </div>
                                     </div>
@@ -148,20 +148,20 @@
                     <v-card-title>
                     
                     <v-spacer></v-spacer>
-                    <v-text-field v-model="searchDataTable" append-icon="mdi-magnify" label="Pesquisa" single-line hide-details></v-text-field>
+                    <v-text-field v-model="consultaDataTable" append-icon="mdi-magnify" label="Pesquisa" single-line hide-details></v-text-field>
                     </v-card-title>
                     <v-divider></v-divider>
                     <div class="scrollable">
-                        <v-data-table class="default_color_background" :headers="headersSearch" :items="listaSearch" :search="searchDataTable" :loading="loadingSearch" loading-text="Carregando..." no-data-text="Sem dados disponíveis">
+                        <v-data-table class="default_color_background" :headers="headersConsulta" :items="listaConsulta" :consulta="consultaDataTable" :loading="loadingConsulta" loading-text="Carregando..." no-data-text="Sem dados disponíveis">
                             <template v-slot:item.detail="{ item }">
-                                <i :title="titleDetail" @click="clickOpenDetail(item);" class="openDetail fa fa-edit"></i>
+                                <i :title="titleDetail" @click="abreRegistroSelecionado(item);" class="openDetail fa fa-edit"></i>
                             </template>
                         </v-data-table>
                     </div>
             </v-container>  
             </div>
         </div>
-        <Rnc_modalForm :crudType="crudType" :identificadorSolicitacaoRNC="identificadorSolicitacaoRNCClicked" :sg="sgClicked" :codigoGrupoFila="codigoGrupoFilaClicked" v-if="showRnc_modalForm" :codigoSg="codigoSgClicked" v-model="showRnc_modalForm" :descricaoTituloSg="descricaoTituloSgClicked"/>
+        <Rnc_modalForm :crudType="crudType" :identificadorAreaDemandanteRnc="identificadorAreaDemandanteRncClicado" :sg="sgClicado" :codigoGrupoFila="codigoGrupoFilaClicado" v-if="showRnc_modalForm" :codigoSg="codigoSgClicado" v-model="showRnc_modalForm" :descricaoTituloSg="descricaoTituloSgClicado"/>
     </div>  
 </template>
 
@@ -173,7 +173,7 @@ import tipoAcionamentoOptions from "@/assets/json/sgp/tipoAcionamento.json";
 import UFOptions from "@/assets/json/brasil/UF.json";
 
 export default {
-    name: "rncPage",
+    name: "paginasRnc",
     props: {
         crudType: {
             default: "invalid",
@@ -194,27 +194,27 @@ export default {
             }
             return titleDetail;
         },
-        needRNC: function(){
+        temRNC: function(){
             if(this.crudType == 't' || this.crudType == 'v'){
                 return true;
             }
             return false;
         },
-        headersSearch: function(){
-            if(this.searchFor == 'sgi'){
+        headersConsulta: function(){
+            if(this.consultaPor == 'sgi'){
                 return this.headerSgi;
             } else {
                 return this.headerSgp;
             }
         },
-        listaSearch: function(){
-            if(this.searchFor == 'sgi'){
-                return this.sgiSearchResult;
+        listaConsulta: function(){
+            if(this.consultaPor == 'sgi'){
+                return this.sgiResultadoConsulta;
             } else {
-                return this.sgpSearchResult;
+                return this.sgpResultadoConsulta;
             }
         },
-        pageTitle: function(){
+        tituloPagina: function(){
             var title = "RNC";
             if(this.crudType == 'c'){
                 title = 'Criação de RNC';
@@ -230,10 +230,10 @@ export default {
 
             return title;
         },
-        labelValue: function(){
+        valorLabel: function(){
             var label = "GL";
 
-            if(this.searchFor == 'sgi'){
+            if(this.consultaPor == 'sgi'){
                 label = "ID";
             } else {
                 label = "GL";
@@ -241,48 +241,48 @@ export default {
             return label;
         },
         urlSg: function(){
-            var queryString = this.parametersSg;
+            var queryString = this.parametrosSg;
 
-            var url = `${baseApi}/rnc/sg/${this.crudType}/${this.searchFor}${queryString}`;
+            var url = `${baseApi}/rnc/sg/${this.crudType}/${this.consultaPor}${queryString}`;
 
             return url;
         },
-        parametersSg: function(){
+        parametrosSg: function(){
             var queryString = '?';
 
-            if(this.searchValue){
-                queryString += '&codigoEmissao=' + this.searchValue;
+            if(this.valorConsulta){
+                queryString += '&codigoEmissao=' + this.valorConsulta;
             }
 
-            if(this.searchValueRNC && this.this.needRNC){
-                queryString += '&codigoRNC=' + this.searchValueRNC;
+            if(this.valorConsultaRNC && this.this.temRNC){
+                queryString += '&codigoRNC=' + this.valorConsultaRNC;
             }
 
-            if(this.advancedSearchSgiUF && this.advancedSearch && this.searchFor == 'sgi'){
-                queryString += '&UF=' + this.advancedSearchSgiUF;
+            if(this.consultaAvancadaSgiUF && this.consultaAvancada && this.consultaPor == 'sgi'){
+                queryString += '&UF=' + this.consultaAvancadaSgiUF;
             }
 
-            if(this.advancedSearchSgiProjeto && this.advancedSearch && this.searchFor == 'sgi'){
-                queryString += '&descricaoProjeto=' + this.advancedSearchSgiProjeto;
+            if(this.consultaAvancadaSgiProjeto && this.consultaAvancada && this.consultaPor == 'sgi'){
+                queryString += '&descricaoProjeto=' + this.consultaAvancadaSgiProjeto;
             }
 
-            if(this.advancedSearchSgiEmpreiteiraProjeto && this.advancedSearch && this.searchFor == 'sgi'){
-                queryString += '&descricaoEmpreiteiraProjeto=' + this.advancedSearchSgiEmpreiteiraProjeto;
+            if(this.consultaAvancadaSgiEmpreiteiraProjeto && this.consultaAvancada && this.consultaPor == 'sgi'){
+                queryString += '&descricaoEmpreiteiraProjeto=' + this.consultaAvancadaSgiEmpreiteiraProjeto;
             }
-            if(this.advancedSearchSgiEmpreiteiraConstrucao && this.advancedSearch && this.searchFor == 'sgi'){
-                queryString += '&descricaoEmpreiteiraConstrucao=' + this.advancedSearchSgiEmpreiteiraConstrucao;
+            if(this.consultaAvancadaSgiEmpreiteiraConstrucao && this.consultaAvancada && this.consultaPor == 'sgi'){
+                queryString += '&descricaoEmpreiteiraConstrucao=' + this.consultaAvancadaSgiEmpreiteiraConstrucao;
             }
 
     
-            if(this.advancedSearchSgpUF && this.advancedSearch && this.searchFor == 'sgp'){
-                queryString += '&UF=' + this.advancedSearchSgpUF;
+            if(this.consultaAvancadaSgpUF && this.consultaAvancada && this.consultaPor == 'sgp'){
+                queryString += '&UF=' + this.consultaAvancadaSgpUF;
             }
 
-            if(this.advancedSearchSgpTipoAcionamento && this.advancedSearch && this.searchFor == 'sgp'){
-                queryString += '&tipoAcionamento=' + this.advancedSearchSgpTipoAcionamento;
+            if(this.consultaAvancadaSgpTipoAcionamento && this.consultaAvancada && this.consultaPor == 'sgp'){
+                queryString += '&tipoAcionamento=' + this.consultaAvancadaSgpTipoAcionamento;
             }
-            if(this.advancedSearchSgpEmpreiteira && this.advancedSearch && this.searchFor == 'sgp'){
-                queryString += '&descricaoEmpreiteira=' + this.advancedSearchSgpEmpreiteira;
+            if(this.consultaAvancadaSgpEmpreiteira && this.consultaAvancada && this.consultaPor == 'sgp'){
+                queryString += '&descricaoEmpreiteira=' + this.consultaAvancadaSgpEmpreiteira;
             }
 
             return queryString;
@@ -294,27 +294,27 @@ export default {
     },
     data: function() {
         return {
-            searchDataTable: "",
+            consultaDataTable: "",
             UFOptions,
             tipoAcionamentoOptions,
-            loadingSearch: false,
-            identificadorSolicitacaoRNCClicked: null,
-            codigoGrupoFilaClicked: null,
-            sgClicked: "",
-            descricaoTituloSgClicked: "",
-            codigoSgClicked: "",
-            searchFor: "sgi",
-            searchValue: "",
-            searchValueRNC: "",
+            loadingConsulta: false,
+            identificadorAreaDemandanteRncClicado: null,
+            codigoGrupoFilaClicado: null,
+            sgClicado: "",
+            descricaoTituloSgClicado: "",
+            codigoSgClicado: "",
+            consultaPor: "sgi",
+            valorConsulta: "",
+            valorConsultaRNC: "",
             showRnc_modalForm: false,
-            searchForOptions: [
+            consultaPorOptions: [
                 { "value": "sgi", "text": "SGI" },
                 { "value": "sgp", "text": "SGP" }
             ],
-            sgiSearchResult: [
+            sgiResultadoConsulta: [
                 
             ],
-            sgpSearchResult: [
+            sgpResultadoConsulta: [
 
             ],
             headerSgi: [
@@ -348,50 +348,51 @@ export default {
                 }
             ],
             // ADVANCED SEARCH
-            advancedSearch: false,
+            consultaAvancada: false,
 
             // SGI
-            advancedSearchSgiEmpreiteiraProjeto: "",
-            advancedSearchSgiEmpreiteiraConstrucao: "",
-            advancedSearchSgiUF: "",
-            advancedSearchSgiProjeto: "",
+            consultaAvancadaSgiEmpreiteiraProjeto: "",
+            consultaAvancadaSgiEmpreiteiraConstrucao: "",
+            consultaAvancadaSgiUF: "",
+            consultaAvancadaSgiProjeto: "",
 
             // SGP
-            advancedSearchSgpTipoAcionamento: "",
-            advancedSearchSgpEmpreiteira: "",
-            advancedSearchSgpUF: "",
+            consultaAvancadaSgpTipoAcionamento: "",
+            consultaAvancadaSgpEmpreiteira: "",
+            consultaAvancadaSgpUF: "",
         };
     },
     methods: {
-        clickOpenDetail(sg){
+        abreRegistroSelecionado(sg){
             if(sg.detail == 'sgi'){
-                this.codigoGrupoFilaClicked = null; 
-                this.sgClicked = 'sgi'; 
-                this.codigoSgClicked = sg.ID; 
+                this.codigoGrupoFilaClicado = null; 
+                this.sgClicado = 'sgi'; 
+                this.codigoSgClicado = sg.ID; 
             } else
             if(sg.detail == 'sgp') {
-                this.codigoGrupoFilaClicked = sg.codigoGrupoFila;
-                this.sgClicked = 'sgp'; 
-                this.codigoSgClicked = sg.GL;
+                this.codigoGrupoFilaClicado = String(sg.codigoGrupoFila);
+                this.sgClicado = 'sgp'; 
+                this.codigoSgClicado = sg.GL;
             }
-            this.identificadorSolicitacaoRNCClicked = sg.identificadorSolicitacaoRNC;
-            this.descricaoTituloSgClicked= sg.descricaoTituloSg;
+            this.codigoSgClicado = parseInt(this.codigoSgClicado);
+            this.identificadorAreaDemandanteRncClicado = sg.identificadorAreaDemandanteRnc;
+            this.descricaoTituloSgClicado= sg.descricaoTituloSg;
             this.showRnc_modalForm=true;
         },
-        advancedSearchButton(){
-            this.advancedSearch=!this.advancedSearch;
+        consultaAvancadaButton(){
+            this.consultaAvancada=!this.consultaAvancada;
         },
-        search(){
-            var searchFor = this.searchFor;
+        consulta(){
+            var consultaPor = this.consultaPor;
             var errors = {};
 
             errors = this.validatesErrorsSg();
 
-            this.deleteSearchSg();
+            this.deletarConsultaSg();
 
             if(Object.keys(errors).length === 0){
 
-                this.loadingSearch = true;
+                this.loadingConsulta = true;
 
                 var url = this.urlSg;
 
@@ -399,12 +400,12 @@ export default {
                     var scope = `#rnc_${this.crudType}`;
                     cleanErrorsScope(scope);
 
-                    this.insertSearchSg(searchFor, res.data);
+                    this.inserirConsultaSg(consultaPor, res.data);
 
-                    this.loadingSearch = false;
+                    this.loadingConsulta = false;
                 })
                 .catch(error => {
-                    this.loadingSearch = false;
+                    this.loadingConsulta = false;
                     showError(error);
                 });
 
@@ -416,130 +417,130 @@ export default {
         validatesErrorsSg(){
             var errors = {};
 
-            if(!this.searchFor){
-                errors['searchFor'] = 'é obrigatório';
+            if(!this.consultaPor){
+                errors['consultaPor'] = 'é obrigatório';
             }
-            if(!this.advancedSearch){
-                if(!this.searchValue &&
+            if(!this.consultaAvancada){
+                if(!this.valorConsulta &&
                 
                 (
-                    (this.needRNC && !this.searchValueRNC) || (this.crudType != 't')
+                    (this.temRNC && !this.valorConsultaRNC) || (this.crudType != 't')
                 )
 
                 ){
-                    errors['searchValue'] = 'é obrigatório';
+                    errors['valorConsulta'] = 'é obrigatório';
 
-                    if(this.needRNC && !this.searchValueRNC){
-                        errors['searchValueRNC'] = 'é obrigatório';
+                    if(this.temRNC && !this.valorConsultaRNC){
+                        errors['valorConsultaRNC'] = 'é obrigatório';
                     }
                 }
             // ADVANCED VALIDATE
             } else {
-                if(this.searchFor == 'sgi'){
-                    if(!this.searchValue 
+                if(this.consultaPor == 'sgi'){
+                    if(!this.valorConsulta 
                     && 
                     (
-                        (this.needRNC && !this.searchValueRNC) || (this.crudType != 't')
+                        (this.temRNC && !this.valorConsultaRNC) || (this.crudType != 't')
                     ) 
                     &&
                     // ADVANCED CONDITION
-                    !this.advancedSearchSgiUF && !this.advancedSearchSgiProjeto && !this.advancedSearchSgiEmpreiteiraProjeto && !this.advancedSearchSgiEmpreiteiraConstrucao){
+                    !this.consultaAvancadaSgiUF && !this.consultaAvancadaSgiProjeto && !this.consultaAvancadaSgiEmpreiteiraProjeto && !this.consultaAvancadaSgiEmpreiteiraConstrucao){
 
-                        errors['searchValue'] = 'é obrigatório';
+                        errors['valorConsulta'] = 'é obrigatório';
 
-                        if(this.needRNC && !this.searchValueRNC){
-                            errors['searchValueRNC'] = 'é obrigatório';
+                        if(this.temRNC && !this.valorConsultaRNC){
+                            errors['valorConsultaRNC'] = 'é obrigatório';
                         }
 
                         // ADVANCED FORM
-                        errors['advancedSearchSgiUF'] = 'é obrigatório';
-                        errors['advancedSearchSgiProjeto'] = 'é obrigatório';
-                        errors['advancedSearchSgiEmpreiteiraProjeto'] = 'é obrigatório';
-                        errors['advancedSearchSgiEmpreiteiraConstrucao'] = 'é obrigatório';
+                        errors['consultaAvancadaSgiUF'] = 'é obrigatório';
+                        errors['consultaAvancadaSgiProjeto'] = 'é obrigatório';
+                        errors['consultaAvancadaSgiEmpreiteiraProjeto'] = 'é obrigatório';
+                        errors['consultaAvancadaSgiEmpreiteiraConstrucao'] = 'é obrigatório';
                     }
                 } else {
-                    if(!this.searchValue 
+                    if(!this.valorConsulta 
                     && 
                     (
-                        (this.needRNC && !this.searchValueRNC) || (this.crudType != 't')
+                        (this.temRNC && !this.valorConsultaRNC) || (this.crudType != 't')
                     ) 
                     &&
                     // ADVANCED CONDITION
-                    !this.advancedSearchSgpTipoAcionamento && !this.advancedSearchSgpUF && !this.advancedSearchSgpEmpreiteira){
+                    !this.consultaAvancadaSgpTipoAcionamento && !this.consultaAvancadaSgpUF && !this.consultaAvancadaSgpEmpreiteira){
 
-                        errors['searchValue'] = 'é obrigatório';
+                        errors['valorConsulta'] = 'é obrigatório';
 
-                        if(this.needRNC && !this.searchValueRNC){
-                            errors['searchValueRNC'] = 'é obrigatório';
+                        if(this.temRNC && !this.valorConsultaRNC){
+                            errors['valorConsultaRNC'] = 'é obrigatório';
                         }
 
                         // ADVANCED FORM
-                        errors['advancedSearchSgpTipoAcionamento'] = 'é obrigatório';
-                        errors['advancedSearchSgpUF'] = 'é obrigatório';
-                        errors['advancedSearchSgpEmpreiteira'] = 'é obrigatório';
+                        errors['consultaAvancadaSgpTipoAcionamento'] = 'é obrigatório';
+                        errors['consultaAvancadaSgpUF'] = 'é obrigatório';
+                        errors['consultaAvancadaSgpEmpreiteira'] = 'é obrigatório';
                     }
                 }
             }
 
-            if(this.searchValue && this.searchValueRNC && this.needRNC){
-                errors['searchValue'] = 'não pode ser preenchido junto a RNC';
-                errors['searchValueRNC'] = 'não pode ser preenchido junto a '+ this.labelValue;
+            if(this.valorConsulta && this.valorConsultaRNC && this.temRNC){
+                errors['valorConsulta'] = 'não pode ser preenchido junto a RNC';
+                errors['valorConsultaRNC'] = 'não pode ser preenchido junto a '+ this.valorLabel;
             }
 
             return errors;
         },
-        deleteSearchSg(){
-            if(this.searchFor == 'sgi'){
-                this.sgiSearchResult = [];
+        deletarConsultaSg(){
+            if(this.consultaPor == 'sgi'){
+                this.sgiResultadoConsulta = [];
             } else 
-            if(this.searchFor == 'sgp') {
-                this.sgpSearchResult = [];
+            if(this.consultaPor == 'sgp') {
+                this.sgpResultadoConsulta = [];
             }
         },
-        insertSearchSg(searchFor, data){
-            if(searchFor == 'sgi'){
-                var sgiSearchResult = data;
+        inserirConsultaSg(consultaPor, data){
+            if(consultaPor == 'sgi'){
+                var sgiResultadoConsulta = data;
 
-                sgiSearchResult.forEach( 
+                sgiResultadoConsulta.forEach( 
                 (item) => 
                     {
                     item['detail'] = 'sgi';
                     }
                 );
 
-                this.sgiSearchResult = sgiSearchResult;
+                this.sgiResultadoConsulta = sgiResultadoConsulta;
             } else 
-            if(searchFor == 'sgp') {
-                var sgpSearchResult = data;
+            if(consultaPor == 'sgp') {
+                var sgpResultadoConsulta = data;
 
-                sgpSearchResult.forEach( 
+                sgpResultadoConsulta.forEach( 
                 (item) => 
                     {
                     item['detail'] = 'sgp';
                     }
                 );
 
-                this.sgpSearchResult = sgpSearchResult;
+                this.sgpResultadoConsulta = sgpResultadoConsulta;
             }
         }
     },
     watch: {
-        searchFor: function(newValue, oldValue){
-            if(newValue != oldValue){
+        consultaPor: function(novoValor, antigoValor){
+            if(novoValor != antigoValor){
                 var scope = `#rnc_${this.crudType}`;
                 cleanErrorsScope(scope);
-                this.searchValue = "";
-                this.searchValueRNC = "";
+                this.valorConsulta = "";
+                this.valorConsultaRNC = "";
             }
         },
-        searchValue: function(newValue, oldValue){
-            if(newValue != oldValue && newValue != ""){
-                this.searchValueRNC = "";
+        valorConsulta: function(novoValor, antigoValor){
+            if(novoValor != antigoValor && novoValor != ""){
+                this.valorConsultaRNC = "";
             }
         },
-        searchValueRNC: function(newValue, oldValue){
-            if(newValue != oldValue && newValue != ""){
-                this.searchValue = "";
+        valorConsultaRNC: function(novoValor, antigoValor){
+            if(novoValor != antigoValor && novoValor != ""){
+                this.valorConsulta = "";
             }
         }
     }
@@ -550,12 +551,6 @@ export default {
 
 .default_color_background{
   background-color: #f7f7f7;
-}
-
-.btn-primary{
-    color: #fff;
-    background-color: #007bff;
-    border-color: #007bff;
 }
 
 .openDetail{

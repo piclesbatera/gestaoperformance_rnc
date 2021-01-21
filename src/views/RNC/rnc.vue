@@ -36,7 +36,7 @@
                             </v-list>
                     </v-menu>
                     
-                    <v-menu offset-y v-if="empreiteiraRNC.length">
+                    <!-- <v-menu offset-y v-if="empreiteiraRNC.length">
                             <template v-slot:activator="{ on, attrs }">
                                 <a
                                 class="v-tab"
@@ -59,7 +59,7 @@
                                     </v-list-item>
                                 </v-tab>
                             </v-list>
-                    </v-menu>
+                    </v-menu> -->
 
                     <v-tab :href="'#tab-relatorios'" >Relatórios</v-tab>
 
@@ -79,7 +79,7 @@
                     <v-tab-item v-for="(rnc) in controleRNC" :key="rnc.id" :value="'tab-'+rnc.id">
                         <v-card flat>
                             <v-card-text>
-                                <RncPage :crudType="rnc.crudType"/>
+                                <PaginasRnc :crudType="rnc.crudType"/>
                             </v-card-text>
                         </v-card>
                     </v-tab-item>
@@ -89,7 +89,7 @@
                     <v-tab-item v-for="(rnc) in empreiteiraRNC" :key="rnc.id" :value="'tab-'+rnc.id">
                         <v-card flat>
                             <v-card-text>
-                                <RncPage :crudType="rnc.crudType"/>
+                                <PaginasRnc :crudType="rnc.crudType"/>
                             </v-card-text>
                         </v-card>
                     </v-tab-item>
@@ -106,10 +106,10 @@
 </template>
 
 <script>
-import RncPage from "./rncPage";
+import PaginasRnc from "./paginasRnc";
 export default {
    name: "rnc",
-   components: { RncPage },
+   components: { PaginasRnc },
    data: function() {
     return {
         tab: null,

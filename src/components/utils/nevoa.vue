@@ -1,27 +1,27 @@
 <template>
-    <div v-if="activated" :class="mistClass">
+    <div v-if="ativo" :class="nevoaClass">
 
     </div>
 </template>
 
 <script>
 export default {
-    name: "mist",
+    name: "nevoa",
     components: {
     },
     props: {
-        visible: {
+        visivel: {
             type: Boolean,
             default: false
         },
-        activated: {
+        ativo: {
             type: Boolean,
             default: false
         }
     },
     computed: {
-        mistClass: function(){
-            return (this.visible) ? "mist-visible" : "mist-invisible";
+        nevoaClass: function(){
+            return (this.visivel) ? "nevoa-visivel" : "nevoa-invisivel";
         }
     },
   data: function() {

@@ -33,6 +33,12 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/RNC/rnc.vue")
+  },
+  {
+    path: "/perfil",
+    name: "Perfil",
+    component: () =>
+      import(/*webpackChunkName: "profile" */ "@/views/Perfil/Perfil")
   }
 ];
 

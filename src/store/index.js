@@ -6,33 +6,32 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    user: null,
-    mistVisible: false,
-    mist: false
+    usuario: null,
+    nevoaVisivel: false,
+    nevoa: false
   },
   mutations: {
-    setUser(state, user) {
-      if (user) {
-        state.user = user;
-        state.isMenuVisible = true;
-        axios.defaults.headers.common["Authorization"] = `bearer ${user.token}`;
+    setUsuario(state, usuario) {
+      if (usuario) {
+        state.usuario = usuario;
+        state.isMenuVisivel = true;
+        axios.defaults.headers.common["Authorization"] = `bearer ${usuario.token}`;
       } else {
-        state.user = null;
+        state.usuario = null;
         delete axios.defaults.headers.common["Authorization"];
-        state.isMenuVisible = false;
+        state.isMenuVisivel = false;
       }
     },
-    setUserProfile(state, userProfile) {
-      if(state.user){
-        state.user['userProfile'] = userProfile;
-        console.log(state.user.userProfile);
+    setPerfilUsuario(state, perfilUsuario) {
+      if(state.usuario){
+        state.usuario['perfilUsuario'] = perfilUsuario;
       }
     },
-    setMistVisible(state, mistVisible){
-      state.mistVisible = mistVisible;
+    setNevoaVisivel(state, nevoaVisivel){
+      state.nevoaVisivel = nevoaVisivel;
     },
-    setMist(state, mist){
-      state.mist = mist;
+    setNevoa(state, nevoa){
+      state.nevoa = nevoa;
     }
   },
   actions: {},

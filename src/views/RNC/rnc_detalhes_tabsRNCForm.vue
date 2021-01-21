@@ -17,38 +17,64 @@
                             <div class="col-lg-5">
                                 <div class="form-group">
                                     <label class="bmd-label-floating label-text" for="motivo">Motivo</label><font color="red"> *</font>
-                                    <b-form-select :disabled="desabilitaDetalhes" v-model="rnc.motivo" :options="motivos" ></b-form-select>
+                                    <b-form-select v-model="rnc.motivo" :disabled="rnc.dataCriacao" @change="carregaTipos()" :options="motivos" ></b-form-select>
                                 </div>
                             </div>
                             <div class="col-lg-5">
                                 <div class="form-group">
-                                    <label class="bmd-label-floating label-text" for="tipo">Tipo</label><font color="red"> *</font>
-                                    <b-form-select :disabled="desabilitaDetalhes" v-model="rnc.tipo" :options="tipos" ></b-form-select>
+                                    <label class="bmd-label-floating label-text" for="tipo">Descrição</label><font color="red"> *</font>
+                                    <b-form-select v-model="rnc.tipo" :disabled="rnc.dataCriacao" :options="tipos" ></b-form-select>
                                 </div>
                             </div>
-                            <template v-if="completeRNCButtons">
-                                <div class="col-lg-1">
-                                    <div class="form-group">
-                                        <label class="bmd-label-floating blank-label"></label>
-                                        <v-btn class="btn btn-danger form-control" color="red" dark @click="rnc.status = false;">
-                                            <v-icon dark >
-                                                mdi-cancel
-                                            </v-icon>
-                                        </v-btn>
-                                    </div>
-                                </div>
-                                <div class="col-lg-1">
-                                    <div class="form-group">
-                                        <label class="bmd-label-floating blank-label"></label>
-                                        <v-btn class="btn btn-primary form-control" color="blue" dark @click="rnc.status = true;">
-                                            <v-icon dark >
-                                                mdi-checkbox-marked-circle
-                                            </v-icon>
-                                        </v-btn>
-                                    </div>
-                                </div>
-                            </template>
+                            <div class="col-lg-2">
+                                <label class="bmd-label-floating">Tratar</label>
+                                <v-checkbox
+                                    v-model="rnc.tratar"
+                                    style="margin-top: 0px;"
+                                    :disabled="rnc.dataCriacao"
+                                ></v-checkbox>
+                            </div>
                         </div>
+                        <div class="row">
+                            <div class="col-lg-5" >
+                                <div class="form-group">
+                                    <label class="bmd-label-floating label-text" for="classificacao">Tipo</label><font color="red"> *</font>
+                                    <b-form-select disabled id="classificacao" v-model="rnc.classificacao" :options="classificacoes" ></b-form-select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" v-if="completeRNCButtons">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label class="bmd-label-floating blank-label"></label>
+                                    <v-btn class="btn btn-danger form-control" color="red" dark @click="rnc.resolvido = false;">
+                                        <v-icon dark >
+                                            mdi-cancel
+                                        </v-icon>
+                                    </v-btn>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label class="bmd-label-floating blank-label"></label>
+                                    <v-btn class="btn btn-primary form-control" color="blue" dark @click="rnc.resolvido = true;">
+                                        <v-icon dark >
+                                            mdi-checkbox-marked-circle
+                                        </v-icon>
+                                    </v-btn>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <label class="bmd-label-floating label-text" for="observacoes">Observações</label><font color="red"> *</font>
+                                <b-form-textarea id="observacoes" no-resize v-model="rnc.observacoes" placeholder="Digite uma observação" rows="3" maxLength="200"></b-form-textarea>
+                                <a @click="showObservacoesHistory_modalView=true;" style="float: right;" title="Abrir o histórico de observações">
+                                    <i class="fa fa-history"></i>
+                                    Visualizar histórico</a>
+                            </div>
+                        </div>
+                        <ObservacoesHistory_modalView v-if="showObservacoesHistory_modalView" :listaObservacoes="rnc.listaObservacoes" v-model="showObservacoesHistory_modalView" />
                     </v-card-text>
                 </v-card>
             </v-tab-item>
@@ -72,7 +98,7 @@
                                     <div class="col-lg-6" >
                                         <div class="form-group">
                                             <label class="bmd-label-floating label-text">Prazo</label><font color="red" v-if="crudType == 't'"> *</font>
-                                            <b-form-datepicker :min="prazo.minDate" :max="prazo.maxDate" :state="prazo.state" :disabled="!prazo.new" v-model="prazo.prazo" v-bind="datePickerLabels" locale="pt-BR" class="mb-2"
+                                            <b-form-datepicker :min="prazo.minDate" :max="prazo.maxDate" :state="prazo.situacao" :disabled="!prazo.new" v-model="prazo.prazo" v-bind="datePickerLabels" locale="pt-BR" class="mb-2"
                                                 :date-format-options="{
                                                     year: 'numeric',
                                                     month: 'numeric',
@@ -128,21 +154,32 @@
 
 <script>
 import Rnc_uploadDetailForm from './rnc_uploadDetailForm'
+import ObservacoesHistory_modalView from './observacoesHistory_modalView'
 import {getDateCalculated } from "@/global";
-import moment from 'moment'
+import moment from 'moment';
+import { baseApi, showError } from "@/global";
+import axios from "axios";
 export default {
     name: "rnc_detalhes_tabsRNCForm",
     components: {
+        ObservacoesHistory_modalView,
         Rnc_uploadDetailForm
     },
     props: {
-        desabilitaDetalhes: Boolean,
         rnc: Object,
-        crudType: String
+        crudType: String,
+        motivos: Array,
+        classificacoes: Array
     },
     computed: {
+        tipo: function(){
+            return this.rnc.tipo;
+        },
+        motivo: function(){
+            return this.rnc.motivo;
+        },
         permissionAlterRNC: function(){
-            return (this.rnc.status == null);
+            return (this.rnc.resolvido == null);
         },
         permissionAlterIrregularidades: function(){
             return ((this.permissionAlterRNC) && (this.crudType == 'c' || this.crudType == 'v'));
@@ -193,7 +230,7 @@ export default {
             }
         },
         previewTabEvidencias: function(){
-            return ( (this.crudType != 'c') && (Array.isArray(this.listaPrazos) && this.listaPrazos.length) && (this.listaPrazos[this.listaPrazos.length - 1].state == true) && (!this.havingPrazoToAccept));
+            return ( (this.crudType != 'c') && (Array.isArray(this.listaPrazos) && this.listaPrazos.length) && (this.listaPrazos[this.listaPrazos.length - 1].situacao == true) && (!this.prazoParaAceitar));
         },
         permissionAlterEvidencias: function(){
             return ((this.permissionAlterRNC) &&  (this.previewTabEvidencias) && (this.crudType == 't'));
@@ -201,19 +238,13 @@ export default {
     },
   data: function() {
     return {
-        havingPrazoToAccept: false,
-        newEvidenciaObject: '{ "id": null,  "descricaoAnexo": null, "file": null, "filename": null, "loadingFile": false, "new": true }',
-        newIrregularidadeObject: '{ "id": null,  "descricaoAnexo": null, "file": null, "filename": null, "loadingFile": false, "new": true }',
-        motivos: [
-            { "value": null, "text": "Selecione um motivo" },
-            { "value": '1', "text": "Value 1" },
-            { "value": '2', "text": "Value 2" }
-        ],
+        showObservacoesHistory_modalView: false,
         tipos: [
-            { "value": null, "text": "Selecione um tipo" },
-            { "value": '1', "text": "Value 1" },
-            { "value": '2', "text": "Value 2" }
+            { "value": null, "text": "Selecione um tipo" }
         ],
+        prazoParaAceitar: false,
+        newEvidenciaObject: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingFile": false, "new": true }',
+        newIrregularidadeObject: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingFile": false, "new": true }',
         datePickerLabels: {
             labelPrevDecade: "Década anterior",
             labelPrevYear: "Ano anterior",
@@ -232,40 +263,76 @@ export default {
     }
   },
   methods: {
-        setState(prazo, newState){
-            if(newState != prazo.state){
-                if(newState){
-                    prazo.prazo = prazo.correctPrazo;
+        carregaTipos(){
+            this.rnc.tipo = null;
+            this.getDescricao();
+        },
+        getDescricao(){
+            var comboBox = [{ "value": null, "text": "Selecione uma descrição" }];
+            if(this.rnc.motivo){
+                axios
+                .get(`${baseApi}/rnc/descricao?motivo=${this.rnc.motivo}`)
+                .then(res => {
+                if(res.data && res.data.descricaoRnc){
+                    var descricoes = res.data.descricaoRnc;
+                    descricoes.forEach((item) => 
+                    { 
+                        var descricao = {};
+                        descricao['value'] = item.id;
+                        descricao['text'] = item.descricao;
+                        descricao['classificacao'] = item.classificacao;
+                        comboBox.push(descricao);
+                    });
+                }
+                })
+                .catch(error => {
+                    showError(error);
+                })
+                .finally(() => {
+                    this.tipos = comboBox;
+                    var tipo = this.tipos.find(t => t.value == this.tipo);
+                    if(tipo && tipo.classificacao){
+                        this.rnc.classificacao = tipo.classificacao;
+                    }
+                });
+            } else {
+                this.tipos = comboBox;
+            }
+        },
+        setSituacao(prazo, novaSituacao){
+            if(novaSituacao != prazo.situacao){
+                if(novaSituacao){
+                    prazo.prazo = prazo.prazoCorreto;
                 } else {
                     prazo.prazo = prazo.originalPrazo;
                 }
-                prazo.state = newState;
+                prazo.situacao = novaSituacao;
                 prazo['updated'] = true;
             }
         },
-        initHavingPrazoToAccept(){
-            if( this.crudType == 'v' && (Array.isArray(this.listaPrazos) && this.listaPrazos[this.listaPrazos.length-1] && this.listaPrazos[this.listaPrazos.length-1].state == null) ){
-                this.havingPrazoToAccept = true;
-                this.storePrazo(this.listaPrazos[this.listaPrazos.length-1]);
+        iniciarPrazosParaAceitar(){
+            if( this.crudType == 'v' && (Array.isArray(this.listaPrazos) && this.listaPrazos[this.listaPrazos.length-1] && this.listaPrazos[this.listaPrazos.length-1].situacao == null) ){
+                this.prazoParaAceitar = true;
+                this.armazenarPrazo(this.listaPrazos[this.listaPrazos.length-1]);
             }
         },
-        storePrazo(prazo){
+        armazenarPrazo(prazo){
             prazo['originalPrazo'] = prazo.prazo;
-            prazo['correctPrazo'] = this.correctPrazo(prazo);
+            prazo['prazoCorreto'] = this.prazoCorreto(prazo);
         },
-        correctPrazo(prazo){
+        prazoCorreto(prazo){
             var today = moment();
             var dataCriacao = moment(prazo.dataCriacao);
             var diffDays = today.diff(dataCriacao, 'days');
-            var correctPrazo = moment(prazo.prazo);
-            correctPrazo.add(diffDays, 'days');
-            return correctPrazo.format('YYYY-MM-DD')
+            var prazoCorreto = moment(prazo.prazo);
+            prazoCorreto.add(diffDays, 'days');
+            return prazoCorreto.format('YYYY-MM-DD')
         },
         validationButtonsPrazo(prazo){
             const index = this.listaPrazos.indexOf(prazo);
             var showValidationButtonsPrazo = 
             (
-                (this.havingPrazoToAccept)
+                (this.prazoParaAceitar)
                 &&
                 (index == (this.listaPrazos.length-1))
             );
@@ -275,12 +342,12 @@ export default {
             var minDate = new Date();
             var maxDate = null;
             if(Array.isArray(this.listaPrazos) && this.listaPrazos.length){
-                if(this.listaPrazos[this.listaPrazos.length - 1].state == false){
+                if(this.listaPrazos[this.listaPrazos.length - 1].situacao == false){
                     maxDate = getDateCalculated(this.listaPrazos[this.listaPrazos.length-1].prazo, -5);
                     var prazoEstendido = {
                         id: null,
                         prazo: "",
-                        state: null,
+                        situacao: null,
                         maxDate: maxDate,
                         minDate: minDate,
                         createdDate: null,
@@ -294,7 +361,7 @@ export default {
                 var prazo = {
                         id: null,
                         prazo: "",
-                        state: null,
+                        situacao: null,
                         maxDate: maxDate,
                         minDate: minDate,
                         createdDate: null,
@@ -303,20 +370,37 @@ export default {
                 this.listaPrazos.push(prazo);
             }
         },
-        initTratarRNC(){
+        iniciarTratarRNC(){
             if(this.crudType == 't'){
                 this.criaPrazos();
             }
         },
-        initValidarRNC(){
+        iniciarValidarRNC(){
             if(this.crudType == 'v'){
-                this.initHavingPrazoToAccept();
+                this.iniciarPrazosParaAceitar();
             }
         }
   },
+  watch: {
+     tipo: function(newValue){
+         if(newValue){
+            var tipo = this.tipos.find(t => t.value == newValue);
+            if(tipo && tipo.classificacao){
+                this.rnc.classificacao = tipo.classificacao;
+            } else {
+                this.rnc.classificacao = null;
+            }
+         } else {
+             this.rnc.classificacao = null;
+         }
+     } 
+  },
   created: function(){
-      this.initTratarRNC();
-      this.initValidarRNC();
+      this.iniciarTratarRNC();
+      this.iniciarValidarRNC();
+      if(this.motivo){
+          this.getDescricao();
+      }
   }
 }
 </script>

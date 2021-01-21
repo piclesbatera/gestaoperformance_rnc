@@ -1,6 +1,6 @@
 <template>
     <div id="vuetify-menu-content" >
-        <v-card>
+        <v-card v-if="acesso">
           <v-tabs
               dark
               background-color="indigo"
@@ -16,11 +16,36 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 export default {
    name: "menu-tab",
+   computed: {
+     ...mapState(["usuario"]),
+     usuarioRegistrado: function() {
+      if (Object.keys(this.usuario.perfilUsuario).length > 0) {
+        if (this.usuario.perfilUsuario.dataRegistro) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    },
+    acesso: function() {
+      if (this.usuarioRegistrado) {
+        return this.usuario.perfilUsuario.acesso;
+      } else {
+        return false;
+      }
+    }
+   },
    data: function() {
     return {
     };
+  },
+  methods: {
+    
   }
 };
 </script>

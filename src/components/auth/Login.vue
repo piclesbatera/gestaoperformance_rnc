@@ -1,7 +1,7 @@
 <template>
   <div class="login-content" :style="{'background-image': `url(${require('@/assets/img/fibra_otica.png')})`}">
     <div class="login-form">
-        <form @submit="signin" >
+        <form @submit="conectar" >
         <div class="avatar">
           <img src="@/assets/img/logo.png" alt="Avatar">
         </div>
@@ -11,17 +11,26 @@
                 <i class="fa fa-user"></i>
                 Usuário
               </label>
-              <input type="text" v-model="userLogin.login" class="form-control" name="username" placeholder="Usuário" required="required">
+              <input type="text" v-model="loginForm.login" class="form-control" name="username" placeholder="Usuário" required="required">
             </div>
             <div class="form-group">
               <label class="bmd-label-floating" for="username">
                     <i class="fa fa-key"></i>
                     Senha
                   </label>
-                <input type="password" v-model="userLogin.senha" class="form-control" name="password" placeholder="Senha" required="required">
+                <input type="password" v-model="loginForm.senha" class="form-control" name="password" placeholder="Senha" required="required">
             </div>        
             <div class="form-group">
-                <button type="submit" class="btn btn-primary btn-lg btn-block">Entrar</button>
+                <!-- <button type="submit" class="btn btn-primary btn-lg btn-block">Entrar</button> -->
+                <v-btn
+                    class="btn btn-primary form-control"
+                    :loading="loadingLogin"
+                    :disabled="loadingLogin"
+                    color="blue"
+                    type="submit"
+                >
+                Entrar
+                </v-btn>
             </div>
         </form>
     </div>
@@ -29,36 +38,43 @@
 </template>
 
 <script>
-import { baseApi, userKey, showError } from "@/global";
+import { baseApi, chaveUsuario, showError } from "@/global";
 import { mapState } from "vuex";
 import axios from "axios";
 export default {
   name: "Login",
   computed: {
-    ...mapState(["user"])
+    ...mapState(["usuario"])
   },
   data: function() {
     return {
-      userLogin: {}
+      loginForm: {},
+      loadingLogin: false
     };
   },
   methods: {
-    signin() {
+    conectar() {
       event.preventDefault();
+      this.loadingLogin = true;
       axios
-        .post(`${baseApi}/login`, this.userLogin)
+        .post(`${baseApi}/login`, this.loginForm)
         .then(res => {
-          this.$store.commit("setUser", res.data);
-          localStorage.setItem(userKey, JSON.stringify(res.data));
+          this.$store.commit("setUsuario", res.data);
+          localStorage.setItem(chaveUsuario, JSON.stringify(res.data));
           this.$toasted.global.defaultSuccess();
-          this.$router.push({ path: "/rnc" });
+          this.$router.push({ path: "/perfil" });
         })
-        .catch(showError);
+        .catch(error => {
+          showError(error);
+        })
+        .finally(() => {
+          this.loadingLogin = false;
+        });
     }
   },
   created: function(){
-    if(this.user && this.user.token){
-      this.$router.push({ path: "/rnc" });
+    if(this.usuario && this.usuario.token){
+      this.$router.push({ path: "/perfil" });
     }
   }
 };

@@ -53,7 +53,7 @@
                                     <v-tab-item :value="'detalhes'">
                                         <v-card flat>
                                             <v-card-text>
-                                                <Rnc_detalhesForm v-model="detalhes" :loadingDetalhe="loadingDetalhe" :crudType="crudType" />
+                                                <Rnc_detalhesForm v-model="detalhes" :identificadorAreaDemandanteRnc="identificadorAreaDemandanteRnc" :crudType="crudType" />
                                             </v-card-text>
                                         </v-card>
                                     </v-tab-item>
@@ -92,7 +92,7 @@ export default {
     },
     props: {
         value: Boolean,
-        identificadorSolicitacaoRNC: Number,
+        identificadorAreaDemandanteRnc: Number,
         codigoGrupoFila: String,
         sg: String,
         descricaoTituloSg: String,
@@ -142,10 +142,15 @@ export default {
             var requestData = this.detalhes;
             var listaRNCsRequest = this.detalhes.listaRNCs;
 
+            requestData['sg'] = this.sg;
+            requestData['codigo'] = this.codigo;
+            requestData['codigoGL'] = this.codigoGL;
+            requestData['codigoGrupoFila'] = this.codigoGrupoFila;
+
             listaRNCsRequest.forEach( 
                 (rnc, index) => 
                 { 
-                    rnc.listaIrregularidades = rnc.listaIrregularidades.filter(function(irregularidade){return irregularidade.filename && irregularidade.descricaoAnexo})
+                    rnc.listaIrregularidades = rnc.listaIrregularidades.filter(irregularidade => {return this.isNewUploadObject(irregularidade)})
                     var irregularidades = rnc.listaIrregularidades;
                     var irregularidade = null;
                     for(irregularidade of irregularidades){
@@ -169,7 +174,7 @@ export default {
                 (rnc) => 
                 { 
                     rnc['prazo'] = rnc.listaPrazos.filter(function(prazo){ return (prazo.new && prazo.prazo) });
-                    rnc['evidencias'] = rnc.listaEvidencias.filter(function(evidencia){ return this.isNewUploadObject(evidencia) });
+                    rnc['evidencias'] = rnc.listaEvidencias.filter(evidencia => { return this.isNewUploadObject(evidencia) });
                     var evidencia = null;
                     for(evidencia of rnc['evidencias']){
                         formData.append('files-evidencias-'+rnc.id, evidencia.file);
@@ -193,7 +198,7 @@ export default {
                 (rnc) => 
                 { 
                     rnc['prazo'] = rnc.listaPrazos.filter(function(prazo){ return prazo.updated });
-                    rnc['irregularidades'] = rnc.listaIrregularidades.filter(function(irregularidade){ return this.isNewUploadObject(irregularidade) });
+                    rnc['irregularidades'] = rnc.listaIrregularidades.filter(irregularidade =>{ return this.isNewUploadObject(irregularidade) });
                     var irregularidade = null;
                     for(irregularidade of rnc['irregularidades']){
                         formData.append('files-irregularidades-'+rnc.id, irregularidade.file);
@@ -208,49 +213,6 @@ export default {
             formData.append('data', JSON.stringify(requestData));
             return formData;
         },
-        // validationSave: function(){
-        //     var requestData = this.requestRNCData;
-            
-        //     if(!requestData.areaDemandante ||
-        //        !requestData.classificacao){
-        //            return false;
-        //     }
-        //     if(requestData.listaRNCs){
-        //         var rnc;
-        //         for (rnc of requestData.listaRNCs){
-        //             if(!rnc.motivo || !rnc.tipo){
-        //                 return false;
-        //             }
-        //             if(rnc.listaIrregularidades){
-        //                 var irregularidade;
-        //                 for (irregularidade of requestData.listaIrregularidades){
-        //                     if(!irregularidade.file || !irregularidade.descricaoAnexo){
-        //                         return false;
-        //                     }
-        //                 }
-        //             }
-        //             if(rnc.listaEvidencias){
-        //                 var evidencia;
-        //                 for (evidencia of requestData.listaEvidencias){
-        //                     if(!evidencia.file || !evidencia.descricaoAnexo){
-        //                         return false;
-        //                     }
-        //                 }
-        //             }
-        //             if(rnc.listaPrazos){
-        //                 var prazo;
-        //                 for (prazo of requestData.listaPrazos){
-        //                     if(!prazo.prazo){
-        //                         return false;
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-            
-
-        //     return true;
-        // },
         requestParameters: function(){
             var requestParameters = {};
 
@@ -309,7 +271,6 @@ export default {
   },
   data: function() {
     return {
-        loadingDetalhe: false,
         loadingSave: false,
         listaIrregularidades: [],
         tab: null,
@@ -356,96 +317,11 @@ export default {
                 showError(error);
             }
         },
-        initDetalhes(){
-            this.detalhes = {
-                id: null,
-                areaDemandante: null,
-                classificacao: null,
-                sg: this.sg,
-                codigo: this.codigo,
-                codigoGL: this.codigoGL,
-                codigoGrupoFila: this.codigoGrupoFila,
-                listaRNCs: [
-                    {
-                        id: null,
-                        motivo: null,
-                        tipo: null,
-                        status: null,
-                        listaIrregularidades: [
-                        ]
-                    }
-                ],
-                listaObservacoes: [
-                    
-                ]
-            }
-        },
-        initCriacaoRNC(){
-            if(this.crudType == 'c'){
-                this.initDetalhes();
-            }
-        },
-        initTratarRNC(){
-            if(this.crudType == 't'){
-                this.getDetalhesRNC();
-            }
-        },
-        initValidarRNC(){
-            if(this.crudType == 'v'){
-                this.getDetalhesRNC();
-            }
-        },
-        dateTimeIsoToStringReadable(value) {
-      
-            if(!value || value == "" || value == undefined){
-                return "";
-            }
-
-            var dateTimeISOString = value;
-            var dateTime = new Date(dateTimeISOString);
-            var dateTimeConvertedTimeZone = new Date( dateTime.getTime() + ( dateTime.getTimezoneOffset() * 60000 ) );
-            return dateTimeConvertedTimeZone.toLocaleString();
-        },
-        getDetalhesRNC(){
-            var queryString = `?id=${this.identificadorSolicitacaoRNC}`;
-            var url = `${baseApi}/rnc${queryString}`;
-
-            this.loadingDetalhe = true;
-            axios.get(url).then(res => {
-                this.detalhes = res.data;
-               
-                // CONVERTER DATA DO HISTORICO DE OBSERVAÇÕES
-                this.detalhes.listaObservacoes.forEach( 
-                    (item) => 
-                    {
-                    item['dataCriacao'] = new Date(item['dataCriacao']).toLocaleString();
-                    }
-                );
-
-                // ARMAZENAR O STATUS INICIAL DOS RNCs RECUPERADOS
-                if(this.detalhes && this.detalhes.listaRNCs){
-                    this.detalhes.listaRNCs.forEach( 
-                        (item) => 
-                        {
-                            item['initStatus'] = item.status;
-                        }
-                    );
-                }
-
-                this.loadingDetalhe = false;
-            }).catch(error => {
-                this.loadingDetalhe = false;
-                showError(error);
-            });
-        },
         isNewUploadObject(uploadObject){
-            return (uploadObject.new && uploadObject.filename && uploadObject.descricaoAnexo)
+            return (uploadObject.new && uploadObject.nomeArquivo && uploadObject.descricaoAnexo)
         }
   },
   created: function(){
-      this.initCriacaoRNC();
-      this.initTratarRNC();
-      this.initValidarRNC();
   }
 }
 </script>

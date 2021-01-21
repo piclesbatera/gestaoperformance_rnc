@@ -16,7 +16,7 @@
         <div v-for="(object, index) in listObject" :key="index">
             <div class="row">
                 <div class="col-lg-12">
-                    <h6 v-if="object.filename">{{object.filename}}</h6>
+                    <h6 v-if="object.nomeArquivo">{{object.nomeArquivo}}</h6>
                 </div>
             </div>
             <div class="row">
@@ -65,7 +65,7 @@ export default {
         },
         newObjectString: {
             type: String,
-            default: '{ "id": null,  "descricaoAnexo": "", "file": null, "filename": null, "loadingFile": false }'
+            default: '{ "id": null,  "descricaoAnexo": "", "file": null, "nomeArquivo": null, "loadingFile": false }'
         },
         uploadTemp: {
             type: Boolean,
@@ -100,7 +100,7 @@ export default {
                 return false;
             }
 
-            object.filename = object.file.name;
+            object.nomeArquivo = object.file.name;
 
             if(this.uploadTemp){
                 this.uploadTempFile(object);
@@ -121,7 +121,7 @@ export default {
                 res;
                 object.loadingFile = false;
             }).catch(error => {
-                object.filename = null;
+                object.nomeArquivo = null;
                 object.file = null;
                 object.loadingFile = false;
                 showError(error);
@@ -149,30 +149,30 @@ export default {
 
                 if(contains || highSize){
                     if(contains){
-                        object.filename = null;
+                        object.nomeArquivo = null;
                         object.file = null;
                         showError('O nome do arquivo já está sendo utilizado.');
                     }
                     if(highSize){
-                        object.filename = null;
+                        object.nomeArquivo = null;
                         object.file = null;
                         showError('O arquivo não pode ser maior do que 15MB');
                     }
                     return false;
                 }
             } else {
-                object.filename = null;
+                object.nomeArquivo = null;
                 return false;
             }
 
             return true;
         },
         downloadFile(object){
-            var filename = object.filename;
+            var nomeArquivo = object.nomeArquivo;
             // var index = this.listObject.indexOf(object);
             var queryString = (this.id != null && this.id != undefined) ? `?id=${this.id}` : "";
             var folderAPI = (this.folder != null && this.folder != undefined) ? `${this.folder}/` : "";
-            var url = `${baseApi}/download/${folderAPI}${filename}${queryString}`;
+            var url = `${baseApi}/download/${folderAPI}${nomeArquivo}${queryString}`;
 
             // this.listObject[index]['loadingDownloadAnexo'] = true;
 
@@ -184,7 +184,7 @@ export default {
 
                 var a = document.createElement("a");
                 a.href = url;
-                a.download = filename;
+                a.download = nomeArquivo;
                 a.click();
                 a.remove();
                 window.URL.revokeObjectURL(url);

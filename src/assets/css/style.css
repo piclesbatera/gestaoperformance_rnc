@@ -62,6 +62,12 @@ input.invalid-element:focus{
     outline: 0px;
 }
 
+.app .btn.v-btn.btn-primary{
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
 button:focus{
     outline: 0px;
 }
@@ -97,14 +103,14 @@ div.v-card.v-sheet div.v-window{
     background-color: #f7f7f7;
   }
 
-.mist-invisible{
+.nevoa-invisivel{
     height: 100%;
     width: 100%;
     position: absolute;
     z-index: 999;
 }
 
-.mist-visible{
+.nevoa-visivel{
     height: 100%;
     width: 100%;
     position: absolute;

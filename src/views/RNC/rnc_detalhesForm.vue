@@ -1,6 +1,6 @@
 <template>
     <div>
-         <div v-if="loadingDetalhe">
+        <div v-if="loadingDetalhe">
             <span>Carregando...</span>
             <!-- <v-progress-linear color="deep-purple accent-4" indeterminate rounded height="6"></v-progress-linear> -->
             <v-progress-linear indeterminate color="blue" ></v-progress-linear>
@@ -10,13 +10,7 @@
                 <div class="col-lg-5">
                     <div class="form-group">
                         <label class="bmd-label-floating label-text" for="areaDemandante">Área Demandante</label><font color="red"> *</font>
-                        <b-form-select id="areaDemandante" :disabled="desabilitaDetalhes" v-model="detalhes.areaDemandante" :options="areasDemandantes" ></b-form-select>
-                    </div>
-                </div>
-                <div class="col-lg-5" >
-                    <div class="form-group">
-                        <label class="bmd-label-floating label-text" for="classificacao">Classificação</label><font color="red"> *</font>
-                        <b-form-select id="classificacao" :disabled="desabilitaDetalhes" v-model="detalhes.classificacao" :options="classificacoes" ></b-form-select>
+                        <b-form-select id="areaDemandante" disabled v-model="detalhes.areaDemandante" :options="areasDemandantes" ></b-form-select>
                     </div>
                 </div>
             </div>
@@ -25,7 +19,7 @@
                     <v-expansion-panels  hover>
                         <div class="w-100 mb-1">
                             <div class="float-right">
-                                <v-btn @click="newRNC();" v-if="crudType == 'c'" class="btn btn-primary form-control" color="blue" dark >
+                                <v-btn @click="novaRNC();" v-if="crudType == 'c'" class="btn btn-primary form-control" color="blue" dark >
                                     <v-icon dark left>
                                         mdi-folder-plus
                                     </v-icon>
@@ -34,31 +28,31 @@
                             </div>
                         </div>
                         <v-expansion-panel style="background-color: #f7f7f7;" v-for="(row, index) in detalhes.listaRNCs" :key="index">
-                            <v-expansion-panel-header :disable-icon-rotate="row.status != null">
+                            <v-expansion-panel-header :disable-icon-rotate="row.resolvido != null">
                                 <v-row no-gutters>
                                     <v-col cols="4" v-if="row.id">
                                         RNC: {{row.id}}
                                     </v-col>
                                     <v-col cols="8" v-else class="text--secondary" >
                                         <v-row no-gutters style="width: 100%" >
-                                            <v-col cols="6">
+                                            <!-- <v-col cols="6">
                                                 Motivo: {{ row.motivo }}
                                             </v-col>
                                             <v-col cols="6">
                                                 Tipo: {{  row.tipo }}
-                                            </v-col>
+                                            </v-col> -->
                                         </v-row>
                                     </v-col>
                                 </v-row>
 
                                 <!-- ICONS -->
-                                <template v-if="row.status == null" v-slot:actions>
+                                <template v-if="row.resolvido == null" v-slot:actions>
                                     <v-icon color="primary">
                                         $expand
                                     </v-icon>
                                 </template>
 
-                                <template v-else-if="row.status" v-slot:actions>
+                                <template v-else-if="row.resolvido" v-slot:actions>
                                     <v-icon color="teal">
                                         mdi-check
                                     </v-icon>
@@ -74,7 +68,7 @@
                             <v-expansion-panel-content :eager="true">
                                 <div class="w-100 mb-1">
                                     <div class="float-right">
-                                        <v-btn @click="removeRNC(row);" v-if="crudType == 'c' && !row.id" class="btn btn-primary form-control" style="z-index: 999" color="blue" dark >
+                                        <v-btn @click="removeRNC(row);" v-if="!row.dataCriacao" class="btn btn-primary form-control" style="z-index: 999" color="blue" dark >
                                             <v-icon dark left>
                                                 mdi-delete
                                             </v-icon>
@@ -82,7 +76,7 @@
                                         </v-btn>
                                     </div>
                                 </div>
-                                <Rnc_detalhes_tabsRNCForm :desabilitaDetalhes="desabilitaDetalhes"  :rnc="row" :crudType="crudType" />
+                                <Rnc_detalhes_tabsRNCForm :rnc="row" :crudType="crudType" :motivos="motivos" :classificacoes="classificacoes" />
                             </v-expansion-panel-content>
                         </v-expansion-panel>
                     </v-expansion-panels>
@@ -105,6 +99,9 @@
 <script>
 import ObservacoesHistory_modalView from './observacoesHistory_modalView'
 import Rnc_detalhes_tabsRNCForm from './rnc_detalhes_tabsRNCForm'
+import { baseApi, showError } from "@/global";
+import axios from "axios";
+import { mapState } from "vuex";
 export default {
     name: "rnc_detalhesForm",
     components: {
@@ -113,10 +110,11 @@ export default {
     },
     props: {
         value: Object,
-        loadingDetalhe: Boolean,
-        crudType: String
+        crudType: String,
+        identificadorAreaDemandanteRnc: Number
     },
     computed: {
+        ...mapState(["usuario"]),
         detalhes: {
             get () {
                 return this.value
@@ -124,50 +122,179 @@ export default {
             set (value) {
                 this.$emit('input', value);
             }
-        },
-        desabilitaDetalhes: function(){
-            return this.crudType != 'c';
         }
     },
   data: function() {
     return {
+        loadingDetalhe: true,
         showObservacoesHistory_modalView: false,
         areasDemandantes: [
-            { "value": null, "text": "Selecione uma área demandante" },
-            { "value": '1', "text": "Value 1" },
-            { "value": '2', "text": "Value 2" },
-            { "value": '3', "text": "Value 3" }
+            { "value": null, "text": "Selecione uma área demandante" }
+        ],
+        motivos: [
+            { "value": null, "text": "Selecione um motivo" }
         ],
         classificacoes: [
-            { "value": null, "text": "Selecione uma classificação" },
-            { "value": '1', "text": "Value 1" },
-            { "value": '2', "text": "Value 2" },
-            { "value": '3', "text": "Value 3" }
+            { "value": null, "text": "Selecione uma classificação" }
         ]
     }
   },
   methods: {
-        newRNC(){
-            if(!this.detalhes.listaRNCs){
-                this.detalhes.listaRNCs = [];
+        novaRNC(){
+            var detalhes = this.detalhes;
+            if(!detalhes.listaRNCs){
+                detalhes.listaRNCs = [];
             }
 
             var rnc =  {
                         id: null,
                         motivo: null,
                         tipo: null,
-                        status: null,
+                        classificacao: null,
+                        resolvido: null,
+                        tratavel: false,
                         listaIrregularidades: [
                         ]
                     };
-            this.detalhes.listaRNCs.push(rnc);
+            detalhes.listaRNCs.push(rnc);
+            this.detalhes = detalhes;
         },
         removeRNC(rnc){
             const index = this.detalhes.listaRNCs.indexOf(rnc);
             this.detalhes.listaRNCs.splice(index, 1);
+        },
+        getDetalhesRNC(){
+            var queryString = (this.identificadorAreaDemandanteRnc) ? `?id=${this.identificadorAreaDemandanteRnc}` : "";
+            var url = `${baseApi}/rnc${queryString}`;
+
+            axios.get(url).then(res => {
+                var detalhes = res.data;
+              
+                if(detalhes && !detalhes.areaDemandante){
+                    if(this.usuario.perfilUsuario.usuarioTim.areaDemandante){
+                        detalhes.areaDemandante = this.usuario.perfilUsuario.usuarioTim.areaDemandante;
+                    }
+                }
+                // CONVERTER DATA DO HISTORICO DE OBSERVAÇÕES
+                if(detalhes && detalhes.listaObservacoes){
+                    detalhes.listaObservacoes.forEach( 
+                        (item) => 
+                        {
+                            item['dataCriacao'] = new Date(item['dataCriacao']).toLocaleString();
+                        }
+                    );
+                }
+
+                // ARMAZENAR O STATUS INICIAL DOS RNCs RECUPERADOS E CONVERTE A DATA DE OBSERVAÇÕES
+                if(detalhes && detalhes.listaRNCs){
+                    detalhes.listaRNCs.forEach( 
+                        (rnc) => 
+                        {
+                            rnc['initStatus'] = rnc.status;
+                            rnc.listaObservacoes.forEach( 
+                                (observacao) => 
+                                {
+                                    observacao['dataCriacao'] = new Date(observacao['dataCriacao']).toLocaleString();
+                                }
+                            );
+                        }
+                    );
+                }
+
+                this.detalhes = detalhes;
+                this.novaRNC();
+
+            }).catch(error => {
+                showError(error);
+            })
+            .finally(() => {
+                this.loadingDetalhe = false;
+            });
+        },
+        getAreasDemandantes(){
+            var comboBox = [{ "value": null, "text": "Selecione uma àrea" }];
+
+            return axios
+                .get(`${baseApi}/usuario/areasDemandantes?`)
+                .then(res => {
+                if(res.data && res.data.areasDemandantes){
+                    var areasDemandantes = res.data.areasDemandantes;
+                    areasDemandantes.forEach((item) => 
+                    { 
+                        var areaDemandante = {};
+                        areaDemandante['value'] = item.id;
+                        areaDemandante['text'] = item.descricaoAreaDemandante;
+                        comboBox.push(areaDemandante);
+                    });
+                }
+                })
+                .catch(error => {
+                    showError(error);
+                })
+                .finally(() => {
+                    this.areasDemandantes = comboBox;
+                });
+
+        },
+        getMotivos(){
+            var comboBox = [{ "value": null, "text": "Selecione um motivo" }];
+
+            return axios
+                .get(`${baseApi}/rnc/motivos?`)
+                .then(res => {
+                if(res.data && res.data.motivosRnc){
+                    var motivos = res.data.motivosRnc;
+                    motivos.forEach((item) => 
+                    { 
+                        var motivo = {};
+                        motivo['value'] = item.id;
+                        motivo['text'] = item.descricaoMotivo;
+                        comboBox.push(motivo);
+                    });
+                }
+                })
+                .catch(error => {
+                    showError(error);
+                })
+                .finally(() => {
+                    this.motivos = comboBox;
+                });
+
+        },
+        getTipos(){
+            var comboBox = [{ "value": null, "text": "Nenhum tipo" }];
+
+            return axios
+                .get(`${baseApi}/rnc/tipos?`)
+                .then(res => {
+                if(res.data && res.data.tiposRnc){
+                    var tipos = res.data.tiposRnc;
+                    tipos.forEach((item) => 
+                    { 
+                        var tipo = {};
+                        tipo['value'] = item.id;
+                        tipo['text'] = item.descricaoTipo;
+                        comboBox.push(tipo);
+                    });
+                }
+                })
+                .catch(error => {
+                    showError(error);
+                })
+                .finally(() => {
+                    this.tipos = comboBox;
+                });
+
+        },
+        async iniciar(){
+            await this.getAreasDemandantes();
+            this.getMotivos();
+            this.getTipos();
+            this.getDetalhesRNC();
         }
   },
   created: function(){
+      this.iniciar();
   }
 }
 </script>

@@ -1,8 +1,8 @@
 <template>
   <v-app>
     <div class="app">
-      <Mist :visible="mistVisible" :activated="mist"></Mist>
-      <template v-if="userConnected" >
+      <Nevoa :visible="nevoaVisivel" :activated="nevoa"/>
+      <template v-if="usuarioConectado" >
         <Header/>
         <Content />
         <Footer />
@@ -19,40 +19,38 @@ import Header from "@/components/template/Header";
 import Footer from "@/components/template/Footer";
 import Content from "@/components/template/Content";
 import Login from "@/components/auth/Login";
-import Mist from "@/components/utils/mist";
+import Nevoa from "@/components/utils/nevoa";
 
 import { mapState } from "vuex";
-import { userKey } from "@/global";
+import { chaveUsuario } from "@/global";
 export default {
-  components: { Header, Footer, Content, Login, Mist },
+  components: { Header, Footer, Content, Login, Nevoa },
   computed: {
-    ...mapState(["user", "mistVisible", "mist"]),
-    userConnected(){
-      return (this.user && this.user.token);
+    ...mapState(["usuario", "nevoaVisivel", "nevoa"]),
+    usuarioConectado(){
+      return (this.usuario && this.usuario.token);
     }
   },
   methods: {
     verificaUsuario() {
-      if (!this.user) {
-        if (localStorage.getItem(userKey)) {
+      if (!this.usuario) {
+        if (localStorage.getItem(chaveUsuario)) {
           this.$store.commit(
-            "setUser",
-            JSON.parse(localStorage.getItem(userKey))
+            "setUsuario",
+            JSON.parse(localStorage.getItem(chaveUsuario))
           );
         }
       }
     },
-    usuarioConectado(){
-      if( 
-        !(this.user && this.user.token)
-        ){
+    usuarioDesconectado(){
+      if(!this.usuarioConectado){
         this.$router.push({ path: "/login" });
       }
     }
   },
   created: function() {
      this.verificaUsuario();
-    //  this.usuarioConectado();
+     this.usuarioDesconectado();
   }
 };
 </script>

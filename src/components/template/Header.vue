@@ -1,7 +1,7 @@
 <template>
   <header class="header">
     <h1 class="title">{{ title }}</h1>
-    <span v-if="user && user.userProfile" class="d-none d-sm-block welcome-label">Olá, {{ user.username }}</span>
+    <span v-if="usuario && usuario.perfilUsuario" class="d-none d-sm-block welcome-label">Olá, {{ nomeUsuario }}</span>
     <UserIcons />
   </header>
 </template>
@@ -16,9 +16,16 @@ export default {
     
   },
   computed: {
-    ...mapState(["user"]),
+    ...mapState(["usuario"]),
     title: function(){
       return process.env.VUE_APP_TITLE;
+    },
+    nomeUsuario: function(){
+      if (Object.keys(this.usuario.perfilUsuario).length > 0 && Object.keys(this.usuario.perfilUsuario.usuarioTim).length > 0 && this.usuario.perfilUsuario.dataRegistro && this.usuario.perfilUsuario.usuarioTim.primeiroNome){
+        return this.usuario.perfilUsuario.usuarioTim.primeiroNome;
+      } else {
+        return this.usuario.nomeUsuario;
+      }
     }
   },
   methods: {
