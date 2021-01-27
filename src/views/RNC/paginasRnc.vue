@@ -146,27 +146,30 @@
             <div class="col-lg-12">
                 <v-container fluid grid-list-md>
                     <v-card-title>
-                    
-                    <v-spacer></v-spacer>
-                    <v-text-field v-model="consultaDataTable" append-icon="mdi-magnify" label="Pesquisa" single-line hide-details></v-text-field>
+                        <v-spacer></v-spacer>
+                        <v-text-field v-model="consultaDataTable" append-icon="mdi-magnify" label="Pesquisa" single-line hide-details></v-text-field>
                     </v-card-title>
                     <v-divider></v-divider>
                     <div class="scrollable">
-                        <v-data-table class="default_color_background" :headers="headersConsulta" :items="listaConsulta" :consulta="consultaDataTable" :loading="loadingConsulta" loading-text="Carregando..." no-data-text="Sem dados disponíveis">
+                        <v-data-table class="default_color_background" :headers="headersConsulta" :items="listaConsulta" :search="consultaDataTable" :loading="loadingConsulta" loading-text="Carregando..." no-data-text="Sem dados disponíveis">
                             <template v-slot:item.detail="{ item }">
                                 <i :title="titleDetail" @click="abreRegistroSelecionado(item);" class="openDetail fa fa-edit"></i>
+                            </template>
+                            <template v-slot:item.outrasAreas="{ item }">
+                                <RncOutrasAreasDemandantes :registro="item" :clickAreaDemandante="abreRegistroSelecionado"/>
                             </template>
                         </v-data-table>
                     </div>
             </v-container>  
             </div>
         </div>
-        <Rnc_modalForm :crudType="crudType" :identificadorAreaDemandanteRnc="identificadorAreaDemandanteRncClicado" :sg="sgClicado" :codigoGrupoFila="codigoGrupoFilaClicado" v-if="showRnc_modalForm" :codigoSg="codigoSgClicado" v-model="showRnc_modalForm" :descricaoTituloSg="descricaoTituloSgClicado"/>
+        <Rnc_modalForm :crudType="crudType" :registro="registroSelecionado" :outraAreaDemandante="outraAreaDemandante" v-if="showRnc_modalForm" v-model="showRnc_modalForm"/>
     </div>  
 </template>
 
 <script>
 import Rnc_modalForm from './rnc_modalForm'
+import RncOutrasAreasDemandantes from './rncOutrasAreasDemandantes'
 import { baseApi, showError, showAllErrorScope, cleanErrorsScope } from "@/global";
 import axios from "axios";
 import tipoAcionamentoOptions from "@/assets/json/sgp/tipoAcionamento.json";
@@ -243,7 +246,16 @@ export default {
         urlSg: function(){
             var queryString = this.parametrosSg;
 
-            var url = `${baseApi}/rnc/sg/${this.crudType}/${this.consultaPor}${queryString}`;
+            var url = '';
+            if(this.crudType == 'c'){
+                url = `${baseApi}/rnc/sg/${this.consultaPor}${queryString}`;
+            } else 
+            if(this.crudType == 't'){
+                url = `${baseApi}/rnc/sg/tratar/${this.consultaPor}${queryString}`;
+            } else
+            if(this.crudType == 'v'){
+                url = `${baseApi}/rnc/sg/validar/${this.consultaPor}${queryString}`;
+            }
 
             return url;
         },
@@ -290,19 +302,15 @@ export default {
         },
     },
     components: {
-        Rnc_modalForm
+        Rnc_modalForm, RncOutrasAreasDemandantes
     },
     data: function() {
         return {
+            outraAreaDemandante: null,
             consultaDataTable: "",
             UFOptions,
             tipoAcionamentoOptions,
             loadingConsulta: false,
-            identificadorAreaDemandanteRncClicado: null,
-            codigoGrupoFilaClicado: null,
-            sgClicado: "",
-            descricaoTituloSgClicado: "",
-            codigoSgClicado: "",
             consultaPor: "sgi",
             valorConsulta: "",
             valorConsultaRNC: "",
@@ -326,10 +334,10 @@ export default {
                 { text: 'Empreiteira Projeto', value: 'Empreiteira' },
                 { text: 'Empreiteira Construção', value: 'EmpreiteiraConstrucao' },
                 {
-                text: '',
-                sortable: false,
-                value: 'detail',
-                filterable: false
+                    text: '', sortable: false, value: 'detail', filterable: false
+                },
+                {
+                    text: '', sortable: false, value: 'outrasAreas', filterable: false
                 }
             ],
             headerSgp: [
@@ -341,10 +349,10 @@ export default {
                 { text: 'GP Cliente', value: 'GPCliente' },
                 { text: 'Empreiteira', value: 'Empreiteira' },
                 {
-                text: '',
-                sortable: false,
-                value: 'detail',
-                filterable: false
+                    text: '', sortable: false, value: 'detail', filterable: false
+                },
+                {
+                    text: '', sortable: false, value: 'outrasAreas', filterable: false
                 }
             ],
             // ADVANCED SEARCH
@@ -360,23 +368,14 @@ export default {
             consultaAvancadaSgpTipoAcionamento: "",
             consultaAvancadaSgpEmpreiteira: "",
             consultaAvancadaSgpUF: "",
+
+            registroSelecionado: null
         };
     },
     methods: {
-        abreRegistroSelecionado(sg){
-            if(sg.detail == 'sgi'){
-                this.codigoGrupoFilaClicado = null; 
-                this.sgClicado = 'sgi'; 
-                this.codigoSgClicado = sg.ID; 
-            } else
-            if(sg.detail == 'sgp') {
-                this.codigoGrupoFilaClicado = String(sg.codigoGrupoFila);
-                this.sgClicado = 'sgp'; 
-                this.codigoSgClicado = sg.GL;
-            }
-            this.codigoSgClicado = parseInt(this.codigoSgClicado);
-            this.identificadorAreaDemandanteRncClicado = sg.identificadorAreaDemandanteRnc;
-            this.descricaoTituloSgClicado= sg.descricaoTituloSg;
+        abreRegistroSelecionado(sg, outraAreaDemandante){
+            this.registroSelecionado = sg;
+            this.outraAreaDemandante = outraAreaDemandante;
             this.showRnc_modalForm=true;
         },
         consultaAvancadaButton(){
@@ -556,7 +555,13 @@ export default {
 .openDetail{
     cursor: pointer;
     font-size: x-large;
-} 
+}
+.openDetail[disabled='disabled']{
+    cursor: pointer;
+    font-size: x-large;
+    pointer-events: none;
+    opacity: 0.5;
+}  
 
 </style>
 

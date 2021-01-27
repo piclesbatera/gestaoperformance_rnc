@@ -19,7 +19,7 @@
                     <v-expansion-panels  hover>
                         <div class="w-100 mb-1">
                             <div class="float-right">
-                                <v-btn @click="novaRNC();" v-if="crudType == 'c'" class="btn btn-primary form-control" color="blue" dark >
+                                <v-btn @click="novaRNC();" v-if="crudType == 'c' && !isLeitura" class="btn btn-primary form-control" color="blue" dark >
                                     <v-icon dark left>
                                         mdi-folder-plus
                                     </v-icon>
@@ -76,7 +76,7 @@
                                         </v-btn>
                                     </div>
                                 </div>
-                                <Rnc_detalhes_tabsRNCForm :rnc="row" :crudType="crudType" :motivos="motivos" :classificacoes="classificacoes" />
+                                <Rnc_detalhes_tabsRNCForm :isLeitura="isLeitura" :rnc="row" :crudType="crudType" :motivos="motivos" :tipos="tipos" />
                             </v-expansion-panel-content>
                         </v-expansion-panel>
                     </v-expansion-panels>
@@ -84,8 +84,8 @@
             </div>
             <div class="row">
                 <div class="col-lg-12">
-                    <label class="bmd-label-floating label-text" for="observacoes">Observações</label>
-                    <b-form-textarea id="observacoes" no-resize v-model="detalhes.observacoes" placeholder="Digite uma observação" rows="6" maxLength="200"></b-form-textarea>
+                    <label class="bmd-label-floating label-text" for="observacao">Observações</label>
+                    <b-form-textarea no-resize v-model="detalhes.observacao" placeholder="Digite uma observação" rows="6" maxLength="200"></b-form-textarea>
                     <a @click="showObservacoesHistory_modalView=true;" style="float: right;" title="Abrir o histórico de observações">
                         <i class="fa fa-history"></i>
                         Visualizar histórico</a>
@@ -109,23 +109,27 @@ export default {
         Rnc_detalhes_tabsRNCForm
     },
     props: {
-        value: Object,
+        // value: Object,
         crudType: String,
-        identificadorAreaDemandanteRnc: Number
+        identificadorAreaDemandanteRnc: Number,
+        isLeitura: Boolean
     },
     computed: {
         ...mapState(["usuario"]),
         detalhes: {
             get () {
-                return this.value
+                // return this.value
+                return this.dataValue
             },
             set (value) {
+                this.dataValue = value;
                 this.$emit('input', value);
             }
         }
     },
   data: function() {
     return {
+        dataValue: null,
         loadingDetalhe: true,
         showObservacoesHistory_modalView: false,
         areasDemandantes: [
@@ -134,8 +138,8 @@ export default {
         motivos: [
             { "value": null, "text": "Selecione um motivo" }
         ],
-        classificacoes: [
-            { "value": null, "text": "Selecione uma classificação" }
+        tipos: [
+            { "value": null, "text": "Selecione um tipo" }
         ]
     }
   },
@@ -149,8 +153,8 @@ export default {
             var rnc =  {
                         id: null,
                         motivo: null,
+                        descricao: null,
                         tipo: null,
-                        classificacao: null,
                         resolvido: null,
                         tratavel: false,
                         listaIrregularidades: [
@@ -190,7 +194,7 @@ export default {
                     detalhes.listaRNCs.forEach( 
                         (rnc) => 
                         {
-                            rnc['initStatus'] = rnc.status;
+                            rnc['statusInicial'] = rnc.resolvido;
                             rnc.listaObservacoes.forEach( 
                                 (observacao) => 
                                 {
@@ -202,8 +206,9 @@ export default {
                 }
 
                 this.detalhes = detalhes;
-                this.novaRNC();
-
+                if(!this.detalhes.listaRNCs || this.detalhes.listaRNCs.length == 0){
+                    this.novaRNC();
+                }
             }).catch(error => {
                 showError(error);
             })

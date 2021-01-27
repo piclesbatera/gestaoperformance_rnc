@@ -48,7 +48,7 @@ export default {
     return {
       headers: [
           {
-            text: 'Usuário', value: 'usuarioCriador',
+            text: 'Usuário', value: 'usuarioCriadorRef.login',
           },
           { text: 'Observações', value: 'descricaoObservacao' },
           { text: 'Data Alteração', value: 'dataCriacao' }

@@ -1,9 +1,9 @@
 <template>
     <div class="container-fluid">
-        <div class="row" v-if="permissionAlterComponent">
+        <div class="row" v-if="permissaoAlterarComponente">
             <div class="col-md-12">
                 <div class="float-right">
-                    <v-btn @click="newRow();" class="btn btn-primary form-control" color="blue" dark >
+                    <v-btn @click="novaLinha();" class="btn btn-primary form-control" color="blue" dark >
                         <v-icon dark left>
                             mdi-plus
                         </v-icon>
@@ -13,7 +13,7 @@
             </div>
         </div>
         <v-divider></v-divider>
-        <div v-for="(object, index) in listObject" :key="index">
+        <div v-for="(object, index) in listaObjeto" :key="index">
             <div class="row">
                 <div class="col-lg-12">
                     <h6 v-if="object.nomeArquivo">{{object.nomeArquivo}}</h6>
@@ -22,24 +22,24 @@
             <div class="row">
                 <b-input-group size="sm" class="m-2">
                     <b-input-group-prepend is-text>
-                        <v-icon @click="deleteRow(object);" :disabled="!permissionAlterComponent || (permissionAlterComponent && !object.new) || object.loadingFile" title="Remover">mdi-delete</v-icon>
+                        <v-icon @click="deletarLinha(object);" :disabled="!permissaoAlterarComponente || (permissaoAlterarComponente && !object.new) || object.loadingArquivo" title="Remover">mdi-delete</v-icon>
                     </b-input-group-prepend>
                     <b-input-group-prepend is-text>
                         <v-file-input
-                            v-if="!object.loadingFile"
-                            @change="changeObjectFile(object)"
+                            v-if="!object.loadingArquivo"
+                            @change="changeObjectArquivo(object)"
                             hide-input
-                            :disabled="!permissionAlterComponent || (permissionAlterComponent && !object.new) || object.loadingFile"
+                            :disabled="!permissaoAlterarComponente || (permissaoAlterarComponente && !object.new) || object.loadingArquivo"
                             v-model="object.file"
                             :success="object.file != null"
                         ></v-file-input>
                         <v-progress-circular :size="24" v-else indeterminate color="primary" ></v-progress-circular>
                     </b-input-group-prepend>
                     <b-input-group-prepend is-text>
-                        <v-icon :disabled="object.new" v-if="!object.loadingDownloadAnexo" title="Download" @click="downloadFile(object);">mdi-download</v-icon>
+                        <v-icon :disabled="object.new" v-if="!object.loadingDownloadAnexo" title="Download" @click="downloadArquivo(object);">mdi-download</v-icon>
                         <v-progress-circular v-else indeterminate color="primary" ></v-progress-circular>
                     </b-input-group-prepend>
-                    <b-form-input trim v-model="object.descricaoAnexo" :maxLength="descricaoLength" :disabled="!permissionAlterComponent || (permissionAlterComponent && !object.new) || object.loadingFile" placeholder="descrição" style="height: 100%;"></b-form-input>
+                    <b-form-input trim v-model="object.descricaoAnexo" :maxLength="descricaoLength" :disabled="!permissaoAlterarComponente || (permissaoAlterarComponente && !object.new) || object.loadingArquivo" placeholder="descrição" style="height: 100%;"></b-form-input>
                 </b-input-group>
             </div>
         </div>
@@ -59,28 +59,28 @@ export default {
             type: Array,
             default: () => []
         },
-        permissionAlterComponent: {
+        permissaoAlterarComponente: {
             type: Boolean,
             default: true
         },
-        newObjectString: {
+        novoObjetoString: {
             type: String,
-            default: '{ "id": null,  "descricaoAnexo": "", "file": null, "nomeArquivo": null, "loadingFile": false }'
+            default: '{ "id": null,  "descricaoAnexo": "", "file": null, "nomeArquivo": null, "loadingArquivo": false }'
         },
         uploadTemp: {
             type: Boolean,
             default: false
         },
-        folder: String,
+        tipoArquivo: String,
         id: Number,
-        initialRow: Boolean,
+        inicializaLinha: Boolean,
         descricaoLength: {
             type: String,
             default: "50"
         }
     },
     computed: {
-        listObject: {
+        listaObjeto: {
             get () {
                 return this.value
             },
@@ -94,50 +94,50 @@ export default {
     }
   },
   methods: {
-        changeObjectFile(object){
+        changeObjectArquivo(object){
 
-            if(!this.filesValidation(object)){
+            if(!this.validacaoArquivos(object)){
                 return false;
             }
 
             object.nomeArquivo = object.file.name;
 
             if(this.uploadTemp){
-                this.uploadTempFile(object);
+                this.uploadTempArquivo(object);
             }
 
         },
-        uploadTempFile(object){
+        uploadTempArquivo(object){
             let formData = new FormData();
             formData.append('file', object.file);
 
             var queryString = (this.id != null && this.id != undefined) ? `?id=${this.id}` : "";
 
-            var url = `${baseApi}/upload/temp/${this.folder}${queryString}`;
+            var url = `${baseApi}/upload/temp/${this.tipoArquivo}${queryString}`;
 
-            object.loadingFile = true;
+            object.loadingArquivo = true;
 
             axios.post(url, formData, { headers: {'Content-Type': 'multipart/form-data'} }).then(res => {
                 res;
-                object.loadingFile = false;
+                object.loadingArquivo = false;
             }).catch(error => {
                 object.nomeArquivo = null;
                 object.file = null;
-                object.loadingFile = false;
+                object.loadingArquivo = false;
                 showError(error);
             });
             
         },
-        filesValidation(object){
+        validacaoArquivos(object){
             var contains = false;
             var highSize = false;
             
             if(object && object.file){
-                this.listObject.forEach( 
+                this.listaObjeto.forEach( 
                     (item) => 
                     {
-                        if(item.file && item != object){
-                            if(object.file.name == item.file.name){
+                        if(item.nomeArquivo && item != object){
+                            if(object.file.name == item.nomeArquivo){
                                 contains = true;
                             }
                         }
@@ -167,20 +167,20 @@ export default {
 
             return true;
         },
-        downloadFile(object){
+        downloadArquivo(object){
             var nomeArquivo = object.nomeArquivo;
-            // var index = this.listObject.indexOf(object);
+            // var index = this.listaObjeto.indexOf(object);
             var queryString = (this.id != null && this.id != undefined) ? `?id=${this.id}` : "";
-            var folderAPI = (this.folder != null && this.folder != undefined) ? `${this.folder}/` : "";
-            var url = `${baseApi}/download/${folderAPI}${nomeArquivo}${queryString}`;
+            var tipoArquivoAPI = (this.tipoArquivo != null && this.tipoArquivo != undefined) ? `${this.tipoArquivo}/` : "";
+            var url = `${baseApi}/download/${tipoArquivoAPI}${nomeArquivo}${queryString}`;
 
-            // this.listObject[index]['loadingDownloadAnexo'] = true;
+            // this.listaObjeto[index]['loadingDownloadAnexo'] = true;
 
-            console.log(this.listObject);
+            console.log(this.listaObjeto);
 
             axios({ url: url, method: 'GET', responseType: 'blob',}).then((response) => {
                 const url = window.URL.createObjectURL(response.data);
-                // this.listObject[index].loadingDownloadAnexo = false;
+                // this.listaObjeto[index].loadingDownloadAnexo = false;
 
                 var a = document.createElement("a");
                 a.href = url;
@@ -189,7 +189,7 @@ export default {
                 a.remove();
                 window.URL.revokeObjectURL(url);
             }).catch(error => {
-                // this.listObject[index].loadingDownloadAnexo = false;
+                // this.listaObjeto[index].loadingDownloadAnexo = false;
                 showError(error);
             });
 
@@ -205,33 +205,33 @@ export default {
             // });
 
         },
-        newRow(){
-            if(this.permissionAlterComponent){
-                if(!this.listObject){
-                    this.listObject = [];
+        novaLinha(){
+            if(this.permissaoAlterarComponente){
+                if(!this.listaObjeto){
+                    this.listaObjeto = [];
                 }
 
-                var object = (this.newObjectString) ? JSON.parse(this.newObjectString) : {};
+                var object = (this.novoObjetoString) ? JSON.parse(this.novoObjetoString) : {};
 
-                var componentListObject = this.listObject;
+                var componentListObject = this.listaObjeto;
                 componentListObject.push(object);
 
-                this.listObject = componentListObject;
+                this.listaObjeto = componentListObject;
             }
             
         },
-        deleteRow(object){
-            const index = this.listObject.indexOf(object);
-            this.listObject.splice(index, 1);
+        deletarLinha(object){
+            const index = this.listaObjeto.indexOf(object);
+            this.listaObjeto.splice(index, 1);
         },
-        initRow(){
-            if(this.initialRow && (!(Array.isArray(this.listObject) && this.listObject.length))){
-                this.newRow();
+        inicializarLinha(){
+            if(this.inicializaLinha && (!(Array.isArray(this.listaObjeto) && this.listaObjeto.length))){
+                this.novaLinha();
             }
         }
   },
   created: function(){
-      this.initRow();
+      this.inicializarLinha();
   }
 }
 </script>

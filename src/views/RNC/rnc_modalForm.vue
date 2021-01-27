@@ -13,7 +13,7 @@
         
         <v-card>
             <v-container fluid grid-list-md>
-                <form ref="controleRNCForm" @submit.prevent="save()">
+                <form ref="controleRNCForm" @submit.prevent="salvar()">
                     <div class="row">
                         <div class="col-md-12">
                             <h6>
@@ -25,7 +25,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="float-right"> 
-                                <v-btn type="submit" :loading="loadingSave" class="btn btn-primary form-control" color="blue" dark >
+                                <v-btn type="submit" v-if="!isLeitura" :loading="loadingSalvar" class="btn btn-primary form-control" color="blue" dark >
                                     <v-icon dark left>
                                         mdi-content-save
                                     </v-icon>
@@ -53,7 +53,7 @@
                                     <v-tab-item :value="'detalhes'">
                                         <v-card flat>
                                             <v-card-text>
-                                                <Rnc_detalhesForm v-model="detalhes" :identificadorAreaDemandanteRnc="identificadorAreaDemandanteRnc" :crudType="crudType" />
+                                                <Rnc_detalhesForm v-model="detalhes" :identificadorAreaDemandanteRnc="identificadorAreaDemandanteRnc" :isLeitura="isLeitura" :crudType="crudType" />
                                             </v-card-text>
                                         </v-card>
                                     </v-tab-item>
@@ -92,12 +92,9 @@ export default {
     },
     props: {
         value: Boolean,
-        identificadorAreaDemandanteRnc: Number,
-        codigoGrupoFila: String,
-        sg: String,
-        descricaoTituloSg: String,
-        codigoSg: Number,
-        crudType: String
+        crudType: String,
+        registro: Object,
+        outraAreaDemandante: Number
     },
     computed: {
         show: {
@@ -107,6 +104,52 @@ export default {
             set (value) {
                 this.$emit('input', value);
             }
+        },
+        sg: function(){
+            var sg = null;
+            if(this.registro && this.registro.detail){
+                sg = this.registro.detail;
+            }
+            return sg;
+        },
+        isLeitura: function(){
+            return Boolean(this.outraAreaDemandante);
+        },
+        identificadorAreaDemandanteRnc: function(){
+            var identificadorAreaDemandanteRnc = null;
+            if(this.isLeitura){
+                identificadorAreaDemandanteRnc = this.outraAreaDemandante;
+            } else
+            if(this.registro && this.registro.identificadorAreaDemandanteRnc){
+                identificadorAreaDemandanteRnc = this.registro.identificadorAreaDemandanteRnc;
+            }
+            return identificadorAreaDemandanteRnc;
+        },
+        descricaoTituloSg: function(){
+          var descricaoTituloSg = null;
+          if(this.registro && this.registro.descricaoTituloSg){
+              descricaoTituloSg = this.registro.descricaoTituloSg;
+          }  
+          return descricaoTituloSg;
+        },
+        codigoGrupoFila: function(){
+            var codigoGrupoFila = null;
+            if(this.sg == 'sgp' && this.registro.codigoGrupoFila){
+                codigoGrupoFila = this.registro.codigoGrupoFila;
+            }
+            return codigoGrupoFila;
+        },
+        codigoSg: function(){
+            var codigoSg = null;
+            if(this.registro){
+                if(this.sg == 'sgi'){
+                    codigoSg = this.registro.ID;
+                } else
+                if(this.sg == 'sgp'){
+                    codigoSg = this.registro.GL;
+                }
+            }
+            return codigoSg;
         },
         codigo: function(){
             var codigo = null;
@@ -137,82 +180,6 @@ export default {
 
             return title;
         },
-        createRequestData: function(){
-            var formData = new FormData();
-            var requestData = this.detalhes;
-            var listaRNCsRequest = this.detalhes.listaRNCs;
-
-            requestData['sg'] = this.sg;
-            requestData['codigo'] = this.codigo;
-            requestData['codigoGL'] = this.codigoGL;
-            requestData['codigoGrupoFila'] = this.codigoGrupoFila;
-
-            listaRNCsRequest.forEach( 
-                (rnc, index) => 
-                { 
-                    rnc.listaIrregularidades = rnc.listaIrregularidades.filter(irregularidade => {return this.isNewUploadObject(irregularidade)})
-                    var irregularidades = rnc.listaIrregularidades;
-                    var irregularidade = null;
-                    for(irregularidade of irregularidades){
-                        formData.append('files-irregularidades-'+index, irregularidade.file);
-                        if(irregularidade.descricaoAnexo && irregularidade.descricaoAnexo.trim() == ""){
-                            irregularidade.descricaoAnexo = null;
-                        }
-                    }
-                }
-            );
-
-            formData.append('data', JSON.stringify(requestData));
-            return formData;
-        },
-        dealRequestData: function(){
-            var formData = new FormData();
-            var requestData = {};
-            var listaRNCsRequest = this.detalhes.listaRNCs;
-            
-            listaRNCsRequest.forEach( 
-                (rnc) => 
-                { 
-                    rnc['prazo'] = rnc.listaPrazos.filter(function(prazo){ return (prazo.new && prazo.prazo) });
-                    rnc['evidencias'] = rnc.listaEvidencias.filter(evidencia => { return this.isNewUploadObject(evidencia) });
-                    var evidencia = null;
-                    for(evidencia of rnc['evidencias']){
-                        formData.append('files-evidencias-'+rnc.id, evidencia.file);
-                        if(evidencia.descricaoAnexo && evidencia.descricaoAnexo.trim() == ""){
-                            evidencia.descricaoAnexo = null;
-                        }
-                    }
-                }
-            );
-            requestData['listaRNCs'] = listaRNCsRequest;
-            requestData['observacoes'] = this.detalhes.observacoes;
-            formData.append('data', JSON.stringify(requestData));
-            return formData;
-        },
-        validateRequestData: function(){
-            var formData = new FormData();
-            var requestData = {};
-            var listaRNCsRequest = this.detalhes.listaRNCs;
-            
-            listaRNCsRequest.forEach( 
-                (rnc) => 
-                { 
-                    rnc['prazo'] = rnc.listaPrazos.filter(function(prazo){ return prazo.updated });
-                    rnc['irregularidades'] = rnc.listaIrregularidades.filter(irregularidade =>{ return this.isNewUploadObject(irregularidade) });
-                    var irregularidade = null;
-                    for(irregularidade of rnc['irregularidades']){
-                        formData.append('files-irregularidades-'+rnc.id, irregularidade.file);
-                        if(irregularidade.descricaoAnexo && irregularidade.descricaoAnexo.trim() == ""){
-                            irregularidade.descricaoAnexo = null;
-                        }
-                    }
-                }
-            );
-            requestData['listaRNCs'] = listaRNCsRequest;
-            requestData['observacoes'] = this.detalhes.observacoes;
-            formData.append('data', JSON.stringify(requestData));
-            return formData;
-        },
         requestParameters: function(){
             var requestParameters = {};
 
@@ -238,19 +205,51 @@ export default {
             return requestMethod;
         },
         requestRNCData: function(){
-            var requestData = null;
+            var requestData = this.detalhes;
+            var formData = new FormData();
+            var listaRNCsRequest = this.detalhes.listaRNCs;
 
-            if(this.crudType == 'c'){
-                requestData = this.createRequestData;
-            } else
-            if(this.crudType == 't'){
-                requestData = this.dealRequestData;
-            } else
-            if(this.crudType == 'v'){
-                requestData = this.validateRequestData;
-            }
+            requestData['sg'] = this.sg;
+            requestData['codigo'] = this.codigo;
+            requestData['codigoGL'] = this.codigoGL;
+            requestData['codigoGrupoFila'] = this.codigoGrupoFila;
 
-            return requestData;
+            listaRNCsRequest.forEach( 
+                (rnc, index) => 
+                { 
+                    // CRIACAO
+                    if(rnc.listaIrregularidades){
+                        var listaIrregularidades = rnc.listaIrregularidades.filter(irregularidade => {return this.novoObjetoUpload(irregularidade)})
+                        var irregularidade = null;
+                        for(irregularidade of listaIrregularidades){
+                            formData.append('files-irregularidades-'+index, irregularidade.file);
+                            if(irregularidade.descricaoAnexo && irregularidade.descricaoAnexo.trim() == ""){
+                                irregularidade.descricaoAnexo = null;
+                            }
+                        }
+                    }
+                    // TRATAMENTO
+                    if(rnc.listaEvidencias){
+                        var listaEvidencias = rnc.listaEvidencias.filter(evidencia => { return this.novoObjetoUpload(evidencia) });
+                        var evidencia = null;
+                        for(evidencia of listaEvidencias){
+                            formData.append('files-evidencias-'+rnc.id, evidencia.file);
+                            if(evidencia.descricaoAnexo && evidencia.descricaoAnexo.trim() == ""){
+                                evidencia.descricaoAnexo = null;
+                            }
+                        }
+                    }
+                    
+                    if(rnc.listaPrazos){
+                        rnc['novoPrazo'] = rnc.listaPrazos.filter(function(prazo){ return (prazo.new && prazo.prazo) });
+                        // VALIDAR
+                        rnc['prazo'] = rnc.listaPrazos.filter(function(prazo){ return prazo.updated });
+                    }
+                }
+            );
+
+            formData.append('data', JSON.stringify(requestData));
+            return formData;
         },
         requestRNCURL: function(){
             var requestURL = '';
@@ -271,7 +270,7 @@ export default {
   },
   data: function() {
     return {
-        loadingSave: false,
+        loadingSalvar: false,
         listaIrregularidades: [],
         tab: null,
         detalhes: 
@@ -280,7 +279,7 @@ export default {
     }
   },
   methods: {
-        save(){
+        salvar(){
             
             var requestParameters = this.requestParameters;
 
@@ -290,9 +289,9 @@ export default {
 
             var requestData = requestParameters.data;
 
-            this.loadingSave = true;
-            this.$store.commit("setMist", true);
-            this.$store.commit("setMistVisible", false);
+            this.loadingSalvar = true;
+            this.$store.commit("setNevoa", true);
+            this.$store.commit("setNevoaVisivel", false);
 
             axios({
                 method: requestParameters.method,
@@ -300,25 +299,30 @@ export default {
                 data: requestData
             }).then(res => {
                 res;
-                this.finnalySave(true);
+                var registro = this.registro;
+                if(!registro.identificadorAreaDemandanteRnc){
+                    registro.identificadorAreaDemandanteRnc = res.data.id;
+                    this.$emit('registro', registro);
+                }
+                this.encerraSalvar(true);
             }).catch(error => {
-                this.finnalySave(false, error);
+                this.encerraSalvar(false, error);
             });
 
             
         },
-        finnalySave(save, error){
-            this.$store.commit("setMist", false);
-            this.loadingSave = false;
-            if(save){
+        encerraSalvar(salvar, error){
+            this.$store.commit("setNevoa", false);
+            this.loadingSalvar = false;
+            if(salvar){
                 this.show=false;
                 this.$toasted.global.defaultSuccess();
             } else {
                 showError(error);
             }
         },
-        isNewUploadObject(uploadObject){
-            return (uploadObject.new && uploadObject.nomeArquivo && uploadObject.descricaoAnexo)
+        novoObjetoUpload(objetoUpload){
+            return (objetoUpload.new && objetoUpload.nomeArquivo && objetoUpload.descricaoAnexo)
         }
   },
   created: function(){

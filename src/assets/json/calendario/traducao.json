@@ -1,0 +1,15 @@
+{
+    "labelPrevDecade": "Década anterior",
+    "labelPrevYear": "Ano anterior",
+    "labelPrevMonth": "Mês passado",
+    "labelCurrentMonth": "Mês atual",
+    "labelNextMonth": "Próximo mês",
+    "labelNextYear": "Próximo ano",
+    "labelNextDecade": "Próxima década",
+    "labelToday": "Hoje",
+    "labelSelected": "Data selecionada",
+    "labelNoDateSelected": "Sem data escolhida",
+    "labelCalendar": "Calendário",
+    "labelNav": "Navegação no calendário",
+    "labelHelp": "Navegue pelo calendário com as setas do teclado"
+}

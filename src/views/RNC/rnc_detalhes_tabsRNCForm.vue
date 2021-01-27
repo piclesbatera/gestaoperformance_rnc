@@ -5,8 +5,8 @@
     
             <v-tab :href="'#motivos'">Motivos</v-tab>
             <v-tab :href="'#irregularidades'">Irregularidades</v-tab>
-            <v-tab :href="'#prazos'" v-if="previewTabPrazo">Prazos</v-tab>
-            <v-tab :href="'#evidencias'" v-if="previewTabEvidencias">Evidencias</v-tab>
+            <v-tab :href="'#prazos'" v-if="visualizarTabPrazo" :disabled="!acessarTabPrazo">Prazos</v-tab>
+            <v-tab :href="'#evidencias'" v-if="visualizarTabEvidencias">Evidencias</v-tab>
         </v-tabs>
         <v-tabs-items v-model="rnc.tab" touchless>
             <!-- rncs -->
@@ -17,13 +17,13 @@
                             <div class="col-lg-5">
                                 <div class="form-group">
                                     <label class="bmd-label-floating label-text" for="motivo">Motivo</label><font color="red"> *</font>
-                                    <b-form-select v-model="rnc.motivo" :disabled="rnc.dataCriacao" @change="carregaTipos()" :options="motivos" ></b-form-select>
+                                    <b-form-select v-model="rnc.motivo" :disabled="criado" @change="carregaDescricoes()" :options="motivos" ></b-form-select>
                                 </div>
                             </div>
                             <div class="col-lg-5">
                                 <div class="form-group">
                                     <label class="bmd-label-floating label-text" for="tipo">Descrição</label><font color="red"> *</font>
-                                    <b-form-select v-model="rnc.tipo" :disabled="rnc.dataCriacao" :options="tipos" ></b-form-select>
+                                    <b-form-select v-model="rnc.descricao" :disabled="criado" :options="descricoes" ></b-form-select>
                                 </div>
                             </div>
                             <div class="col-lg-2">
@@ -31,15 +31,15 @@
                                 <v-checkbox
                                     v-model="rnc.tratar"
                                     style="margin-top: 0px;"
-                                    :disabled="rnc.dataCriacao"
+                                    :disabled="criado || rncGrave"
                                 ></v-checkbox>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-lg-5" >
                                 <div class="form-group">
-                                    <label class="bmd-label-floating label-text" for="classificacao">Tipo</label><font color="red"> *</font>
-                                    <b-form-select disabled id="classificacao" v-model="rnc.classificacao" :options="classificacoes" ></b-form-select>
+                                    <label class="bmd-label-floating label-text" for="tipo">Tipo</label><font color="red"> *</font>
+                                    <b-form-select disabled v-model="rnc.tipo" :options="tipos" ></b-form-select>
                                 </div>
                             </div>
                         </div>
@@ -48,7 +48,8 @@
                                 <div class="form-group">
                                     <label class="bmd-label-floating blank-label"></label>
                                     <v-btn class="btn btn-danger form-control" color="red" dark @click="rnc.resolvido = false;">
-                                        <v-icon dark >
+                                        Não resolvida
+                                        <v-icon dark right>
                                             mdi-cancel
                                         </v-icon>
                                     </v-btn>
@@ -58,7 +59,8 @@
                                 <div class="form-group">
                                     <label class="bmd-label-floating blank-label"></label>
                                     <v-btn class="btn btn-primary form-control" color="blue" dark @click="rnc.resolvido = true;">
-                                        <v-icon dark >
+                                        Resolvida
+                                        <v-icon dark right>
                                             mdi-checkbox-marked-circle
                                         </v-icon>
                                     </v-btn>
@@ -68,7 +70,7 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 <label class="bmd-label-floating label-text" for="observacoes">Observações</label><font color="red"> *</font>
-                                <b-form-textarea id="observacoes" no-resize v-model="rnc.observacoes" placeholder="Digite uma observação" rows="3" maxLength="200"></b-form-textarea>
+                                <b-form-textarea no-resize v-model="rnc.observacao" placeholder="Digite uma observação" rows="3" maxLength="200"></b-form-textarea>
                                 <a @click="showObservacoesHistory_modalView=true;" style="float: right;" title="Abrir o histórico de observações">
                                     <i class="fa fa-history"></i>
                                     Visualizar histórico</a>
@@ -83,13 +85,13 @@
             <v-tab-item :value="'irregularidades'">
                 <v-card flat>
                     <v-card-text>
-                        <Rnc_uploadDetailForm :id="rnc.id" :initialRow="permissionAlterIrregularidades" :newObjectString="newIrregularidadeObject" :permissionAlterComponent="permissionAlterIrregularidades" v-model="listaIrregularidades" :folder="'irregularidades'" />
+                        <Rnc_uploadDetailForm :id="rnc.id" :inicializaLinha="permissaoAlterarIrregularidade" :novoObjetoString="novoObjetoIrregularidade" :permissaoAlterarComponente="permissaoAlterarIrregularidade" v-model="listaIrregularidades" :tipoArquivo="'irregularidades'" />
                     </v-card-text>
                 </v-card>
             </v-tab-item>
 
             <!-- Prazos -->
-            <v-tab-item :value="'prazos'" v-if="previewTabPrazo">
+            <v-tab-item :value="'prazos'" v-if="visualizarTabPrazo">
                 <v-card flat>
                     <v-card-text>
                         <div class="container-fluid">
@@ -106,11 +108,11 @@
                                                 }"></b-form-datepicker>
                                         </div>
                                     </div>
-                                    <template v-if="validationButtonsPrazo(prazo)">
+                                    <template v-if="validaBotoesPrazo(prazo)">
                                         <div class="col-lg-3">
                                             <div class="form-group">
                                                 <label class="bmd-label-floating blank-label"></label>
-                                                <v-btn class="btn btn-danger form-control" color="red" dark @click="setState(prazo, false);">
+                                                <v-btn class="btn btn-danger form-control" color="red" dark @click="setSituacao(prazo, false);">
                                                     Rejeitar
                                                     <v-icon dark right >
                                                         mdi-cancel
@@ -121,7 +123,7 @@
                                         <div class="col-lg-3">
                                             <div class="form-group">
                                                 <label class="bmd-label-floating blank-label"></label>
-                                                <v-btn class="btn btn-primary form-control" color="blue" dark @click="setState(prazo, true);">
+                                                <v-btn class="btn btn-primary form-control" color="blue" dark @click="setSituacao(prazo, true);">
                                                     Aceitar
                                                     <v-icon dark right >
                                                         mdi-checkbox-marked-circle
@@ -139,10 +141,10 @@
             </v-tab-item>
 
             <!-- Evidências -->
-            <v-tab-item :value="'evidencias'" v-if="previewTabEvidencias">
+            <v-tab-item :value="'evidencias'" v-if="visualizarTabEvidencias">
                 <v-card flat>
                     <v-card-text>
-                        <Rnc_uploadDetailForm :id="rnc.id" :initialRow="permissionAlterEvidencias" :newObjectString="newEvidenciaObject" :permissionAlterComponent="permissionAlterEvidencias" v-model="listaEvidencias" :folder="'evidencias'" />
+                        <Rnc_uploadDetailForm :id="rnc.id" :inicializaLinha="permissaoAlterarEvidencia" :novoObjetoString="novoObjetoEvidencia" :permissaoAlterarComponente="permissaoAlterarEvidencia" v-model="listaEvidencias" :tipoArquivo="'evidencias'" />
                     </v-card-text>
                 </v-card>
             </v-tab-item>
@@ -159,6 +161,7 @@ import {getDateCalculated } from "@/global";
 import moment from 'moment';
 import { baseApi, showError } from "@/global";
 import axios from "axios";
+import datePickerLabels from "@/assets/json/calendario/traducao.json";
 export default {
     name: "rnc_detalhes_tabsRNCForm",
     components: {
@@ -169,23 +172,36 @@ export default {
         rnc: Object,
         crudType: String,
         motivos: Array,
-        classificacoes: Array
+        tipos: Array,
+        isLeitura: Boolean
     },
     computed: {
-        tipo: function(){
-            return this.rnc.tipo;
+        rncGrave: function(){
+            return this.rnc.tipo == 3;
+        },
+        criado: function(){
+            return Boolean(this.rnc.dataCriacao);
+        },
+        acessarTabPrazo: function(){
+            return Boolean(this.rnc.tratar);
+        },
+        descricao: function(){
+            return this.rnc.descricao;
         },
         motivo: function(){
             return this.rnc.motivo;
         },
+        tipo: function(){
+            return this.rnc.tipo;
+        },
         permissionAlterRNC: function(){
             return (this.rnc.resolvido == null);
         },
-        permissionAlterIrregularidades: function(){
-            return ((this.permissionAlterRNC) && (this.crudType == 'c' || this.crudType == 'v'));
+        permissaoAlterarIrregularidade: function(){
+            return ((this.permissionAlterRNC) && ( (this.crudType == 'c' && !this.isLeitura) || this.crudType == 'v'));
         },
         completeRNCButtons(){
-            return (this.crudType == 'v' && this.rnc.initStatus == null && (Array.isArray(this.listaEvidencias) && this.listaEvidencias.length));
+            return (this.crudType == 'v' && this.rnc.statusInicial == null && (Array.isArray(this.listaEvidencias) && this.listaEvidencias.length));
         },
         listaPrazos: {
             get(){
@@ -199,8 +215,8 @@ export default {
                 this.rnc.listaPrazos = listaPrazos;
             }
         },
-        previewTabPrazo: function(){
-            if(this.crudType == 't' || this.crudType == 'v'){
+        visualizarTabPrazo: function(){
+            if(this.crudType == 't' || this.crudType == 'v' || (this.crudType == 'c' &&  this.rnc.id)){
                 return true;
             }
             return false;
@@ -229,58 +245,44 @@ export default {
                 this.rnc.listaIrregularidades = listaIrregularidades;
             }
         },
-        previewTabEvidencias: function(){
-            return ( (this.crudType != 'c') && (Array.isArray(this.listaPrazos) && this.listaPrazos.length) && (this.listaPrazos[this.listaPrazos.length - 1].situacao == true) && (!this.prazoParaAceitar));
+        visualizarTabEvidencias: function(){
+            return ( (Array.isArray(this.listaPrazos) && this.listaPrazos.length) && (this.listaPrazos[this.listaPrazos.length - 1].situacao == true) && (!this.prazoParaAceitar));
         },
-        permissionAlterEvidencias: function(){
-            return ((this.permissionAlterRNC) &&  (this.previewTabEvidencias) && (this.crudType == 't'));
+        permissaoAlterarEvidencia: function(){
+            return ((this.permissionAlterRNC) &&  (this.visualizarTabEvidencias) && (this.crudType == 't'));
         },
     },
   data: function() {
     return {
+        datePickerLabels,
         showObservacoesHistory_modalView: false,
-        tipos: [
-            { "value": null, "text": "Selecione um tipo" }
+        descricoes: [
+            { "value": null, "text": "Selecione uma descrição" }
         ],
         prazoParaAceitar: false,
-        newEvidenciaObject: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingFile": false, "new": true }',
-        newIrregularidadeObject: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingFile": false, "new": true }',
-        datePickerLabels: {
-            labelPrevDecade: "Década anterior",
-            labelPrevYear: "Ano anterior",
-            labelPrevMonth: "Mês passado",
-            labelCurrentMonth: "Mês atual",
-            labelNextMonth: "Próximo mês",
-            labelNextYear: "Próximo ano",
-            labelNextDecade: "Próxima década",
-            labelToday: "Hoje",
-            labelSelected: "Data selecionada",
-            labelNoDateSelected: "Sem data escolhida",
-            labelCalendar: "Calendário",
-            labelNav: "Navegação no calendário",
-            labelHelp: "Navegue pelo calendário com as setas do teclado"
-        }
+        novoObjetoEvidencia: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingArquivo": false, "new": true }',
+        novoObjetoIrregularidade: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingArquivo": false, "new": true }'
     }
   },
   methods: {
-        carregaTipos(){
-            this.rnc.tipo = null;
+        carregaDescricoes(){
+            this.rnc.descricao = null;
             this.getDescricao();
         },
         getDescricao(){
             var comboBox = [{ "value": null, "text": "Selecione uma descrição" }];
             if(this.rnc.motivo){
                 axios
-                .get(`${baseApi}/rnc/descricao?motivo=${this.rnc.motivo}`)
+                .get(`${baseApi}/rnc/descricoes?motivo=${this.rnc.motivo}`)
                 .then(res => {
-                if(res.data && res.data.descricaoRnc){
-                    var descricoes = res.data.descricaoRnc;
+                if(res.data && res.data.descricoesRnc){
+                    var descricoes = res.data.descricoesRnc;
                     descricoes.forEach((item) => 
                     { 
                         var descricao = {};
                         descricao['value'] = item.id;
                         descricao['text'] = item.descricao;
-                        descricao['classificacao'] = item.classificacao;
+                        descricao['tipo'] = item.tipo;
                         comboBox.push(descricao);
                     });
                 }
@@ -289,14 +291,14 @@ export default {
                     showError(error);
                 })
                 .finally(() => {
-                    this.tipos = comboBox;
-                    var tipo = this.tipos.find(t => t.value == this.tipo);
-                    if(tipo && tipo.classificacao){
-                        this.rnc.classificacao = tipo.classificacao;
+                    this.descricoes = comboBox;
+                    var descricao = this.descricoes.find(t => t.value == this.descricao);
+                    if(descricao && descricao.tipo){
+                        this.rnc.tipo = descricao.tipo;
                     }
                 });
             } else {
-                this.tipos = comboBox;
+                this.descricoes = comboBox;
             }
         },
         setSituacao(prazo, novaSituacao){
@@ -328,7 +330,7 @@ export default {
             prazoCorreto.add(diffDays, 'days');
             return prazoCorreto.format('YYYY-MM-DD')
         },
-        validationButtonsPrazo(prazo){
+        validaBotoesPrazo(prazo){
             const index = this.listaPrazos.indexOf(prazo);
             var showValidationButtonsPrazo = 
             (
@@ -382,18 +384,25 @@ export default {
         }
   },
   watch: {
-     tipo: function(newValue){
-         if(newValue){
-            var tipo = this.tipos.find(t => t.value == newValue);
-            if(tipo && tipo.classificacao){
-                this.rnc.classificacao = tipo.classificacao;
-            } else {
-                this.rnc.classificacao = null;
-            }
-         } else {
-             this.rnc.classificacao = null;
-         }
-     } 
+    descricao: function(novoValor){
+        if(novoValor){
+        var descricao = this.descricoes.find(t => t.value == novoValor);
+        if(descricao && descricao.tipo){
+            this.rnc.tipo = descricao.tipo;
+        } else {
+            this.rnc.tipo = null;
+        }
+        } else {
+            this.rnc.tipo = null;
+        }
+    },
+    tipo: function(novoValor){
+        if(novoValor && novoValor == 3){
+            this.rnc.tratar = true;
+        } else {
+            this.rnc.tratar = false;
+        }
+    }
   },
   created: function(){
       this.iniciarTratarRNC();

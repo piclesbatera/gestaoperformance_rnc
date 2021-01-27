@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <div class="app">
-      <Nevoa :visible="nevoaVisivel" :activated="nevoa"/>
+      <Nevoa :visivel="nevoaVisivel" :ativo="nevoa"/>
       <template v-if="usuarioConectado" >
         <Header/>
         <Content />
