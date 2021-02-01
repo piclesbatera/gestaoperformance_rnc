@@ -7,8 +7,10 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     usuario: null,
-    nevoaVisivel: false,
-    nevoa: false
+    nevoa: {
+      ativo: false,
+      visivel: false
+    }
   },
   mutations: {
     setUsuario(state, usuario) {
@@ -27,11 +29,16 @@ export default new Vuex.Store({
         state.usuario['perfilUsuario'] = perfilUsuario;
       }
     },
-    setNevoaVisivel(state, nevoaVisivel){
-      state.nevoaVisivel = nevoaVisivel;
-    },
     setNevoa(state, nevoa){
-      state.nevoa = nevoa;
+      if(typeof nevoa == 'object'){
+        state.nevoa = nevoa;
+      } else
+      if(typeof nevoa == 'boolean') {
+        state.nevoa = {
+          ativo: nevoa,
+          visivel: false
+        }
+      }
     }
   },
   actions: {},

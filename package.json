@@ -20,6 +20,7 @@
     "object-to-formdata": "^4.1.0",
     "popper.js": "^1.16.1",
     "register-service-worker": "^1.7.1",
+    "vee-validate": "^3.4.5",
     "vue": "^2.6.11",
     "vue-router": "^3.4.9",
     "vue-toasted": "^1.1.28",

@@ -163,12 +163,12 @@
             </v-container>  
             </div>
         </div>
-        <Rnc_modalForm :crudType="crudType" :registro="registroSelecionado" :outraAreaDemandante="outraAreaDemandante" v-if="showRnc_modalForm" v-model="showRnc_modalForm"/>
+        <ModalRnc :crudType="crudType" :registro="registroSelecionado" :outraAreaDemandante="outraAreaDemandante" v-if="showModalRnc" v-model="showModalRnc"/>
     </div>  
 </template>
 
 <script>
-import Rnc_modalForm from './rnc_modalForm'
+import ModalRnc from './modalRnc'
 import RncOutrasAreasDemandantes from './rncOutrasAreasDemandantes'
 import { baseApi, showError, showAllErrorScope, cleanErrorsScope } from "@/global";
 import axios from "axios";
@@ -302,7 +302,7 @@ export default {
         },
     },
     components: {
-        Rnc_modalForm, RncOutrasAreasDemandantes
+        ModalRnc, RncOutrasAreasDemandantes
     },
     data: function() {
         return {
@@ -314,7 +314,7 @@ export default {
             consultaPor: "sgi",
             valorConsulta: "",
             valorConsultaRNC: "",
-            showRnc_modalForm: false,
+            showModalRnc: false,
             consultaPorOptions: [
                 { "value": "sgi", "text": "SGI" },
                 { "value": "sgp", "text": "SGP" }
@@ -376,7 +376,7 @@ export default {
         abreRegistroSelecionado(sg, outraAreaDemandante){
             this.registroSelecionado = sg;
             this.outraAreaDemandante = outraAreaDemandante;
-            this.showRnc_modalForm=true;
+            this.showModalRnc=true;
         },
         consultaAvancadaButton(){
             this.consultaAvancada=!this.consultaAvancada;

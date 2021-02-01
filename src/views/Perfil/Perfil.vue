@@ -11,101 +11,95 @@
             <!-- <v-progress-linear color="deep-purple accent-4" indeterminate rounded height="6"></v-progress-linear> -->
             <v-progress-linear indeterminate color="blue" ></v-progress-linear>
           </div>
-          <form v-else @submit="solicitacaoAcesso">
-            <div class="row">
-            <div class="col-md-3">
-              <div class="form-group">
-                <label class="bmd-label-floating">Nome de Úsuario</label
-                ><font color="red"> *</font>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="nomeUsuario"
-                  v-model="usuario.nomeUsuario"
-                  disabled
-                />
+          <ValidationObserver v-else ref="observer">
+            <v-form :readonly="usuarioRegistrado" @submit.prevent="solicitacaoAcesso()">
+              <div class="row">
+                <div class="col-md-3">
+                  <v-text-field
+                    v-model="usuario.nomeUsuario"
+                    label="Nome de Úsuario"
+                    outlined
+                    dense
+                    required
+                    readonly>
+                  </v-text-field>
+                </div>
+                <div class="col-md-4">
+                  <ValidationProvider v-slot="{ errors }" name="Endereço de Email" rules="requerido|email" >
+                    <v-text-field
+                      type="email"
+                      id="email"
+                      v-model="usuario.perfilUsuario.email"
+                      :error-messages="errors"
+                      label="Endereço de Email"
+                      outlined
+                      dense
+                      required>
+                    </v-text-field>
+                  </ValidationProvider>
+                </div>
+                <div class="col-md-5">
+                  <ValidationProvider v-slot="{ errors }" name="Área" rules="requerido" >
+                    <v-select
+                      id="areaDemandante"
+                      v-model="usuario.perfilUsuario.usuarioTim.areaDemandante"
+                      :items="areasDemandantes"
+                      label="Área"
+                      dense
+                      :error-messages="errors"
+                      outlined
+                      required></v-select>
+                  </ValidationProvider>
+                </div>
               </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label class="bmd-label-floating label-text" for="email"
-                  >Endereço de Email</label
-                ><font color="red"> *</font>
-                <input
-                  type="email"
-                  class="form-control"
-                  id="email"
-                  v-model="usuario.perfilUsuario.email"
-                  :disabled="usuarioRegistrado"
-                  required
-                  placeholder="email@endereco.com"
-                />
+              <div class="row">
+                <div class="col-md-6">
+                  <ValidationProvider v-slot="{ errors }" name="Primeiro Nome" rules="requerido|alfa_espacos|minimo:2|maximo:30" >
+                    <v-text-field
+                      id="primeiroNome"
+                      v-model="usuario.perfilUsuario.usuarioTim.primeiroNome"
+                      :counter="30"
+                      maxlength="30"
+                      :error-messages="errors"
+                      label="Primeiro Nome"
+                      outlined
+                      dense
+                      required>
+                    </v-text-field>
+                  </ValidationProvider>
+                </div>
+                <div class="col-md-6">
+                  <ValidationProvider v-slot="{ errors }" name="Último Nome" rules="requerido|alfa_espacos|minimo:2|maximo:30" >
+                    <v-text-field
+                      id="sobrenome"
+                      v-model="usuario.perfilUsuario.usuarioTim.sobrenome"
+                      :counter="30"
+                      maxlength="30"
+                      :error-messages="errors"
+                      label="Último Nome"
+                      outlined
+                      dense
+                      required>
+                    </v-text-field>
+                  </ValidationProvider>
+                </div>
               </div>
-            </div>
-            <div class="col-md-5">
-              <div class="form-group">
-                <label class="bmd-label-floating label-text" for="areaDemandante"
-                  >Área</label
-                ><font color="red"> *</font>
-                <b-form-select
-                  v-model="usuario.perfilUsuario.usuarioTim.areaDemandante"
-                  :options="areasDemandantes"
-                  id="areaDemandante"
-                  :disabled="usuarioRegistrado"
-                  required
-                ></b-form-select>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="bmd-label-floating label-text" for="primeiroNome"
-                  >Primeiro Nome</label
-                ><font color="red"> *</font>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="primeiroNome"
-                  v-model="usuario.perfilUsuario.usuarioTim.primeiroNome"
-                  :disabled="usuarioRegistrado"
-                  required
-                  placeholder="Nome de cadastro"
-                />
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="bmd-label-floating label-text" for="sobrenome"
-                  >Último Nome</label
-                ><font color="red"> *</font>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="sobrenome"
-                  v-model="usuario.perfilUsuario.usuarioTim.sobrenome"
-                  :disabled="usuarioRegistrado"
-                  required
-                  placeholder="Nome de cadastro"
-                />
-              </div>
-            </div>
-          </div>
-          <v-btn
-            v-if="!usuarioRegistrado"
-            class="btn btn-primary pull-right"
-            :loading="loadingSolicitacaoAcesso"
-            :disabled="loadingSolicitacaoAcesso"
-            color="blue"
-            type="submit"
-          >
-          Solicitar Acesso
-          </v-btn>
-          <h6 v-else class="card-category text-gray">
-            {{mensagemBoasVindas}}
-          </h6>
-          <div class="clearfix"></div>
-          </form>
+              <v-btn
+                v-if="!usuarioRegistrado"
+                class="btn btn-primary pull-right"
+                :loading="loadingSolicitacaoAcesso"
+                :disabled="loadingSolicitacaoAcesso"
+                color="blue"
+                type="submit"
+              >
+              Solicitar Acesso
+              </v-btn>
+              <h6 v-else class="card-category text-gray">
+                {{mensagemBoasVindas}}
+              </h6>
+              <div class="clearfix"></div>
+            </v-form>
+          </ValidationObserver>
         </v-container>
       </v-card-text>
     </v-card>
@@ -115,15 +109,17 @@
 <script>
 import { mapState } from "vuex";
 import axios from "axios";
-import {
-  baseApi,
-  chaveUsuario,
-  showError,
-  cleanErrors
-} from "@/global";
 
+import { baseApi, chaveUsuario, showError, cleanErrors } from "@/global";
+
+import { ValidationProvider, ValidationObserver } from 'vee-validate';
+import {validacaoFormulario} from '@/components/utils/validation.js';
 
 export default {
+  name: "perfil",
+  components: {
+      ValidationProvider, ValidationObserver
+  },
   computed: {
     ...mapState(["usuario"]),
     mensagemBoasVindas: function(){
@@ -161,10 +157,10 @@ export default {
   },
   data: function() {
     return {
+      formularioValido: false,
       loading: true,
       loadingSolicitacaoAcesso: false,
       areasDemandantes: [
-        { "value": null, "text": "Selecione uma àrea" }
       ]
     };
   },
@@ -190,25 +186,27 @@ export default {
         });
     },
     solicitacaoAcesso() {
-      event.preventDefault();
-      this.usuario.perfilUsuario.login = "";
-      this.loadingSolicitacaoAcesso = true;
-      axios
-        .post(`${baseApi}/usuario`, this.usuario.perfilUsuario)
-        .then(() => {
-          cleanErrors();
-          this.getPerfilUsuario();
-          this.$toasted.global.defaultSuccess();
-        })
-        .catch(error => {
-            showError(error);
-        })
-        .finally(() => {
-          this.loadingSolicitacaoAcesso = false;
-        });
+      console.log(this.$refs.observer.errors)
+      if(validacaoFormulario(this.$refs.observer)){
+        this.usuario.perfilUsuario.login = "";
+        this.loadingSolicitacaoAcesso = true;
+        axios
+          .post(`${baseApi}/usuario`, this.usuario.perfilUsuario)
+          .then(() => {
+            cleanErrors();
+            this.getPerfilUsuario();
+            this.$toasted.global.defaultSuccess();
+          })
+          .catch(error => {
+              showError(error);
+          })
+          .finally(() => {
+            this.loadingSolicitacaoAcesso = false;
+          });
+      }
     },
     getAreasDemandantes(){
-      var comboBox = [{ "value": null, "text": "Selecione uma àrea" }];
+      var comboBox = [];
 
       return axios
         .get(`${baseApi}/usuario/areasDemandantes?`)

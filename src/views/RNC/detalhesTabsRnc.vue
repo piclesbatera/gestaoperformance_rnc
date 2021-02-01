@@ -71,12 +71,12 @@
                             <div class="col-lg-12">
                                 <label class="bmd-label-floating label-text" for="observacoes">Observações</label><font color="red"> *</font>
                                 <b-form-textarea no-resize v-model="rnc.observacao" placeholder="Digite uma observação" rows="3" maxLength="200"></b-form-textarea>
-                                <a @click="showObservacoesHistory_modalView=true;" style="float: right;" title="Abrir o histórico de observações">
+                                <a @click="showHistoricoObservacoes=true;" style="float: right;" title="Abrir o histórico de observações">
                                     <i class="fa fa-history"></i>
                                     Visualizar histórico</a>
                             </div>
                         </div>
-                        <ObservacoesHistory_modalView v-if="showObservacoesHistory_modalView" :listaObservacoes="rnc.listaObservacoes" v-model="showObservacoesHistory_modalView" />
+                        <HistoricoObservacoes v-if="showHistoricoObservacoes" :listaObservacoes="rnc.listaObservacoes" v-model="showHistoricoObservacoes" />
                     </v-card-text>
                 </v-card>
             </v-tab-item>
@@ -85,7 +85,7 @@
             <v-tab-item :value="'irregularidades'">
                 <v-card flat>
                     <v-card-text>
-                        <Rnc_uploadDetailForm :id="rnc.id" :inicializaLinha="permissaoAlterarIrregularidade" :novoObjetoString="novoObjetoIrregularidade" :permissaoAlterarComponente="permissaoAlterarIrregularidade" v-model="listaIrregularidades" :tipoArquivo="'irregularidades'" />
+                        <UploadForm :id="rnc.id" :inicializaLinha="permissaoAlterarIrregularidade" :novoObjetoString="novoObjetoIrregularidade" :permissaoAlterarComponente="permissaoAlterarIrregularidade" v-model="listaIrregularidades" :tipoArquivo="'irregularidades'" />
                     </v-card-text>
                 </v-card>
             </v-tab-item>
@@ -144,7 +144,7 @@
             <v-tab-item :value="'evidencias'" v-if="visualizarTabEvidencias">
                 <v-card flat>
                     <v-card-text>
-                        <Rnc_uploadDetailForm :id="rnc.id" :inicializaLinha="permissaoAlterarEvidencia" :novoObjetoString="novoObjetoEvidencia" :permissaoAlterarComponente="permissaoAlterarEvidencia" v-model="listaEvidencias" :tipoArquivo="'evidencias'" />
+                        <UploadForm :id="rnc.id" :inicializaLinha="permissaoAlterarEvidencia" :novoObjetoString="novoObjetoEvidencia" :permissaoAlterarComponente="permissaoAlterarEvidencia" v-model="listaEvidencias" :tipoArquivo="'evidencias'" />
                     </v-card-text>
                 </v-card>
             </v-tab-item>
@@ -155,18 +155,18 @@
 </template>
 
 <script>
-import Rnc_uploadDetailForm from './rnc_uploadDetailForm'
-import ObservacoesHistory_modalView from './observacoesHistory_modalView'
+import UploadForm from './uploadForm'
+import HistoricoObservacoes from './historicoObservacoes'
 import {getDateCalculated } from "@/global";
 import moment from 'moment';
 import { baseApi, showError } from "@/global";
 import axios from "axios";
 import datePickerLabels from "@/assets/json/calendario/traducao.json";
 export default {
-    name: "rnc_detalhes_tabsRNCForm",
+    name: "detalhesTabsRnc",
     components: {
-        ObservacoesHistory_modalView,
-        Rnc_uploadDetailForm
+        HistoricoObservacoes,
+        UploadForm
     },
     props: {
         rnc: Object,
@@ -255,7 +255,7 @@ export default {
   data: function() {
     return {
         datePickerLabels,
-        showObservacoesHistory_modalView: false,
+        showHistoricoObservacoes: false,
         descricoes: [
             { "value": null, "text": "Selecione uma descrição" }
         ],
@@ -345,7 +345,7 @@ export default {
             var maxDate = null;
             if(Array.isArray(this.listaPrazos) && this.listaPrazos.length){
                 if(this.listaPrazos[this.listaPrazos.length - 1].situacao == false){
-                    maxDate = getDateCalculated(this.listaPrazos[this.listaPrazos.length-1].prazo, -5);
+                    maxDate = getDateCalculated(this.listaPrazos[this.listaPrazos.length-1].prazo, -1);
                     var prazoEstendido = {
                         id: null,
                         prazo: "",

@@ -29,7 +29,7 @@
 
 <script>
 export default {
-  name: "observacoesHistory_modalView",
+  name: "historicoObservacoes",
   props: {
      value: Boolean,
      listaObservacoes: Array

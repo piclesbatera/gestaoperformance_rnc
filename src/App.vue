@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <div class="app">
-      <Nevoa :visivel="nevoaVisivel" :ativo="nevoa"/>
+      <Nevoa/>
       <template v-if="usuarioConectado" >
         <Header/>
         <Content />
@@ -26,9 +26,19 @@ import { chaveUsuario } from "@/global";
 export default {
   components: { Header, Footer, Content, Login, Nevoa },
   computed: {
-    ...mapState(["usuario", "nevoaVisivel", "nevoa"]),
+    ...mapState(["usuario"]),
     usuarioConectado(){
       return (this.usuario && this.usuario.token);
+    },
+    usuarioRegistrado: function() {
+      if(this.usuario && this.usuario.perfilUsuario){
+        if (Object.keys(this.usuario.perfilUsuario).length > 0) {
+          if (this.usuario.perfilUsuario.dataRegistro) {
+            return true;
+          }
+        }
+      }
+      return false;
     }
   },
   methods: {
@@ -41,9 +51,12 @@ export default {
           );
         }
       }
+      if(this.usuarioConectado && !this.usuarioRegistrado && this.$route.name != 'Perfil'){
+        this.$router.push("Perfil");
+      }
     },
     usuarioDesconectado(){
-      if(!this.usuarioConectado){
+      if(!this.usuarioConectado && this.$route.name != 'Login'){
         this.$router.push({ path: "/login" });
       }
     }

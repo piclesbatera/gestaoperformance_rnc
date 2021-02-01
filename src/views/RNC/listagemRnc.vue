@@ -1,19 +1,11 @@
 <template>
     <div>
-        <div v-if="loadingDetalhe">
+        <div v-if="!listaRNCs">
             <span>Carregando...</span>
             <!-- <v-progress-linear color="deep-purple accent-4" indeterminate rounded height="6"></v-progress-linear> -->
             <v-progress-linear indeterminate color="blue" ></v-progress-linear>
         </div>
         <div v-else class="container-fluid">
-            <div class="row">
-                <div class="col-lg-5">
-                    <div class="form-group">
-                        <label class="bmd-label-floating label-text" for="areaDemandante">Área Demandante</label><font color="red"> *</font>
-                        <b-form-select id="areaDemandante" disabled v-model="detalhes.areaDemandante" :options="areasDemandantes" ></b-form-select>
-                    </div>
-                </div>
-            </div>
             <div class="row">
                 <div class="col-lg-10">
                     <v-expansion-panels  hover>
@@ -27,7 +19,7 @@
                                 </v-btn>
                             </div>
                         </div>
-                        <v-expansion-panel style="background-color: #f7f7f7;" v-for="(row, index) in detalhes.listaRNCs" :key="index">
+                        <v-expansion-panel style="background-color: #f7f7f7;" v-for="(row, index) in listaRNCs" :key="index">
                             <v-expansion-panel-header :disable-icon-rotate="row.resolvido != null">
                                 <v-row no-gutters>
                                     <v-col cols="4" v-if="row.id">
@@ -76,65 +68,42 @@
                                         </v-btn>
                                     </div>
                                 </div>
-                                <Rnc_detalhes_tabsRNCForm :isLeitura="isLeitura" :rnc="row" :crudType="crudType" :motivos="motivos" :tipos="tipos" />
+                                <DetalhesTabsRnc :isLeitura="isLeitura" :rnc="row" :crudType="crudType" :motivos="motivos" :tipos="tipos" />
                             </v-expansion-panel-content>
                         </v-expansion-panel>
                     </v-expansion-panels>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-lg-12">
-                    <label class="bmd-label-floating label-text" for="observacao">Observações</label>
-                    <b-form-textarea no-resize v-model="detalhes.observacao" placeholder="Digite uma observação" rows="6" maxLength="200"></b-form-textarea>
-                    <a @click="showObservacoesHistory_modalView=true;" style="float: right;" title="Abrir o histórico de observações">
-                        <i class="fa fa-history"></i>
-                        Visualizar histórico</a>
-                </div>
-            </div>
         </div>
-        <ObservacoesHistory_modalView v-if="showObservacoesHistory_modalView" :listaObservacoes="detalhes.listaObservacoes" v-model="showObservacoesHistory_modalView" />
     </div>
 </template>
 
 <script>
-import ObservacoesHistory_modalView from './observacoesHistory_modalView'
-import Rnc_detalhes_tabsRNCForm from './rnc_detalhes_tabsRNCForm'
+import DetalhesTabsRnc from './detalhesTabsRnc'
 import { baseApi, showError } from "@/global";
 import axios from "axios";
 import { mapState } from "vuex";
 export default {
-    name: "rnc_detalhesForm",
+    name: "detalhesRnc",
     components: {
-        ObservacoesHistory_modalView,
-        Rnc_detalhes_tabsRNCForm
+        DetalhesTabsRnc
     },
     props: {
         // value: Object,
         crudType: String,
-        identificadorAreaDemandanteRnc: Number,
-        isLeitura: Boolean
+        isLeitura: {
+            type: Boolean,
+            default: false
+        },
+        listaRNCs: Array
     },
     computed: {
-        ...mapState(["usuario"]),
-        detalhes: {
-            get () {
-                // return this.value
-                return this.dataValue
-            },
-            set (value) {
-                this.dataValue = value;
-                this.$emit('input', value);
-            }
-        }
+        ...mapState(["usuario"])
     },
   data: function() {
     return {
         dataValue: null,
         loadingDetalhe: true,
-        showObservacoesHistory_modalView: false,
-        areasDemandantes: [
-            { "value": null, "text": "Selecione uma área demandante" }
-        ],
         motivos: [
             { "value": null, "text": "Selecione um motivo" }
         ],
@@ -145,9 +114,9 @@ export default {
   },
   methods: {
         novaRNC(){
-            var detalhes = this.detalhes;
-            if(!detalhes.listaRNCs){
-                detalhes.listaRNCs = [];
+            var listaRNCs = this.listaRNCs;
+            if(!listaRNCs){
+                listaRNCs = [];
             }
 
             var rnc =  {
@@ -160,86 +129,12 @@ export default {
                         listaIrregularidades: [
                         ]
                     };
-            detalhes.listaRNCs.push(rnc);
-            this.detalhes = detalhes;
+            listaRNCs.push(rnc);
+            this.listaRNCs = listaRNCs;
         },
         removeRNC(rnc){
-            const index = this.detalhes.listaRNCs.indexOf(rnc);
-            this.detalhes.listaRNCs.splice(index, 1);
-        },
-        getDetalhesRNC(){
-            var queryString = (this.identificadorAreaDemandanteRnc) ? `?id=${this.identificadorAreaDemandanteRnc}` : "";
-            var url = `${baseApi}/rnc${queryString}`;
-
-            axios.get(url).then(res => {
-                var detalhes = res.data;
-              
-                if(detalhes && !detalhes.areaDemandante){
-                    if(this.usuario.perfilUsuario.usuarioTim.areaDemandante){
-                        detalhes.areaDemandante = this.usuario.perfilUsuario.usuarioTim.areaDemandante;
-                    }
-                }
-                // CONVERTER DATA DO HISTORICO DE OBSERVAÇÕES
-                if(detalhes && detalhes.listaObservacoes){
-                    detalhes.listaObservacoes.forEach( 
-                        (item) => 
-                        {
-                            item['dataCriacao'] = new Date(item['dataCriacao']).toLocaleString();
-                        }
-                    );
-                }
-
-                // ARMAZENAR O STATUS INICIAL DOS RNCs RECUPERADOS E CONVERTE A DATA DE OBSERVAÇÕES
-                if(detalhes && detalhes.listaRNCs){
-                    detalhes.listaRNCs.forEach( 
-                        (rnc) => 
-                        {
-                            rnc['statusInicial'] = rnc.resolvido;
-                            rnc.listaObservacoes.forEach( 
-                                (observacao) => 
-                                {
-                                    observacao['dataCriacao'] = new Date(observacao['dataCriacao']).toLocaleString();
-                                }
-                            );
-                        }
-                    );
-                }
-
-                this.detalhes = detalhes;
-                if(!this.detalhes.listaRNCs || this.detalhes.listaRNCs.length == 0){
-                    this.novaRNC();
-                }
-            }).catch(error => {
-                showError(error);
-            })
-            .finally(() => {
-                this.loadingDetalhe = false;
-            });
-        },
-        getAreasDemandantes(){
-            var comboBox = [{ "value": null, "text": "Selecione uma àrea" }];
-
-            return axios
-                .get(`${baseApi}/usuario/areasDemandantes?`)
-                .then(res => {
-                if(res.data && res.data.areasDemandantes){
-                    var areasDemandantes = res.data.areasDemandantes;
-                    areasDemandantes.forEach((item) => 
-                    { 
-                        var areaDemandante = {};
-                        areaDemandante['value'] = item.id;
-                        areaDemandante['text'] = item.descricaoAreaDemandante;
-                        comboBox.push(areaDemandante);
-                    });
-                }
-                })
-                .catch(error => {
-                    showError(error);
-                })
-                .finally(() => {
-                    this.areasDemandantes = comboBox;
-                });
-
+            const index = this.listaRNCs.indexOf(rnc);
+            this.listaRNCs.splice(index, 1);
         },
         getMotivos(){
             var comboBox = [{ "value": null, "text": "Selecione um motivo" }];
@@ -292,10 +187,8 @@ export default {
 
         },
         async iniciar(){
-            await this.getAreasDemandantes();
             this.getMotivos();
             this.getTipos();
-            this.getDetalhesRNC();
         }
   },
   created: function(){

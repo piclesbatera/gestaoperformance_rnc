@@ -50,7 +50,7 @@
 import { baseApi, showError } from "@/global";
 import axios from "axios";
 export default {
-    name: "rnc_uploadDetailForm",
+    name: "uploadForm",
     components: {
 
     },

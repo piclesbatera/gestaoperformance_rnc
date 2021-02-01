@@ -1,8 +1,8 @@
 <template>
-    <v-menu offset-y bottom left >
+    <v-menu offset-y bottom left v-model="isOpened" >
         <template v-slot:activator="{ on, attrs }">
-            <v-btn v-bind="attrs" v-on="on" icon :disabled="registro.outrasAreas <= 0" v-if="registro.outrasAreas >= 0" @click="recuperaOutrasAreasDemandantes()">
-                <v-icon v-if="!exit">mdi-dots-vertical</v-icon>
+            <v-btn v-bind="attrs" v-on="on" icon :disabled="registro.outrasAreas <= 0" v-if="registro.outrasAreas >= 0">
+                <v-icon v-if="!isOpened">mdi-dots-vertical</v-icon>
                 <v-icon v-else>mdi-close</v-icon>
             </v-btn>
         </template>
@@ -36,7 +36,8 @@ export default {
    data: function() {
     return {
         outrasAreasDemandantes: null,
-        exit: false
+        solicitado: false,
+        isOpened: false
     };
   },
   computed: {
@@ -69,7 +70,8 @@ export default {
   },
   methods: {
         recuperaOutrasAreasDemandantes(){
-            if(!this.outrasAreasDemandantes){
+            if(!this.outrasAreasDemandantes && !this.solicitado){
+                this.solicitado = true;
                 var queryString = (this.codigoGrupoFila) ? `?codigoGrupoFila=${this.codigoGrupoFila}` : '';
                 var url = `${baseApi}/rnc/outrasAreasDemandantes/${this.sg}/${this.codigoSg}${queryString}`;
                 axios.get(url).then(res => {
@@ -77,10 +79,18 @@ export default {
                 })
                 .catch(error => {
                     this.outrasAreasDemandantes = null;
+                    this.solicitado = false;
                     showError(error);
                 });
             }
     }
+  },
+  watch: {
+      isOpened(isOpened){
+          if(isOpened){
+              this.recuperaOutrasAreasDemandantes();
+          }
+      }
   }
 };
 </script>

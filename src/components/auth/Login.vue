@@ -62,7 +62,6 @@ export default {
           this.$store.commit("setUsuario", res.data);
           localStorage.setItem(chaveUsuario, JSON.stringify(res.data));
           this.$toasted.global.defaultSuccess();
-          this.$router.push({ path: "/perfil" });
         })
         .catch(error => {
           showError(error);

@@ -44,15 +44,14 @@ import Anexos_modalView from './anexos_modalView'
 import { baseApi, showError } from "@/global";
 import axios from "axios";
 export default {
-    name: "rnc_documentacaoView",
+    name: "documentacaoRnc",
     components: {
         Anexos_modalView
     },
     props: {
         codigoGrupoFila: String,
         sg: String,
-        codigoSg: Number,
-        crudType: String
+        codigoSg: Number
     },
     computed: {
     },

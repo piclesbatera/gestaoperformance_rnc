@@ -25,7 +25,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="float-right"> 
-                                <v-btn type="submit" v-if="!isLeitura" :loading="loadingSalvar" class="btn btn-primary form-control" color="blue" dark >
+                                <v-btn type="submit" v-if="!isLeitura" :disabled="!conteudoCarregado" :loading="loadingSalvar" class="btn btn-primary form-control" color="blue" >
                                     <v-icon dark left>
                                         mdi-content-save
                                     </v-icon>
@@ -53,7 +53,8 @@
                                     <v-tab-item :value="'detalhes'">
                                         <v-card flat>
                                             <v-card-text>
-                                                <Rnc_detalhesForm v-model="detalhes" :identificadorAreaDemandanteRnc="identificadorAreaDemandanteRnc" :isLeitura="isLeitura" :crudType="crudType" />
+                                                <DetalhesRnc v-if="crudType != 't'" v-model="detalhes" :identificadorAreaDemandanteRnc="identificadorAreaDemandanteRnc" :isLeitura="isLeitura" :crudType="crudType" />
+                                                <TratarDetalhesRnc v-else :infosRegistro="infosRegistro" v-model="detalhes" :isLeitura="isLeitura" :crudType="crudType" />
                                             </v-card-text>
                                         </v-card>
                                     </v-tab-item>
@@ -63,7 +64,7 @@
                                     <v-tab-item :value="'anexos'" :eager="true">
                                         <v-card flat>
                                             <v-card-text>
-                                                <Rnc_documentacaoView :codigoGrupoFila="codigoGrupoFila" :sg="sg" :codigoSg="codigoSg" :crudType="crudType"/>
+                                                <DocumentacaoRnc :codigoGrupoFila="codigoGrupoFila" :sg="sg" :codigoSg="codigoSg"/>
                                             </v-card-text>
                                         </v-card>
                                     </v-tab-item>
@@ -80,15 +81,17 @@
 </template>
 
 <script>
-import Rnc_detalhesForm from './rnc_detalhesForm'
-import Rnc_documentacaoView from './rnc_documentacaoView'
+import DetalhesRnc from './detalhesRnc'
+import TratarDetalhesRnc from './tratarDetalhesRnc'
+import DocumentacaoRnc from './documentacaoRnc'
 import { baseApi, showError } from "@/global";
 import axios from "axios";
 export default {
-    name: "rnc_modalForm",
+    name: "modalRnc",
     components: {
-        Rnc_detalhesForm,
-        Rnc_documentacaoView
+        DetalhesRnc,
+        TratarDetalhesRnc,
+        DocumentacaoRnc
     },
     props: {
         value: Boolean,
@@ -104,6 +107,9 @@ export default {
             set (value) {
                 this.$emit('input', value);
             }
+        },
+        conteudoCarregado: function(){
+            return Boolean(this.detalhes && Object.keys(this.detalhes).length > 0);
         },
         sg: function(){
             var sg = null;
@@ -164,6 +170,15 @@ export default {
                 codigoGL = this.codigoSg;
             }
             return codigoGL;
+        },
+        infosRegistro: function(){
+            var info = {};
+
+            info['sg'] = this.sg;
+            info['codigoSg'] = this.codigoSg;
+            info['codigoGrupoFila'] = this.codigoGrupoFila;
+            
+            return info;
         },
         pageTitle: function(){
             var title = "Criar RNC";
@@ -259,7 +274,7 @@ export default {
                 requestURL = `${baseApi}/rnc`;
             } else
             if(this.crudType == 't'){
-                requestURL = `${baseApi}/rnc/tratar/${id}`;
+                requestURL = `${baseApi}/rnc/tratar`;
             } else
             if(this.crudType == 'v'){
                 requestURL = `${baseApi}/rnc/validar/${id}`;
@@ -271,7 +286,6 @@ export default {
   data: function() {
     return {
         loadingSalvar: false,
-        listaIrregularidades: [],
         tab: null,
         detalhes: 
         {
@@ -290,8 +304,7 @@ export default {
             var requestData = requestParameters.data;
 
             this.loadingSalvar = true;
-            this.$store.commit("setNevoa", true);
-            this.$store.commit("setNevoaVisivel", false);
+            this.$store.commit("setNevoa", {ativo: true, visivel: true});
 
             axios({
                 method: requestParameters.method,
