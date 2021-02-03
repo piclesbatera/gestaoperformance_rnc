@@ -57,7 +57,7 @@ export default {
     },
     usuarioDesconectado(){
       if(!this.usuarioConectado && this.$route.name != 'Login'){
-        this.$router.push({ path: "/login" });
+        this.$router.push("login");
       }
     }
   },

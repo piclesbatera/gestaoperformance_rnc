@@ -151,25 +151,29 @@
                     </v-card-title>
                     <v-divider></v-divider>
                     <div class="scrollable">
-                        <v-data-table class="default_color_background" :headers="headersConsulta" :items="listaConsulta" :search="consultaDataTable" :loading="loadingConsulta" loading-text="Carregando..." no-data-text="Sem dados disponíveis">
+                        <v-data-table :headers="headersConsulta" :items="listaConsulta" :search="consultaDataTable" :loading="loadingConsulta" loading-text="Carregando..." no-data-text="Sem dados disponíveis">
                             <template v-slot:item.detail="{ item }">
                                 <i :title="titleDetail" @click="abreRegistroSelecionado(item);" class="openDetail fa fa-edit"></i>
                             </template>
                             <template v-slot:item.outrasAreas="{ item }">
-                                <RncOutrasAreasDemandantes :registro="item" :clickAreaDemandante="abreRegistroSelecionado"/>
+                                <RncOutrasAreasDemandantes v-if="true" :registro="item" :clickAreaDemandante="abreRegistroSelecionado"/>
+                            </template>
+                            <template v-slot:item.outrasNaturezas="{ item }">
+                                <RncOutrasNaturezas :registro="item" :clickNatureza="abreRegistroSelecionado"/>
                             </template>
                         </v-data-table>
                     </div>
             </v-container>  
             </div>
         </div>
-        <ModalRnc :crudType="crudType" :registro="registroSelecionado" :outraAreaDemandante="outraAreaDemandante" v-if="showModalRnc" v-model="showModalRnc"/>
+        <ModalRnc :crudType="crudType" :registro="registroSelecionado" :outroValor="outroValor" :tipoOutroValor="tipoOutroValor" v-if="showModalRnc" v-model="showModalRnc"/>
     </div>  
 </template>
 
 <script>
 import ModalRnc from './modalRnc'
 import RncOutrasAreasDemandantes from './rncOutrasAreasDemandantes'
+import RncOutrasNaturezas from './rncOutrasNaturezas'
 import { baseApi, showError, showAllErrorScope, cleanErrorsScope } from "@/global";
 import axios from "axios";
 import tipoAcionamentoOptions from "@/assets/json/sgp/tipoAcionamento.json";
@@ -302,11 +306,14 @@ export default {
         },
     },
     components: {
-        ModalRnc, RncOutrasAreasDemandantes
+        ModalRnc, 
+        RncOutrasAreasDemandantes,
+        RncOutrasNaturezas
     },
     data: function() {
         return {
-            outraAreaDemandante: null,
+            outroValor: null,
+            tipoOutroValor: null,
             consultaDataTable: "",
             UFOptions,
             tipoAcionamentoOptions,
@@ -337,7 +344,10 @@ export default {
                     text: '', sortable: false, value: 'detail', filterable: false
                 },
                 {
-                    text: '', sortable: false, value: 'outrasAreas', filterable: false
+                    text: '', sortable: false, value: 'outrasAreas',  filterable: false
+                },
+                {
+                    text: '', sortable: false, value: 'outrasNaturezas', filterable: false
                 }
             ],
             headerSgp: [
@@ -353,6 +363,9 @@ export default {
                 },
                 {
                     text: '', sortable: false, value: 'outrasAreas', filterable: false
+                },
+                {
+                    text: '', sortable: false, value: 'outrasNaturezas', filterable: false
                 }
             ],
             // ADVANCED SEARCH
@@ -373,9 +386,10 @@ export default {
         };
     },
     methods: {
-        abreRegistroSelecionado(sg, outraAreaDemandante){
+        abreRegistroSelecionado(sg, outroValor, tipoOutroValor){
             this.registroSelecionado = sg;
-            this.outraAreaDemandante = outraAreaDemandante;
+            this.outroValor = outroValor;
+            this.tipoOutroValor = tipoOutroValor;
             this.showModalRnc=true;
         },
         consultaAvancadaButton(){
@@ -548,9 +562,9 @@ export default {
 
 <style scoped>
 
-.default_color_background{
+/* .default_color_background{
   background-color: #f7f7f7;
-}
+} */
 
 .openDetail{
     cursor: pointer;

@@ -16,7 +16,7 @@
                     </div>
                 </div>
             </div> 
-            <ListagemRnc :listaRNCs="detalhes.listaRNCs" :crudType="crudtype" :isLeitura="isLeitura"/>
+            <ListagemRnc :listaRNCs="detalhes.listaRNCs" :crudType="crudType" :isLeitura="isLeitura"/>
         </template>
     </div>
 </template>
@@ -99,6 +99,25 @@ export default {
             .finally(() => {
                 this.loadingDetalhe = false;
             });
+        },
+        novaRNC(){
+            var listaRNCs = this.detalhes.listaRNCs;
+            if(!listaRNCs){
+                listaRNCs = [];
+            }
+
+            var rnc =  {
+                        id: null,
+                        motivo: null,
+                        descricao: null,
+                        tipo: null,
+                        resolvido: null,
+                        tratavel: false,
+                        listaIrregularidades: [
+                        ]
+                    };
+            listaRNCs.push(rnc);
+            this.detalhes.listaRNCs = listaRNCs;
         },
         getAreasDemandantes(){
             var comboBox = [{ "value": null, "text": "Selecione uma àrea" }];

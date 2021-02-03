@@ -88,8 +88,16 @@ div.v-dialog.v-dialog--active.dialog{
       margin: 0.7rem 0px 0px 0rem;
 }
   
-.default_color_background tbody tr {
+div .theme--light.v-data-table tbody tr {
       background-color: white;
+}
+.default_color_background{
+    background-color: #f7f7f7;
+}
+
+div .theme--light.v-data-table {
+    background-color: #f7f7f7;
+    color: rgba(0,0,0,.87);
 }
 
 .v-data-footer__icons-before button{

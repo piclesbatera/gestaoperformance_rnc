@@ -7,7 +7,7 @@
             </v-btn>
         </template>
 
-        <v-list v-if="!outrasAreasDemandantes">
+        <v-list v-if="!outrasNaturezas">
             <v-list-item> 
                 <v-list-item-title>
                     Carregando...
@@ -16,8 +16,8 @@
             </v-list-item>
         </v-list>
         <v-list v-else>
-            <v-list-item link v-for="(areaDemandante, i) in outrasAreasDemandantes" :key="i" @click="clickAreaDemandante(registro, areaDemandante.id, 'outraAreaDemandante')" >
-                <v-list-item-title v-text="areaDemandante.descricaoAreaDemandante" ></v-list-item-title>
+            <v-list-item link v-for="(natureza, i) in outrasNaturezas" :key="i" @click="clickNatureza(registro, natureza.motivo, 'outraNatureza')" >
+                <v-list-item-title v-text="natureza.descricaoMotivo" ></v-list-item-title>
             </v-list-item>
         </v-list>
     </v-menu>
@@ -27,15 +27,15 @@
 import axios from "axios";
 import { baseApi, showError } from "@/global";
 export default {
-   name: "rncOutrasAreasDemandantes",
+   name: "rncOutrasNaturezas",
    components: {  },
     props: {
         registro: Object,
-        clickAreaDemandante: { type: Function }
+        clickNatureza: { type: Function }
     },
    data: function() {
     return {
-        outrasAreasDemandantes: null,
+        outrasNaturezas: null,
         solicitado: false,
         isOpened: false
     };
@@ -69,18 +69,16 @@ export default {
         }
   },
   methods: {
-        recuperaOutrasAreasDemandantes(){
-            if(!this.outrasAreasDemandantes && !this.solicitado){
+        recuperaOutrasNaturezas(){
+            if(!this.outrasNaturezas && !this.solicitado){
                 this.solicitado = true;
                 var queryString = (this.codigoGrupoFila) ? `?codigoGrupoFila=${this.codigoGrupoFila}` : '';
-                var url = `${baseApi}/rnc/outrasAreasDemandantes/${this.sg}/${this.codigoSg}${queryString}`;
+                var url = `${baseApi}/rnc/outrasNaturezas/${this.sg}/${this.codigoSg}${queryString}`;
                 axios.get(url).then(res => {
-                    console.log("rec");
-                    console.log(res.data);
-                    this.outrasAreasDemandantes = res.data;
+                    this.outrasNaturezas = res.data;
                 })
                 .catch(error => {
-                    this.outrasAreasDemandantes = null;
+                    this.outrasNaturezas = null;
                     this.solicitado = false;
                     showError(error);
                 });
@@ -90,7 +88,7 @@ export default {
   watch: {
       isOpened(isOpened){
           if(isOpened){
-              this.recuperaOutrasAreasDemandantes();
+              this.recuperaOutrasNaturezas();
           }
       }
   }

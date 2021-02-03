@@ -67,10 +67,11 @@ export default {
   methods: {
         getDocumentacao(){
             this.loadingDocumentacao = true;
-
+            console.log('codigoSg:');
+            console.log(this.codigoSg);
             var queryString = `?codigoGrupoFila=${this.codigoGrupoFila}`;
             var url = `${baseApi}/rnc/sg/documentacao/${this.sg}/${this.codigoSg}${queryString}`;
-
+            console.log(url);
             axios.get(url).then(res => {
                 
                 this.listaDocumentacao = res.data;

@@ -1,6 +1,6 @@
 <template>
   <header class="header">
-    <h1 class="title">{{ title }}</h1>
+    <h1 class="title">{{ title }}<span class="d-none d-sm-inline"> - {{subTitle}}</span></h1>
     <span v-if="usuario && usuario.perfilUsuario" class="d-none d-sm-block welcome-label">Olá, {{ nomeUsuario }}</span>
     <UserIcons />
   </header>
@@ -19,6 +19,9 @@ export default {
     ...mapState(["usuario"]),
     title: function(){
       return process.env.VUE_APP_TITLE;
+    },
+    subTitle: function(){
+      return process.env.VUE_APP_SUB_TITLE;
     },
     nomeUsuario: function(){
       if (Object.keys(this.usuario.perfilUsuario).length > 0 && Object.keys(this.usuario.perfilUsuario.usuarioTim).length > 0 && this.usuario.perfilUsuario.dataRegistro && this.usuario.perfilUsuario.usuarioTim.primeiroNome){

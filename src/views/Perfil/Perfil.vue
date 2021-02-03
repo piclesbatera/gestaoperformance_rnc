@@ -186,7 +186,6 @@ export default {
         });
     },
     solicitacaoAcesso() {
-      console.log(this.$refs.observer.errors)
       if(validacaoFormulario(this.$refs.observer)){
         this.usuario.perfilUsuario.login = "";
         this.loadingSolicitacaoAcesso = true;

@@ -73,7 +73,7 @@ export default {
   },
   created: function(){
     if(this.usuario && this.usuario.token){
-      this.$router.push({ path: "/perfil" });
+      this.$router.push("perfil");
     }
   }
 };

@@ -53,7 +53,8 @@
                                     <v-tab-item :value="'detalhes'">
                                         <v-card flat>
                                             <v-card-text>
-                                                <DetalhesRnc v-if="crudType != 't'" v-model="detalhes" :identificadorAreaDemandanteRnc="identificadorAreaDemandanteRnc" :isLeitura="isLeitura" :crudType="crudType" />
+                                                <ListagemDetalhesPorMotivo v-if="tipoOutroValor == 'outraNatureza'" :infosRegistro="infosRegistro" :motivo="outroValor" :crudType="crudType"/>
+                                                <DetalhesRnc  v-else-if="crudType != 't'" v-model="detalhes" :identificadorAreaDemandanteRnc="identificadorAreaDemandanteRnc" :isLeitura="isLeitura" :crudType="crudType" />
                                                 <TratarDetalhesRnc v-else :infosRegistro="infosRegistro" v-model="detalhes" :isLeitura="isLeitura" :crudType="crudType" />
                                             </v-card-text>
                                         </v-card>
@@ -82,6 +83,7 @@
 
 <script>
 import DetalhesRnc from './detalhesRnc'
+import ListagemDetalhesPorMotivo from './listagemDetalhesPorMotivo'
 import TratarDetalhesRnc from './tratarDetalhesRnc'
 import DocumentacaoRnc from './documentacaoRnc'
 import { baseApi, showError } from "@/global";
@@ -90,6 +92,7 @@ export default {
     name: "modalRnc",
     components: {
         DetalhesRnc,
+        ListagemDetalhesPorMotivo,
         TratarDetalhesRnc,
         DocumentacaoRnc
     },
@@ -97,7 +100,8 @@ export default {
         value: Boolean,
         crudType: String,
         registro: Object,
-        outraAreaDemandante: Number
+        outroValor: Number,
+        tipoOutroValor: String
     },
     computed: {
         show: {
@@ -119,12 +123,12 @@ export default {
             return sg;
         },
         isLeitura: function(){
-            return Boolean(this.outraAreaDemandante);
+            return Boolean(this.outroValor);
         },
         identificadorAreaDemandanteRnc: function(){
             var identificadorAreaDemandanteRnc = null;
-            if(this.isLeitura){
-                identificadorAreaDemandanteRnc = this.outraAreaDemandante;
+            if(this.isLeitura && this.tipoOutroValor == 'outraAreaDemandante'){
+                identificadorAreaDemandanteRnc = this.outroValor;
             } else
             if(this.registro && this.registro.identificadorAreaDemandanteRnc){
                 identificadorAreaDemandanteRnc = this.registro.identificadorAreaDemandanteRnc;
@@ -183,6 +187,9 @@ export default {
         pageTitle: function(){
             var title = "Criar RNC";
 
+            if(this.isLeitura){
+                title = "RNC";
+            } else
             if(this.crudType == 'c'){
                 title = "Criar RNC";
             } else
