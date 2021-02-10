@@ -6,6 +6,7 @@
             <v-tab :href="'#motivos'">Motivos</v-tab>
             <v-tab :href="'#irregularidades'">Irregularidades</v-tab>
             <v-tab :href="'#prazos'" v-if="visualizarTabPrazo" :disabled="!acessarTabPrazo">Prazos</v-tab>
+            <v-tab :href="'#manifestacao'" v-if="visualizarTabManifestacao" :disabled="!acessarTabManifestacao">Manifestação</v-tab>
             <v-tab :href="'#evidencias'" v-if="visualizarTabEvidencias">Evidencias</v-tab>
         </v-tabs>
         <v-tabs-items v-model="rnc.tab" touchless>
@@ -25,14 +26,6 @@
                                     <label class="bmd-label-floating label-text" for="tipo">Descrição</label><font color="red"> *</font>
                                     <b-form-select v-model="rnc.descricao" :disabled="criado" :options="descricoes" ></b-form-select>
                                 </div>
-                            </div>
-                            <div class="col-lg-2">
-                                <label class="bmd-label-floating">Tratar</label>
-                                <v-checkbox
-                                    v-model="rnc.tratar"
-                                    style="margin-top: 0px;"
-                                    :disabled="criado || rncGrave"
-                                ></v-checkbox>
                             </div>
                         </div>
                         <div class="row">
@@ -70,7 +63,7 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 <label class="bmd-label-floating label-text" for="observacoes">Observações</label><font color="red"> *</font>
-                                <b-form-textarea no-resize v-model="rnc.observacao" placeholder="Digite uma observação" rows="3" maxLength="200"></b-form-textarea>
+                                <b-form-textarea no-resize :disabled="!permissaoAlterarRnc" v-model="rnc.observacao" placeholder="Digite uma observação" rows="3" maxLength="200"></b-form-textarea>
                                 <a @click="showHistoricoObservacoes=true;" style="float: right;" title="Abrir o histórico de observações">
                                     <i class="fa fa-history"></i>
                                     Visualizar histórico</a>
@@ -95,47 +88,113 @@
                 <v-card flat>
                     <v-card-text>
                         <div class="container-fluid">
-                            <div v-for="prazo in listaPrazos" :key="prazo.codigo">
-                                <div class="row">
-                                    <div class="col-lg-6" >
+                            <div class="row">
+                                <div class="col-lg-6" >
+                                    <div class="form-group">
+                                        <label class="bmd-label-floating label-text">Prazo</label><font color="red" v-if="crudType == 't'"> *</font>
+                                        <b-form-datepicker 
+                                            :min="prazo.minDate"
+                                            :state="prazo.situacao" 
+                                            :disabled="alterarPrazo" 
+                                            v-model="prazo.prazo" 
+                                            @input="apagaInfoPrazo()"
+                                            v-bind="datePickerLabels" 
+                                            locale="pt-BR" 
+                                            class="mb-2"
+                                            today-button
+                                            reset-button
+                                            close-button
+                                            :date-format-options="{
+                                                year: 'numeric',
+                                                month: 'numeric',
+                                                day: 'numeric'}">
+                                        </b-form-datepicker>
+                                        <template v-if="prazo.situacao != null">
+                                            <b-form-invalid-feedback :state="prazo.situacao">
+                                                Recusado
+                                            </b-form-invalid-feedback>
+                                            <b-form-valid-feedback :state="prazo.situacao">
+                                                Aceito
+                                            </b-form-valid-feedback>
+                                        </template>
+                                    </div>
+                                </div>
+                                <template v-if="validaBotoesPrazo">
+                                    <div class="col-lg-3">
                                         <div class="form-group">
-                                            <label class="bmd-label-floating label-text">Prazo</label><font color="red" v-if="crudType == 't'"> *</font>
-                                            <b-form-datepicker :min="prazo.minDate" :max="prazo.maxDate" :state="prazo.situacao" :disabled="!prazo.new" v-model="prazo.prazo" v-bind="datePickerLabels" locale="pt-BR" class="mb-2"
-                                                :date-format-options="{
-                                                    year: 'numeric',
-                                                    month: 'numeric',
-                                                    day: 'numeric'
-                                                }"></b-form-datepicker>
+                                            <label class="bmd-label-floating blank-label"></label>
+                                            <v-btn class="btn btn-danger form-control" color="red" dark @click="setSituacaoPrazo(false);">
+                                                Rejeitar
+                                                <v-icon dark right >
+                                                    mdi-cancel
+                                                </v-icon>
+                                            </v-btn>
                                         </div>
                                     </div>
-                                    <template v-if="validaBotoesPrazo(prazo)">
-                                        <div class="col-lg-3">
-                                            <div class="form-group">
-                                                <label class="bmd-label-floating blank-label"></label>
-                                                <v-btn class="btn btn-danger form-control" color="red" dark @click="setSituacao(prazo, false);">
-                                                    Rejeitar
-                                                    <v-icon dark right >
-                                                        mdi-cancel
-                                                    </v-icon>
-                                                </v-btn>
-                                            </div>
+                                    <div class="col-lg-3">
+                                        <div class="form-group">
+                                            <label class="bmd-label-floating blank-label"></label>
+                                            <v-btn class="btn btn-primary form-control" color="blue" dark @click="setSituacaoPrazo(true);">
+                                                Aceitar
+                                                <v-icon dark right >
+                                                    mdi-checkbox-marked-circle
+                                                </v-icon>
+                                            </v-btn>
                                         </div>
-                                        <div class="col-lg-3">
-                                            <div class="form-group">
-                                                <label class="bmd-label-floating blank-label"></label>
-                                                <v-btn class="btn btn-primary form-control" color="blue" dark @click="setSituacao(prazo, true);">
-                                                    Aceitar
-                                                    <v-icon dark right >
-                                                        mdi-checkbox-marked-circle
-                                                    </v-icon>
-                                                </v-btn>
-                                            </div>
-                                        </div>
-                                    </template>
-                                </div>
-                                <v-divider></v-divider>
+                                    </div>
+                                </template>
+                            </div>
+                            <v-divider></v-divider>
+                            <v-card>
+                                <v-container fluid grid-list-md>
+                                    <v-card-title>
+                                        Histórico de Prazos
+                                        <v-spacer></v-spacer>
+                                        <v-text-field v-model="searchHistoricoPrazo" append-icon="mdi-magnify" label="Pesquisa" single-line hide-details></v-text-field>
+                                    </v-card-title>
+                                    <v-divider></v-divider>
+                                    <v-data-table :custom-sort="customSort" class="default_color_background" :headers="headersHistoricoPrazo" :items="listaHistoricoPrazosDataTable" :search="searchHistoricoPrazo" loading-text="Carregando..." no-data-text="Sem dados disponíveis" no-results-text="Não foi encontrado dados para a pesquisa realizada" items-per-page="5">
+                                    </v-data-table>
+                                </v-container>
+                            </v-card>
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-tab-item>
+
+            <!-- Manifestacao -->
+            <v-tab-item :value="'manifestacao'" v-if="visualizarTabManifestacao">
+                <v-card flat>
+                    <v-card-text>
+                        <label class="bmd-label-floating label-text">Contestação/Justificativa</label><font color="red"> *</font>
+                        <b-form-textarea no-resize v-model="rnc.manifestacaoRncRef.descricaoManifestacao" :state="rnc.manifestacaoRncRef.aceito" :disabled="!permissaoAlterarManifestacao" placeholder="Digite sua contestação/justificativa" rows="3" maxLength="200" class="mb-2"></b-form-textarea>
+                        <template v-if="rnc.manifestacaoRncRef.aceito != null">
+                            <b-form-invalid-feedback :state="rnc.manifestacaoRncRef.aceito">
+                                Recusado
+                            </b-form-invalid-feedback>
+                            <b-form-valid-feedback :state="rnc.manifestacaoRncRef.aceito">
+                                Abonado
+                            </b-form-valid-feedback>
+                        </template>
+                        <div class="row" v-if="manifestacaoRncButtons">
+                            <div class="col-lg-6">
+                                <v-btn class="btn btn-danger form-control" color="red" dark @click="rnc.manifestacaoRncRef.aceito = false;">
+                                    Recusar
+                                    <v-icon dark right>
+                                        mdi-cancel
+                                    </v-icon>
+                                </v-btn>
+                            </div>
+                            <div class="col-lg-6">
+                                <v-btn class="btn btn-primary form-control" color="blue" dark @click="rnc.manifestacaoRncRef.aceito = true;">
+                                    Abonar
+                                    <v-icon dark right>
+                                        mdi-checkbox-marked-circle
+                                    </v-icon>
+                                </v-btn>
                             </div>
                         </div>
+                        <UploadForm :id="rnc.manifestacaoRncRef.id" :inicializaLinha="permissaoAlterarManifestacao" :novoObjetoString="novoObjetoManifestacao" :permissaoAlterarComponente="permissaoAlterarManifestacao" v-model="rnc.manifestacaoRncRef.listaEvidenciasManifestacaoRnc" :tipoArquivo="'evidenciasManifestacaoRnc'"/>
                     </v-card-text>
                 </v-card>
             </v-tab-item>
@@ -144,7 +203,16 @@
             <v-tab-item :value="'evidencias'" v-if="visualizarTabEvidencias">
                 <v-card flat>
                     <v-card-text>
-                        <UploadForm :id="rnc.id" :inicializaLinha="permissaoAlterarEvidencia" :novoObjetoString="novoObjetoEvidencia" :permissaoAlterarComponente="permissaoAlterarEvidencia" v-model="listaEvidencias" :tipoArquivo="'evidencias'" />
+                        <UploadForm :id="rnc.id" :inicializaLinha="permissaoAlterarEvidencia" :novoObjetoString="novoObjetoEvidencia" :permissaoAlterarComponente="permissaoAlterarEvidencia" v-model="listaEvidencias" :tipoArquivo="'evidencias'">
+                            <template v-slot:iconesAdicionais>
+                                <v-btn class="btn btn-primary" color="blue" dark >
+                                    <v-icon dark left>
+                                        mdi-send
+                                    </v-icon>
+                                    Enviar
+                                </v-btn>
+                            </template>
+                        </UploadForm>
                     </v-card-text>
                 </v-card>
             </v-tab-item>
@@ -157,11 +225,10 @@
 <script>
 import UploadForm from './uploadForm'
 import HistoricoObservacoes from './historicoObservacoes'
-import {getDateCalculated } from "@/global";
-import moment from 'moment';
 import { baseApi, showError } from "@/global";
 import axios from "axios";
 import datePickerLabels from "@/assets/json/calendario/traducao.json";
+import moment from 'moment'
 export default {
     name: "detalhesTabsRnc",
     components: {
@@ -176,6 +243,27 @@ export default {
         isLeitura: Boolean
     },
     computed: {
+        listaHistoricoPrazosDataTable: function(){
+            return this.rnc.listaHistoricoPrazos.map(e => {
+                e['dataCriacaoLocalString'] = (e['dataCriacao']) ? moment(e['dataCriacao']).format('DD/MM/YYYY HH:mm:ss') : "";
+                e['prazoLocalString'] = (e['prazo']) ? moment(e['prazo']).format('DD/MM/YYYY') : "";
+                e['dataSituacaoLocalString'] = (e['dataSituacao']) ? moment(e['dataSituacao']).format('DD/MM/YYYY HH:mm:ss') : "";
+
+                if(e.situacao == null){
+                    e['situacaoString'] = 'Não respondido';
+                } else
+                if(e.situacao) {
+                    e['situacaoString'] = 'Aceito';
+                } else{
+                    e['situacaoString'] = 'Rejeitado';
+                }
+
+                return e;
+            });
+        },
+        alterarPrazo: function(){
+            return Boolean(!(this.crudType == 't' && (this.rnc.status == 3 || this.rnc.status == 1) && !this.prazo.situacao));
+        },
         rncGrave: function(){
             return this.rnc.tipo == 3;
         },
@@ -183,7 +271,12 @@ export default {
             return Boolean(this.rnc.dataCriacao);
         },
         acessarTabPrazo: function(){
-            return Boolean(this.rnc.tratar);
+            return Boolean(
+                !this.rnc.manifestacaoRncRef.descricaoManifestacao || this.rnc.manifestacaoRncRef.aceito == false
+            );
+        },
+        acessarTabManifestacao: function(){
+            return Boolean((!this.prazo.prazo && this.listaHistoricoPrazos.length == 0) || (this.rnc.manifestacaoRncRef.aceito == false));
         },
         descricao: function(){
             return this.rnc.descricao;
@@ -194,25 +287,28 @@ export default {
         tipo: function(){
             return this.rnc.tipo;
         },
-        permissionAlterRNC: function(){
-            return (this.rnc.resolvido == null);
+        permissaoAlterarRnc: function(){
+            return (this.rnc.status != 8 && this.rnc.status != 9);
         },
         permissaoAlterarIrregularidade: function(){
-            return ((this.permissionAlterRNC) && ( (this.crudType == 'c' && !this.isLeitura) || this.crudType == 'v'));
+            return ((this.permissaoAlterarRnc) && ( (this.crudType == 'c' && !this.isLeitura && this.rnc.status == null) || (this.crudType == 'v' && this.rnc.status == 2)));
         },
         completeRNCButtons(){
             return (this.crudType == 'v' && this.rnc.statusInicial == null && (Array.isArray(this.listaEvidencias) && this.listaEvidencias.length));
         },
-        listaPrazos: {
+        manifestacaoRncButtons(){
+            return (this.crudType == 'v' && this.rnc.status == 2 && this.rnc.manifestacaoRncRef && this.rnc.manifestacaoRncRef.descricaoManifestacao);
+        },
+        listaHistoricoPrazos: {
             get(){
-                if(this.rnc && this.rnc.listaPrazos){
-                    return this.rnc.listaPrazos;
+                if(this.rnc && this.rnc.listaHistoricoPrazos){
+                    return this.rnc.listaHistoricoPrazos;
                 } else {
                     return [];
                 }
             },
-            set(listaPrazos) {
-                this.rnc.listaPrazos = listaPrazos;
+            set(listaHistoricoPrazos) {
+                this.rnc.listaHistoricoPrazos = listaHistoricoPrazos;
             }
         },
         visualizarTabPrazo: function(){
@@ -220,6 +316,9 @@ export default {
                 return true;
             }
             return false;
+        },
+        visualizarTabManifestacao: function(){
+            return Boolean(this.rnc.manifestacaoRncRef);
         },
         listaEvidencias: {
             get(){
@@ -246,14 +345,34 @@ export default {
             }
         },
         visualizarTabEvidencias: function(){
-            return ( (Array.isArray(this.listaPrazos) && this.listaPrazos.length) && (this.listaPrazos[this.listaPrazos.length - 1].situacao == true) && (!this.prazoParaAceitar));
+            return (this.prazo.situacao && this.prazo.dataSituacao);
         },
         permissaoAlterarEvidencia: function(){
-            return ((this.permissionAlterRNC) &&  (this.visualizarTabEvidencias) && (this.crudType == 't'));
+            return ((this.permissaoAlterarRnc) &&  (this.visualizarTabEvidencias) && (this.crudType == 't'));
+        },
+        permissaoAlterarManifestacao: function(){
+            return ((this.permissaoAlterarRnc) &&  (this.visualizarTabManifestacao) && (this.crudType == 't') && (this.rnc.status == 1));
+        },
+        validaBotoesPrazo(){
+            return Boolean(this.crudType == 'v' && this.prazo.prazo && !this.prazo.dataSituacao && this.rnc.status == 4);
         },
     },
   data: function() {
     return {
+        prazo: {
+                prazo: "",
+                situacao: null,
+                minDate: moment(),
+                dataCriacao: null,
+                dataSituacao: null
+            },
+        headersHistoricoPrazo: [
+          {text: 'Data de Criação', value: 'dataCriacaoLocalString'},
+          { text: 'Prazo', value: 'prazoLocalString' },
+          { text: 'Situação', value: 'situacaoString' },
+          { text: 'Data da Situação', value: 'dataSituacaoLocalString' },
+        ],
+        searchHistoricoPrazo: "",
         datePickerLabels,
         showHistoricoObservacoes: false,
         descricoes: [
@@ -261,10 +380,16 @@ export default {
         ],
         prazoParaAceitar: false,
         novoObjetoEvidencia: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingArquivo": false, "new": true }',
+        novoObjetoManifestacao: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingArquivo": false, "new": true }',
         novoObjetoIrregularidade: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingArquivo": false, "new": true }'
     }
   },
   methods: {
+        apagaInfoPrazo(){
+            this.prazo.id = null;
+            this.prazo.situacao = null;
+            this.prazo.dataCriacao = null;
+        },
         carregaDescricoes(){
             this.rnc.descricao = null;
             this.getDescricao();
@@ -301,112 +426,74 @@ export default {
                 this.descricoes = comboBox;
             }
         },
-        setSituacao(prazo, novaSituacao){
-            if(novaSituacao != prazo.situacao){
-                if(novaSituacao){
-                    prazo.prazo = prazo.prazoCorreto;
+        setSituacaoPrazo(novaSituacao){
+            if(novaSituacao != this.prazo.situacao){
+                this.prazo.situacao = novaSituacao;
+                this.prazo['updated'] = true;
+            }
+        },
+        iniciarPrazo(){
+            if(this.rnc){
+                if(this.rnc.listaHistoricoPrazos && Array.isArray(this.listaHistoricoPrazos) && this.listaHistoricoPrazos.length){
+                    var prazoAtual = this.rnc.listaHistoricoPrazos[this.listaHistoricoPrazos.length - 1];
+                    this.prazo.prazo = prazoAtual.prazo;
+                    this.prazo.situacao = prazoAtual.situacao;
+                    this.prazo.dataSituacao = prazoAtual.dataSituacao;
+                    this.prazo.minDate = moment();
+                    this.prazo.dataCriacao = prazoAtual.dataCriacao;
+                }
+                this.rnc['prazo'] = this.prazo;
+            }
+        },
+        customSort(items, index, isDesc) {
+            items.sort((a, b) => {
+                if (index[0] === "dataCriacao") {
+                if (!isDesc[0]) {
+                    return this.convertBrazilDateLocaleStringToISO(a[index]).getTime() - this.convertBrazilDateLocaleStringToISO(b[index]).getTime();
                 } else {
-                    prazo.prazo = prazo.originalPrazo;
+                    return this.convertBrazilDateLocaleStringToISO(b[index]).getTime() - this.convertBrazilDateLocaleStringToISO(a[index]).getTime();
                 }
-                prazo.situacao = novaSituacao;
-                prazo['updated'] = true;
-            }
-        },
-        iniciarPrazosParaAceitar(){
-            if( this.crudType == 'v' && (Array.isArray(this.listaPrazos) && this.listaPrazos[this.listaPrazos.length-1] && this.listaPrazos[this.listaPrazos.length-1].situacao == null) ){
-                this.prazoParaAceitar = true;
-                this.armazenarPrazo(this.listaPrazos[this.listaPrazos.length-1]);
-            }
-        },
-        armazenarPrazo(prazo){
-            prazo['originalPrazo'] = prazo.prazo;
-            prazo['prazoCorreto'] = this.prazoCorreto(prazo);
-        },
-        prazoCorreto(prazo){
-            var today = moment();
-            var dataCriacao = moment(prazo.dataCriacao);
-            var diffDays = today.diff(dataCriacao, 'days');
-            var prazoCorreto = moment(prazo.prazo);
-            prazoCorreto.add(diffDays, 'days');
-            return prazoCorreto.format('YYYY-MM-DD')
-        },
-        validaBotoesPrazo(prazo){
-            const index = this.listaPrazos.indexOf(prazo);
-            var showValidationButtonsPrazo = 
-            (
-                (this.prazoParaAceitar)
-                &&
-                (index == (this.listaPrazos.length-1))
-            );
-            return showValidationButtonsPrazo;
-        },
-        criaPrazos(){
-            var minDate = new Date();
-            var maxDate = null;
-            if(Array.isArray(this.listaPrazos) && this.listaPrazos.length){
-                if(this.listaPrazos[this.listaPrazos.length - 1].situacao == false){
-                    maxDate = getDateCalculated(this.listaPrazos[this.listaPrazos.length-1].prazo, -1);
-                    var prazoEstendido = {
-                        id: null,
-                        prazo: "",
-                        situacao: null,
-                        maxDate: maxDate,
-                        minDate: minDate,
-                        createdDate: null,
-                        new: true
-                    };
-                    this.listaPrazos.push(prazoEstendido);
+                } else if (!(isNaN(a[index[0]]))) {
+                if (!isDesc[0]) {
+                    return (a[index[0]] - b[index[0]]);
+                } else {
+                    return (b[index[0]] - a[index[0]]);
                 }
-            } else {
-                maxDate = new Date();
-                maxDate.setDate(maxDate.getDate() + 20);
-                var prazo = {
-                        id: null,
-                        prazo: "",
-                        situacao: null,
-                        maxDate: maxDate,
-                        minDate: minDate,
-                        createdDate: null,
-                        new: true
-                    };
-                this.listaPrazos.push(prazo);
-            }
-        },
-        iniciarTratarRNC(){
-            if(this.crudType == 't'){
-                this.criaPrazos();
-            }
-        },
-        iniciarValidarRNC(){
-            if(this.crudType == 'v'){
-                this.iniciarPrazosParaAceitar();
-            }
+                } else {
+                    if (!isDesc[0]) {
+                        return (a[index[0]] < b[index[0]]) ? -1 : 1;
+                    } else {
+                        return (b[index[0]] < a[index[0]]) ? -1 : 1;
+                    }
+                }
+            });
+            return items;
+            },
+        convertBrazilDateLocaleStringToISO(brazilDateLocaleString){
+            var hours = brazilDateLocaleString.split(" ")[1];
+            var date = brazilDateLocaleString.split(" ")[0];
+
+            var isoString = date.split("/")[2] + "-" + date.split("/")[1] + "-" + date.split("/")[0];
+            var iso = new Date(isoString + " " + hours);
+            return iso;
         }
   },
   watch: {
     descricao: function(novoValor){
         if(novoValor){
-        var descricao = this.descricoes.find(t => t.value == novoValor);
-        if(descricao && descricao.tipo){
-            this.rnc.tipo = descricao.tipo;
+            var descricao = this.descricoes.find(t => t.value == novoValor);
+            if(descricao && descricao.tipo){
+                this.rnc.tipo = descricao.tipo;
+            } else {
+                this.rnc.tipo = null;
+            }
         } else {
             this.rnc.tipo = null;
-        }
-        } else {
-            this.rnc.tipo = null;
-        }
-    },
-    tipo: function(novoValor){
-        if(novoValor && novoValor == 3){
-            this.rnc.tratar = true;
-        } else {
-            this.rnc.tratar = false;
         }
     }
   },
   created: function(){
-      this.iniciarTratarRNC();
-      this.iniciarValidarRNC();
+      this.iniciarPrazo();
       if(this.motivo){
           this.getDescricao();
       }

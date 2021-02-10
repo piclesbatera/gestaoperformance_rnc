@@ -54,7 +54,7 @@
                                         <v-card flat>
                                             <v-card-text>
                                                 <ListagemDetalhesPorMotivo v-if="tipoOutroValor == 'outraNatureza'" :infosRegistro="infosRegistro" :motivo="outroValor" :crudType="crudType"/>
-                                                <DetalhesRnc  v-else-if="crudType != 't'" v-model="detalhes" :identificadorAreaDemandanteRnc="identificadorAreaDemandanteRnc" :isLeitura="isLeitura" :crudType="crudType" />
+                                                <DetalhesRnc  v-else-if="crudType != 't'" v-model="detalhes" :identificadorRegistroSistemaAreaDemandanteRnc="identificadorRegistroSistemaAreaDemandanteRnc" :isLeitura="isLeitura" :crudType="crudType" />
                                                 <TratarDetalhesRnc v-else :infosRegistro="infosRegistro" v-model="detalhes" :isLeitura="isLeitura" :crudType="crudType" />
                                             </v-card-text>
                                         </v-card>
@@ -125,15 +125,15 @@ export default {
         isLeitura: function(){
             return Boolean(this.outroValor);
         },
-        identificadorAreaDemandanteRnc: function(){
-            var identificadorAreaDemandanteRnc = null;
+        identificadorRegistroSistemaAreaDemandanteRnc: function(){
+            var identificadorRegistroSistemaAreaDemandanteRnc = null;
             if(this.isLeitura && this.tipoOutroValor == 'outraAreaDemandante'){
-                identificadorAreaDemandanteRnc = this.outroValor;
+                identificadorRegistroSistemaAreaDemandanteRnc = this.outroValor;
             } else
-            if(this.registro && this.registro.identificadorAreaDemandanteRnc){
-                identificadorAreaDemandanteRnc = this.registro.identificadorAreaDemandanteRnc;
+            if(this.registro && this.registro.identificadorRegistroSistemaAreaDemandanteRnc){
+                identificadorRegistroSistemaAreaDemandanteRnc = this.registro.identificadorRegistroSistemaAreaDemandanteRnc;
             }
-            return identificadorAreaDemandanteRnc;
+            return identificadorRegistroSistemaAreaDemandanteRnc;
         },
         descricaoTituloSg: function(){
           var descricaoTituloSg = null;
@@ -240,32 +240,43 @@ export default {
                 (rnc, index) => 
                 { 
                     // CRIACAO
-                    if(rnc.listaIrregularidades){
-                        var listaIrregularidades = rnc.listaIrregularidades.filter(irregularidade => {return this.novoObjetoUpload(irregularidade)})
-                        var irregularidade = null;
-                        for(irregularidade of listaIrregularidades){
-                            formData.append('files-irregularidades-'+index, irregularidade.file);
-                            if(irregularidade.descricaoAnexo && irregularidade.descricaoAnexo.trim() == ""){
-                                irregularidade.descricaoAnexo = null;
+                    if(rnc.status == null || rnc.status == 2){
+                        if(rnc.listaIrregularidades){
+                            var listaIrregularidades = rnc.listaIrregularidades.filter(irregularidade => {return this.novoObjetoUpload(irregularidade)})
+                            var irregularidade = null;
+                            for(irregularidade of listaIrregularidades){
+                                formData.append('files-irregularidades-'+index, irregularidade.file);
+                                if(irregularidade.descricaoAnexo && irregularidade.descricaoAnexo.trim() == ""){
+                                    irregularidade.descricaoAnexo = null;
+                                }
                             }
                         }
                     }
                     // TRATAMENTO
-                    if(rnc.listaEvidencias){
-                        var listaEvidencias = rnc.listaEvidencias.filter(evidencia => { return this.novoObjetoUpload(evidencia) });
-                        var evidencia = null;
-                        for(evidencia of listaEvidencias){
-                            formData.append('files-evidencias-'+rnc.id, evidencia.file);
-                            if(evidencia.descricaoAnexo && evidencia.descricaoAnexo.trim() == ""){
-                                evidencia.descricaoAnexo = null;
+                    if(rnc.status == 4){
+                        if(rnc.listaEvidencias){
+                            var listaEvidencias = rnc.listaEvidencias.filter(evidencia => { return this.novoObjetoUpload(evidencia) });
+                            var evidencia = null;
+                            for(evidencia of listaEvidencias){
+                                formData.append('files-evidencias-'+rnc.id, evidencia.file);
+                                if(evidencia.descricaoAnexo && evidencia.descricaoAnexo.trim() == ""){
+                                    evidencia.descricaoAnexo = null;
+                                }
                             }
                         }
                     }
-                    
-                    if(rnc.listaPrazos){
-                        rnc['novoPrazo'] = rnc.listaPrazos.filter(function(prazo){ return (prazo.new && prazo.prazo) });
-                        // VALIDAR
-                        rnc['prazo'] = rnc.listaPrazos.filter(function(prazo){ return prazo.updated });
+
+                    if(rnc.status == 1){
+                        if(rnc.manifestacaoRncRef.listaEvidenciasManifestacaoRnc){
+                            var listaEvidenciasManifestacaoRnc = rnc.manifestacaoRncRef.listaEvidenciasManifestacaoRnc.filter(evidenciaManifestacaoRnc => { return this.novoObjetoUpload(evidenciaManifestacaoRnc) });
+                            var evidenciaManifestacaoRnc = null;
+                            for(evidenciaManifestacaoRnc of listaEvidenciasManifestacaoRnc){
+                                formData.append('files-evidenciasManifestacaoRnc-'+rnc.id, evidenciaManifestacaoRnc.file);
+                                if(evidenciaManifestacaoRnc.descricaoAnexo && evidenciaManifestacaoRnc.descricaoAnexo.trim() == ""){
+                                    evidenciaManifestacaoRnc.descricaoAnexo = null;
+                                }
+                            }
+                        }
                     }
                 }
             );
@@ -320,8 +331,8 @@ export default {
             }).then(res => {
                 res;
                 var registro = this.registro;
-                if(!registro.identificadorAreaDemandanteRnc){
-                    registro.identificadorAreaDemandanteRnc = res.data.id;
+                if(!registro.identificadorRegistroSistemaAreaDemandanteRnc){
+                    registro.identificadorRegistroSistemaAreaDemandanteRnc = res.data.id;
                     this.$emit('registro', registro);
                 }
                 this.encerraSalvar(true);

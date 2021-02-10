@@ -1,5 +1,5 @@
 <template>
-  <div class="login-content" :style="{'background-image': `url(${require('@/assets/img/fibra_otica.png')})`}">
+  <div class="login-content" v-if="loadingComponent" :style="{'background-image': `url(${require('@/assets/img/fibra_otica.png')})`}">
     <div class="login-form">
         <form @submit="conectar" >
         <div class="avatar">
@@ -49,7 +49,8 @@ export default {
   data: function() {
     return {
       loginForm: {},
-      loadingLogin: false
+      loadingLogin: false,
+      loadingComponent: false
     };
   },
   methods: {
@@ -74,7 +75,10 @@ export default {
   created: function(){
     if(this.usuario && this.usuario.token){
       this.$router.push("perfil");
+    } else {
+      this.loadingComponent = true;
     }
+    
   }
 };
 </script>

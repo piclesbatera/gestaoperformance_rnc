@@ -3,7 +3,8 @@
         <div class="row" v-if="permissaoAlterarComponente">
             <div class="col-md-12">
                 <div class="float-right">
-                    <v-btn @click="novaLinha();" class="btn btn-primary form-control" color="blue" dark >
+                    <slot name="iconesAdicionais"></slot>
+                    <v-btn @click="novaLinha();" class="ml-2 btn btn-primary" color="blue" dark >
                         <v-icon dark left>
                             mdi-plus
                         </v-icon>
@@ -176,8 +177,6 @@ export default {
 
             // this.listaObjeto[index]['loadingDownloadAnexo'] = true;
 
-            console.log(this.listaObjeto);
-
             axios({ url: url, method: 'GET', responseType: 'blob',}).then((response) => {
                 const url = window.URL.createObjectURL(response.data);
                 // this.listaObjeto[index].loadingDownloadAnexo = false;
@@ -207,16 +206,14 @@ export default {
         },
         novaLinha(){
             if(this.permissaoAlterarComponente){
+                var objeto = (this.novoObjetoString) ? JSON.parse(this.novoObjetoString) : {};
                 if(!this.listaObjeto){
-                    this.listaObjeto = [];
+                    var listaObjeto = [];
+                    listaObjeto.push(objeto);
+                    this.listaObjeto = listaObjeto;
+                } else {
+                    this.listaObjeto.push(objeto);
                 }
-
-                var object = (this.novoObjetoString) ? JSON.parse(this.novoObjetoString) : {};
-
-                var componentListObject = this.listaObjeto;
-                componentListObject.push(object);
-
-                this.listaObjeto = componentListObject;
             }
             
         },

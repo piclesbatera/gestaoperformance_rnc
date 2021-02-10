@@ -151,12 +151,12 @@
                     </v-card-title>
                     <v-divider></v-divider>
                     <div class="scrollable">
-                        <v-data-table :headers="headersConsulta" :items="listaConsulta" :search="consultaDataTable" :loading="loadingConsulta" loading-text="Carregando..." no-data-text="Sem dados disponíveis">
+                        <v-data-table :headers="headersConsulta" :items="listaConsulta" :search="consultaDataTable" :loading="loadingConsulta" loading-text="Carregando..." no-data-text="Sem dados disponíveis" no-results-text="Não foi encontrado dados para a pesquisa realizada">
                             <template v-slot:item.detail="{ item }">
                                 <i :title="titleDetail" @click="abreRegistroSelecionado(item);" class="openDetail fa fa-edit"></i>
                             </template>
                             <template v-slot:item.outrasAreas="{ item }">
-                                <RncOutrasAreasDemandantes v-if="true" :registro="item" :clickAreaDemandante="abreRegistroSelecionado"/>
+                                <RncOutrasAreasDemandantes v-if="false" :registro="item" :clickAreaDemandante="abreRegistroSelecionado"/>
                             </template>
                             <template v-slot:item.outrasNaturezas="{ item }">
                                 <RncOutrasNaturezas :registro="item" :clickNatureza="abreRegistroSelecionado"/>
@@ -174,7 +174,7 @@
 import ModalRnc from './modalRnc'
 import RncOutrasAreasDemandantes from './rncOutrasAreasDemandantes'
 import RncOutrasNaturezas from './rncOutrasNaturezas'
-import { baseApi, showError, showAllErrorScope, cleanErrorsScope } from "@/global";
+import { baseApi, showError, cleanErrorsScope } from "@/global";
 import axios from "axios";
 import tipoAcionamentoOptions from "@/assets/json/sgp/tipoAcionamento.json";
 import UFOptions from "@/assets/json/brasil/UF.json";
@@ -270,7 +270,7 @@ export default {
                 queryString += '&codigoEmissao=' + this.valorConsulta;
             }
 
-            if(this.valorConsultaRNC && this.this.temRNC){
+            if(this.valorConsultaRNC && this.temRNC){
                 queryString += '&codigoRNC=' + this.valorConsultaRNC;
             }
 
@@ -397,110 +397,25 @@ export default {
         },
         consulta(){
             var consultaPor = this.consultaPor;
-            var errors = {};
-
-            errors = this.validatesErrorsSg();
 
             this.deletarConsultaSg();
 
-            if(Object.keys(errors).length === 0){
+            this.loadingConsulta = true;
 
-                this.loadingConsulta = true;
+            var url = this.urlSg;
 
-                var url = this.urlSg;
-
-                axios.get(url).then(res => {
-                    var scope = `#rnc_${this.crudType}`;
-                    cleanErrorsScope(scope);
-
-                    this.inserirConsultaSg(consultaPor, res.data);
-
-                    this.loadingConsulta = false;
-                })
-                .catch(error => {
-                    this.loadingConsulta = false;
-                    showError(error);
-                });
-
-            } else {
+            axios.get(url).then(res => {
                 var scope = `#rnc_${this.crudType}`;
-                showAllErrorScope(errors, scope);
-            }
-        },
-        validatesErrorsSg(){
-            var errors = {};
+                cleanErrorsScope(scope);
 
-            if(!this.consultaPor){
-                errors['consultaPor'] = 'é obrigatório';
-            }
-            if(!this.consultaAvancada){
-                if(!this.valorConsulta &&
-                
-                (
-                    (this.temRNC && !this.valorConsultaRNC) || (this.crudType != 't')
-                )
+                this.inserirConsultaSg(consultaPor, res.data);
 
-                ){
-                    errors['valorConsulta'] = 'é obrigatório';
-
-                    if(this.temRNC && !this.valorConsultaRNC){
-                        errors['valorConsultaRNC'] = 'é obrigatório';
-                    }
-                }
-            // ADVANCED VALIDATE
-            } else {
-                if(this.consultaPor == 'sgi'){
-                    if(!this.valorConsulta 
-                    && 
-                    (
-                        (this.temRNC && !this.valorConsultaRNC) || (this.crudType != 't')
-                    ) 
-                    &&
-                    // ADVANCED CONDITION
-                    !this.consultaAvancadaSgiUF && !this.consultaAvancadaSgiProjeto && !this.consultaAvancadaSgiEmpreiteiraProjeto && !this.consultaAvancadaSgiEmpreiteiraConstrucao){
-
-                        errors['valorConsulta'] = 'é obrigatório';
-
-                        if(this.temRNC && !this.valorConsultaRNC){
-                            errors['valorConsultaRNC'] = 'é obrigatório';
-                        }
-
-                        // ADVANCED FORM
-                        errors['consultaAvancadaSgiUF'] = 'é obrigatório';
-                        errors['consultaAvancadaSgiProjeto'] = 'é obrigatório';
-                        errors['consultaAvancadaSgiEmpreiteiraProjeto'] = 'é obrigatório';
-                        errors['consultaAvancadaSgiEmpreiteiraConstrucao'] = 'é obrigatório';
-                    }
-                } else {
-                    if(!this.valorConsulta 
-                    && 
-                    (
-                        (this.temRNC && !this.valorConsultaRNC) || (this.crudType != 't')
-                    ) 
-                    &&
-                    // ADVANCED CONDITION
-                    !this.consultaAvancadaSgpTipoAcionamento && !this.consultaAvancadaSgpUF && !this.consultaAvancadaSgpEmpreiteira){
-
-                        errors['valorConsulta'] = 'é obrigatório';
-
-                        if(this.temRNC && !this.valorConsultaRNC){
-                            errors['valorConsultaRNC'] = 'é obrigatório';
-                        }
-
-                        // ADVANCED FORM
-                        errors['consultaAvancadaSgpTipoAcionamento'] = 'é obrigatório';
-                        errors['consultaAvancadaSgpUF'] = 'é obrigatório';
-                        errors['consultaAvancadaSgpEmpreiteira'] = 'é obrigatório';
-                    }
-                }
-            }
-
-            if(this.valorConsulta && this.valorConsultaRNC && this.temRNC){
-                errors['valorConsulta'] = 'não pode ser preenchido junto a RNC';
-                errors['valorConsultaRNC'] = 'não pode ser preenchido junto a '+ this.valorLabel;
-            }
-
-            return errors;
+                this.loadingConsulta = false;
+            })
+            .catch(error => {
+                this.loadingConsulta = false;
+                showError(error);
+            });
         },
         deletarConsultaSg(){
             if(this.consultaPor == 'sgi'){

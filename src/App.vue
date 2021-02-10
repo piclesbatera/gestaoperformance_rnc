@@ -52,7 +52,7 @@ export default {
         }
       }
       if(this.usuarioConectado && !this.usuarioRegistrado && this.$route.name != 'Perfil'){
-        this.$router.push("Perfil");
+        this.$router.push("perfil");
       }
     },
     usuarioDesconectado(){

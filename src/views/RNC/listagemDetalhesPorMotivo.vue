@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-if="loadingListaAreas">
+        <div v-if="loadingAll">
             <span>Carregando...</span>
             <!-- <v-progress-linear color="deep-purple accent-4" indeterminate rounded height="6"></v-progress-linear> -->
             <v-progress-linear indeterminate color="blue" ></v-progress-linear>
@@ -14,8 +14,9 @@
                 show-arrows>
                 <v-tabs-slider color="teal lighten-4"></v-tabs-slider>
         
-                <v-tab v-for="(area, index) in listaAreas" :key="area.id">{{index+1}}</v-tab>
-                
+                <template v-if="listaAreas.length > 1">
+                    <v-tab v-for="(area, index) in listaAreas" :key="area.id">{{index+1}}</v-tab>
+                </template>
             </v-tabs>
            <v-tabs-items v-model="tab" touchless>
                <v-tab-item v-for="(area) in listaAreas" :key="area.id">
@@ -52,13 +53,20 @@ export default {
         infosRegistro: Object
     },
     computed: {
-        ...mapState(["usuario"])
+        ...mapState(["usuario"]),
+        loadingAll: function(){
+            return this.loadingListaAreas || this.loadingAreasDemandantes; 
+        }
     },
   data: function() {
     return {
-        tab: null,
+        tab: 0,
         loadingListaAreas: true,
-        listaAreas: []
+        loadingAreasDemandantes: true,
+        listaAreas: [],
+        areasDemandantes: [
+            { "value": null, "text": "Selecione uma área demandante" }
+        ]
     }
   },
   methods: {
@@ -73,6 +81,29 @@ export default {
             axios.get(url).then(res => {
                 var listaAreas = {}
                 listaAreas = res.data;
+
+                if(listaAreas){
+                    listaAreas.forEach(
+                        (detalhes) => {
+                            // ARMAZENAR O STATUS INICIAL DOS RNCs RECUPERADOS E CONVERTE A DATA DE OBSERVAÇÕES
+                            if(detalhes && detalhes.listaRNCs){
+                                detalhes.listaRNCs.forEach( 
+                                    (rnc) => 
+                                    {
+                                        rnc['statusInicial'] = rnc.resolvido;
+                                        rnc.listaObservacoes.forEach( 
+                                            (observacao) => 
+                                            {
+                                                observacao['dataCriacao'] = new Date(observacao['dataCriacao']).toLocaleString();
+                                            }
+                                        );
+                                    }
+                                );
+                            }
+                        }
+                    )
+                }
+
                 this.listaAreas = listaAreas;
 
             }).catch(error => {
@@ -84,6 +115,8 @@ export default {
         },
         getAreasDemandantes(){
             var comboBox = [{ "value": null, "text": "Selecione uma àrea" }];
+
+            this.loadingAreasDemandantes = true;
 
             return axios
                 .get(`${baseApi}/usuario/areasDemandantes?`)
@@ -104,6 +137,7 @@ export default {
                 })
                 .finally(() => {
                     this.areasDemandantes = comboBox;
+                    this.loadingAreasDemandantes = false;
                 });
 
         },

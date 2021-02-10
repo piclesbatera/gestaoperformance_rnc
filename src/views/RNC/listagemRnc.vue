@@ -22,17 +22,26 @@
                         <v-expansion-panel style="background-color: #f7f7f7;" v-for="(row, index) in listaRNCs" :key="index">
                             <v-expansion-panel-header :disable-icon-rotate="row.resolvido != null">
                                 <v-row no-gutters>
-                                    <v-col cols="4" v-if="row.id">
+                                    <v-col cols="2" v-if="row.id">
                                         RNC: {{row.id}}
                                     </v-col>
-                                    <v-col cols="8" v-else class="text--secondary" >
+                                    <v-col cols="10" class="text--secondary" >
                                         <v-row no-gutters style="width: 100%" >
-                                            <!-- <v-col cols="6">
-                                                Motivo: {{ row.motivo }}
+                                            <v-col cols="4">
+                                                <span v-if="row.motivoRef">
+                                                    Motivo: {{ row.motivoRef.descricaoMotivo }}
+                                                </span>
                                             </v-col>
-                                            <v-col cols="6">
-                                                Tipo: {{  row.tipo }}
-                                            </v-col> -->
+                                            <v-col cols="4">
+                                                <span v-if="row.descricaoRef">
+                                                    Tipo: {{  row.descricaoRef.descricao }}
+                                                </span>
+                                            </v-col>
+                                            <v-col cols="4">
+                                                <span v-if="row.statusRef">
+                                                    Status: {{ row.statusRef.descricaoStatus }}
+                                                </span>
+                                            </v-col> 
                                         </v-row>
                                     </v-col>
                                 </v-row>
@@ -68,6 +77,7 @@
                                         </v-btn>
                                     </div>
                                 </div>
+                                <!-- {{row}} -->
                                 <DetalhesTabsRnc :isLeitura="isLeitura" :rnc="row" :crudType="crudType" :motivos="motivos" :tipos="tipos" />
                             </v-expansion-panel-content>
                         </v-expansion-panel>
@@ -84,7 +94,7 @@ import { baseApi, showError } from "@/global";
 import axios from "axios";
 import { mapState } from "vuex";
 export default {
-    name: "detalhesRnc",
+    name: "listagemRnc",
     components: {
         DetalhesTabsRnc
     },
@@ -125,7 +135,6 @@ export default {
                         descricao: null,
                         tipo: null,
                         resolvido: null,
-                        tratavel: false,
                         listaIrregularidades: [
                         ]
                     };
@@ -196,3 +205,4 @@ export default {
   }
 }
 </script>
+

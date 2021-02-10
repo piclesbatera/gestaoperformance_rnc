@@ -87,10 +87,19 @@ div.v-dialog.v-dialog--active.dialog{
       height: calc(100% - 60px);
       margin: 0.7rem 0px 0px 0rem;
 }
-  
+
 div .theme--light.v-data-table tbody tr {
       background-color: white;
 }
+
+.border_red{
+    border: 1px solid red;
+}
+
+.border_green{
+    border: 1px solid green;
+}
+
 .default_color_background{
     background-color: #f7f7f7;
 }

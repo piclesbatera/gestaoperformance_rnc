@@ -3,7 +3,7 @@
         <v-card v-if="acesso">
           <v-tabs
               dark
-              background-color="indigo"
+              background-color="#1e469a"
               show-arrows>
               <v-tabs-slider color="teal lighten-4"></v-tabs-slider>
       

@@ -24,7 +24,9 @@ export default {
       return process.env.VUE_APP_SUB_TITLE;
     },
     nomeUsuario: function(){
-      if (Object.keys(this.usuario.perfilUsuario).length > 0 && Object.keys(this.usuario.perfilUsuario.usuarioTim).length > 0 && this.usuario.perfilUsuario.dataRegistro && this.usuario.perfilUsuario.usuarioTim.primeiroNome){
+      if (this.usuario && this.usuario.perfilUsuario && this.usuario.perfilUsuario.usuarioTim && 
+    Object.keys(this.usuario.perfilUsuario).length > 0 && Object.keys(this.usuario.perfilUsuario.usuarioTim).length > 0
+    && this.usuario.perfilUsuario.dataRegistro && this.usuario.perfilUsuario.usuarioTim.primeiroNome){
         return this.usuario.perfilUsuario.usuarioTim.primeiroNome;
       } else {
         return this.usuario.nomeUsuario;

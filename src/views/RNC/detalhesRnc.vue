@@ -32,27 +32,27 @@ export default {
         ListagemRnc
     },
     props: {
-        // value: Object,
+        value: Object,
         crudType: String,
-        identificadorAreaDemandanteRnc: Number,
+        identificadorRegistroSistemaAreaDemandanteRnc: Number,
         isLeitura: Boolean
     },
     computed: {
         ...mapState(["usuario"]),
         detalhes: {
             get () {
-                // return this.value
-                return this.dataValue
+                return this.value
+                // return this.dataValue
             },
             set (value) {
-                this.dataValue = value;
+                // this.dataValue = value;
                 this.$emit('input', value);
             }
         }
     },
   data: function() {
     return {
-        dataValue: null,
+        // dataValue: null,
         loadingDetalhe: true,
         areasDemandantes: [
             { "value": null, "text": "Selecione uma área demandante" }
@@ -61,7 +61,7 @@ export default {
   },
   methods: {
         getDetalhesRNC(){
-            var queryString = (this.identificadorAreaDemandanteRnc) ? `?id=${this.identificadorAreaDemandanteRnc}` : "";
+            var queryString = (this.identificadorRegistroSistemaAreaDemandanteRnc) ? `?id=${this.identificadorRegistroSistemaAreaDemandanteRnc}` : "";
             var url = `${baseApi}/rnc${queryString}`;
 
             axios.get(url).then(res => {
@@ -91,7 +91,9 @@ export default {
 
                 this.detalhes = detalhes;
                 if(!this.detalhes.listaRNCs || this.detalhes.listaRNCs.length == 0){
-                    this.novaRNC();
+                    this.$nextTick(function () {
+                        this.novaRNC();
+                    });
                 }
             }).catch(error => {
                 showError(error);
@@ -106,6 +108,9 @@ export default {
                 listaRNCs = [];
             }
 
+            // if(!this.detalhes.listaRNCs){
+            //     this.$set(this.detalhes, 'listaRNCs', []);
+            // }
             var rnc =  {
                         id: null,
                         motivo: null,
@@ -116,6 +121,7 @@ export default {
                         listaIrregularidades: [
                         ]
                     };
+            // this.$set(this.detalhes.listaRNCs, this.detalhes.listaRNCs.length, rnc);
             listaRNCs.push(rnc);
             this.detalhes.listaRNCs = listaRNCs;
         },

@@ -11,7 +11,7 @@
                     
                     <v-tab :href="'#tab-dashboard'" >Dashboard</v-tab>
                     
-                    <v-menu offset-y v-if="controleRNC.length">
+                    <v-menu open-on-hover offset-y v-if="controleRNC.length">
                             <template v-slot:activator="{ on, attrs }">
                                 <a
                                 class="v-tab"
@@ -36,7 +36,7 @@
                             </v-list>
                     </v-menu>
                     
-                    <v-menu offset-y v-if="empreiteiraRNC.length">
+                    <v-menu open-on-hover offset-y v-if="empreiteiraRNC.length">
                             <template v-slot:activator="{ on, attrs }">
                                 <a
                                 class="v-tab"

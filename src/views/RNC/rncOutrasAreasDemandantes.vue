@@ -75,8 +75,6 @@ export default {
                 var queryString = (this.codigoGrupoFila) ? `?codigoGrupoFila=${this.codigoGrupoFila}` : '';
                 var url = `${baseApi}/rnc/outrasAreasDemandantes/${this.sg}/${this.codigoSg}${queryString}`;
                 axios.get(url).then(res => {
-                    console.log("rec");
-                    console.log(res.data);
                     this.outrasAreasDemandantes = res.data;
                 })
                 .catch(error => {

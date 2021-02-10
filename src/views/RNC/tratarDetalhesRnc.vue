@@ -22,7 +22,7 @@ export default {
         ListagemRnc
     },
     props: {
-        // value: Object,
+        value: Object,
         crudType: String,
         infosRegistro : Object,
         isLeitura: Boolean
@@ -31,18 +31,18 @@ export default {
         ...mapState(["usuario"]),
         detalhes: {
             get () {
-                // return this.value
-                return this.dataValue
+                return this.value
+                // return this.dataValue
             },
             set (value) {
-                this.dataValue = value;
+                // this.dataValue = value;
                 this.$emit('input', value);
             }
         }
     },
   data: function() {
     return {
-        dataValue: null,
+        // dataValue: null,
         loadingListaRNCs: true
     }
   },
@@ -56,7 +56,25 @@ export default {
 
             axios.get(url).then(res => {
                 var detalhes = {}
+
                 detalhes['listaRNCs'] = res.data;
+
+                // ARMAZENAR O STATUS INICIAL DOS RNCs RECUPERADOS E CONVERTE A DATA DE OBSERVAÇÕES
+                if(detalhes && detalhes.listaRNCs){
+                    detalhes.listaRNCs.forEach( 
+                        (rnc) => 
+                        {
+                            rnc['statusInicial'] = rnc.resolvido;
+                            rnc.listaObservacoes.forEach( 
+                                (observacao) => 
+                                {
+                                    observacao['dataCriacao'] = new Date(observacao['dataCriacao']).toLocaleString();
+                                }
+                            );
+                        }
+                    );
+                }
+
                 this.detalhes = detalhes;
 
             }).catch(error => {

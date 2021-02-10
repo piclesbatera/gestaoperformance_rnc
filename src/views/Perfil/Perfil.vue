@@ -177,13 +177,14 @@ export default {
           // this.usuario.perfilUsuario = res.data;
           this.$store.commit("setPerfilUsuario", res.data);
           localStorage.setItem(chaveUsuario, JSON.stringify(this.usuario));
+          this.loading = false;
         })
         .catch(error => {
           showError(error);
         })
-        .finally(() => {
-          this.loading = false;
-        });
+        // .finally(() => {
+        //   this.loading = false;
+        // });
     },
     solicitacaoAcesso() {
       if(validacaoFormulario(this.$refs.observer)){

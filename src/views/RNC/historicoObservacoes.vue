@@ -18,7 +18,7 @@
             <v-text-field v-model="search" append-icon="mdi-magnify" label="Pesquisa" single-line hide-details></v-text-field>
             </v-card-title>
             <v-divider></v-divider>
-            <v-data-table :custom-sort="customSort" class="default_color_background" :headers="headers" :items="listaObservacoes" :search="search" loading-text="Carregando..." no-data-text="Sem dados disponíveis">
+            <v-data-table :custom-sort="customSort" class="default_color_background" :headers="headers" :items="listaObservacoes" :search="search" loading-text="Carregando..." no-data-text="Sem dados disponíveis" no-results-text="Não foi encontrado dados para a pesquisa realizada">
             </v-data-table>
           </v-container>
         </v-card>
