@@ -1,6 +1,6 @@
 <template>
     <div style="clear: right;">
-        <v-tabs v-model="rnc.tab" light background-color="#f7f7f7" show-arrows>
+        <v-tabs v-model="rncTab" light background-color="#f7f7f7" show-arrows>
             <v-tabs-slider color="#cbc6c6"></v-tabs-slider>
     
             <v-tab :href="'#motivos'">Motivos</v-tab>
@@ -9,7 +9,7 @@
             <v-tab :href="'#manifestacao'" v-if="visualizarTabManifestacao" :disabled="!acessarTabManifestacao">Manifestação</v-tab>
             <v-tab :href="'#evidencias'" v-if="visualizarTabEvidencias">Evidencias</v-tab>
         </v-tabs>
-        <v-tabs-items v-model="rnc.tab" touchless>
+        <v-tabs-items v-model="rncTab" touchless>
             <!-- rncs -->
             <v-tab-item :value="'motivos'">
                 <v-card flat>
@@ -153,7 +153,7 @@
                                         <v-text-field v-model="searchHistoricoPrazo" append-icon="mdi-magnify" label="Pesquisa" single-line hide-details></v-text-field>
                                     </v-card-title>
                                     <v-divider></v-divider>
-                                    <v-data-table :custom-sort="customSort" class="default_color_background" :headers="headersHistoricoPrazo" :items="listaHistoricoPrazosDataTable" :search="searchHistoricoPrazo" loading-text="Carregando..." no-data-text="Sem dados disponíveis" no-results-text="Não foi encontrado dados para a pesquisa realizada" items-per-page="5">
+                                    <v-data-table :custom-sort="customSort" sort-by="dataCriacao" class="default_color_background" :headers="headersHistoricoPrazo" :items="listaHistoricoPrazosDataTable" :search="searchHistoricoPrazo" loading-text="Carregando..." no-data-text="Sem dados disponíveis" no-results-text="Não foi encontrado dados para a pesquisa realizada" items-per-page="5">
                                     </v-data-table>
                                 </v-container>
                             </v-card>
@@ -203,16 +203,37 @@
             <v-tab-item :value="'evidencias'" v-if="visualizarTabEvidencias">
                 <v-card flat>
                     <v-card-text>
-                        <UploadForm :id="rnc.id" :inicializaLinha="permissaoAlterarEvidencia" :novoObjetoString="novoObjetoEvidencia" :permissaoAlterarComponente="permissaoAlterarEvidencia" v-model="listaEvidencias" :tipoArquivo="'evidencias'">
-                            <template v-slot:iconesAdicionais>
-                                <v-btn class="btn btn-primary" color="blue" dark >
-                                    <v-icon dark left>
-                                        mdi-send
-                                    </v-icon>
-                                    Enviar
-                                </v-btn>
-                            </template>
-                        </UploadForm>
+                        <v-tabs v-model="evidenciasTab" light background-color="#f7f7f7" show-arrows>
+                            <v-tabs-slider color="#cbc6c6"></v-tabs-slider>
+                            <v-tab :href="'#tratativa-1'">Tratativa 1
+                                <v-icon v-if="true" dark right color="red" small>
+                                    mdi-checkbox-blank-circle
+                                </v-icon>
+                                <v-icon v-else dark right small>
+                                    mdi-checkbox-blank-circle
+                                </v-icon>
+                            </v-tab>
+                        </v-tabs>
+                        <v-tabs-items v-model="evidenciasTab" touchless>
+                            <v-tab-item :value="'tratativa-1'">
+                                <UploadForm :caixaConfirmacao="this.crudType == 't'" :validaConfirmacao="this.crudType == 'c' || this.crudType == 'v'" :marcaTodasCaixas="enviar" :id="rnc.id" :inicializaLinha="permissaoAlterarEvidencia" :novoObjetoString="novoObjetoEvidencia" :permissaoAlterarComponente="permissaoAlterarEvidencia" v-model="listaEvidencias" :tipoArquivo="'evidencias'">
+                                    <template v-if="rnc.status == 5" v-slot:iconesAdicionais>
+                                        <v-btn class="btn btn-primary" v-if="!enviar" @click="enviar = true" color="blue" dark >
+                                            <v-icon dark left>
+                                                mdi-send
+                                            </v-icon>
+                                            Enviar
+                                        </v-btn>
+                                        <v-btn class="btn btn-danger" v-else @click="enviar = false" color="red" dark >
+                                            <v-icon dark left>
+                                                mdi-send
+                                            </v-icon>
+                                            Enviar
+                                        </v-btn>
+                                    </template>
+                                </UploadForm>
+                            </v-tab-item>
+                        </v-tabs-items>
                     </v-card-text>
                 </v-card>
             </v-tab-item>
@@ -243,6 +264,21 @@ export default {
         isLeitura: Boolean
     },
     computed: {
+        enviar: {
+            get(){
+                if(!this.rnc['enviar']){
+                    this.$set(this.rnc, 'enviar', false);
+                }
+                return this.rnc['enviar'];
+            },
+            set(enviar) {
+                if(this.rnc['enviar'] == undefined || this.rnc['enviar'] == null){
+                    this.$set(this.rnc, 'enviar', enviar);
+                } else {
+                    this.rnc['enviar'] = enviar;
+                }
+            }
+        },
         listaHistoricoPrazosDataTable: function(){
             return this.rnc.listaHistoricoPrazos.map(e => {
                 e['dataCriacaoLocalString'] = (e['dataCriacao']) ? moment(e['dataCriacao']).format('DD/MM/YYYY HH:mm:ss') : "";
@@ -272,7 +308,7 @@ export default {
         },
         acessarTabPrazo: function(){
             return Boolean(
-                !this.rnc.manifestacaoRncRef.descricaoManifestacao || this.rnc.manifestacaoRncRef.aceito == false
+                ((this.crudType == 'v' || this.crudType == 'c') && this.rnc.prazo.prazo) || (this.crudType == 't' && (!this.rnc.manifestacaoRncRef.descricaoManifestacao || this.rnc.manifestacaoRncRef.aceito == false))
             );
         },
         acessarTabManifestacao: function(){
@@ -294,7 +330,7 @@ export default {
             return ((this.permissaoAlterarRnc) && ( (this.crudType == 'c' && !this.isLeitura && this.rnc.status == null) || (this.crudType == 'v' && this.rnc.status == 2)));
         },
         completeRNCButtons(){
-            return (this.crudType == 'v' && this.rnc.statusInicial == null && (Array.isArray(this.listaEvidencias) && this.listaEvidencias.length));
+            return (this.crudType == 'v' && this.rnc.statusInicial == null && (Array.isArray(this.listaEvidencias) && this.listaEvidencias.length) && this.rnc.status == 6);
         },
         manifestacaoRncButtons(){
             return (this.crudType == 'v' && this.rnc.status == 2 && this.rnc.manifestacaoRncRef && this.rnc.manifestacaoRncRef.descricaoManifestacao);
@@ -348,7 +384,7 @@ export default {
             return (this.prazo.situacao && this.prazo.dataSituacao);
         },
         permissaoAlterarEvidencia: function(){
-            return ((this.permissaoAlterarRnc) &&  (this.visualizarTabEvidencias) && (this.crudType == 't'));
+            return ((this.permissaoAlterarRnc) &&  (this.visualizarTabEvidencias) && (this.crudType == 't') && (this.rnc.status == 5));
         },
         permissaoAlterarManifestacao: function(){
             return ((this.permissaoAlterarRnc) &&  (this.visualizarTabManifestacao) && (this.crudType == 't') && (this.rnc.status == 1));
@@ -359,6 +395,8 @@ export default {
     },
   data: function() {
     return {
+        rncTab: '',
+        evidenciasTab: '',
         prazo: {
                 prazo: "",
                 situacao: null,
@@ -379,7 +417,7 @@ export default {
             { "value": null, "text": "Selecione uma descrição" }
         ],
         prazoParaAceitar: false,
-        novoObjetoEvidencia: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingArquivo": false, "new": true }',
+        novoObjetoEvidencia: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingArquivo": false, "new": true, "leitura": false }',
         novoObjetoManifestacao: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingArquivo": false, "new": true }',
         novoObjetoIrregularidade: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingArquivo": false, "new": true }'
     }

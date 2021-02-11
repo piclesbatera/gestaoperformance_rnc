@@ -15,34 +15,41 @@
         </div>
         <v-divider></v-divider>
         <div v-for="(object, index) in listaObjeto" :key="index">
-            <div class="row">
-                <div class="col-lg-12">
-                    <h6 v-if="object.nomeArquivo">{{object.nomeArquivo}}</h6>
+            <template v-if="(validaConfirmacao && object[propConfirmacao]) || (!validaConfirmacao)">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h6 v-if="object.nomeArquivo">{{object.nomeArquivo}}</h6>
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <b-input-group size="sm" class="m-2">
-                    <b-input-group-prepend is-text>
-                        <v-icon @click="deletarLinha(object);" :disabled="!permissaoAlterarComponente || (permissaoAlterarComponente && !object.new) || object.loadingArquivo" title="Remover">mdi-delete</v-icon>
-                    </b-input-group-prepend>
-                    <b-input-group-prepend is-text>
-                        <v-file-input
-                            v-if="!object.loadingArquivo"
-                            @change="changeObjectArquivo(object)"
-                            hide-input
-                            :disabled="!permissaoAlterarComponente || (permissaoAlterarComponente && !object.new) || object.loadingArquivo"
-                            v-model="object.file"
-                            :success="object.file != null"
-                        ></v-file-input>
-                        <v-progress-circular :size="24" v-else indeterminate color="primary" ></v-progress-circular>
-                    </b-input-group-prepend>
-                    <b-input-group-prepend is-text>
-                        <v-icon :disabled="object.new" v-if="!object.loadingDownloadAnexo" title="Download" @click="downloadArquivo(object);">mdi-download</v-icon>
-                        <v-progress-circular v-else indeterminate color="primary" ></v-progress-circular>
-                    </b-input-group-prepend>
-                    <b-form-input trim v-model="object.descricaoAnexo" :maxLength="descricaoLength" :disabled="!permissaoAlterarComponente || (permissaoAlterarComponente && !object.new) || object.loadingArquivo" placeholder="descrição" style="height: 100%;"></b-form-input>
-                </b-input-group>
-            </div>
+                <div class="row">
+                    <b-input-group size="sm" class="m-2">
+                        <b-input-group-prepend is-text>
+                            <v-icon @click="deletarLinha(object);" :disabled="!permissaoAlterarComponente || (permissaoAlterarComponente && !object.new) || object.loadingArquivo" title="Remover">mdi-delete</v-icon>
+                        </b-input-group-prepend>
+                        <b-input-group-prepend is-text>
+                            <v-file-input
+                                v-if="!object.loadingArquivo"
+                                @change="changeObjectArquivo(object)"
+                                hide-input
+                                :disabled="!permissaoAlterarComponente || (permissaoAlterarComponente && !object.new) || object.loadingArquivo"
+                                v-model="object.file"
+                                :success="object.file != null"
+                            ></v-file-input>
+                            <v-progress-circular :size="24" v-else indeterminate color="primary" ></v-progress-circular>
+                        </b-input-group-prepend>
+                        <b-input-group-prepend is-text>
+                            <v-icon :disabled="object.new" v-if="!object.loadingDownloadAnexo" title="Download" @click="downloadArquivo(object);">mdi-download</v-icon>
+                            <v-progress-circular v-else indeterminate color="primary" ></v-progress-circular>
+                        </b-input-group-prepend>
+                        <b-form-input trim v-model="object.descricaoAnexo" :maxLength="descricaoLength" :disabled="!permissaoAlterarComponente || (permissaoAlterarComponente && !object.new) || object.loadingArquivo" placeholder="descrição" style="height: 100%;"></b-form-input>
+                        <b-input-group-append is-text v-if="caixaConfirmacao">
+                            <v-icon :color="(object[propConfirmacao] || marcaTodasCaixas) ? 'blue' : ''">
+                                mdi-check
+                            </v-icon>
+                        </b-input-group-append>
+                    </b-input-group>
+                </div>
+            </template>
         </div>
     </div>                              
 </template>
@@ -78,7 +85,23 @@ export default {
         descricaoLength: {
             type: String,
             default: "50"
-        }
+        },
+        caixaConfirmacao: {
+            type: Boolean,
+            default: false
+        },
+        validaConfirmacao: {
+            type: Boolean,
+            default: false
+        },
+        marcaTodasCaixas: {
+            type: Boolean,
+            default: false
+        },
+        propConfirmacao: {
+            type: String,
+            default: "leitura"
+        },
     },
     computed: {
         listaObjeto: {

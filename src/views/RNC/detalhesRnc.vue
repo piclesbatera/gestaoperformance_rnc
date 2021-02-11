@@ -90,11 +90,11 @@ export default {
                 }
 
                 this.detalhes = detalhes;
-                if(!this.detalhes.listaRNCs || this.detalhes.listaRNCs.length == 0){
-                    this.$nextTick(function () {
+                this.$nextTick(function () {
+                    if(!this.detalhes.listaRNCs || this.detalhes.listaRNCs.length == 0){
                         this.novaRNC();
-                    });
-                }
+                    }
+                });
             }).catch(error => {
                 showError(error);
             })
@@ -103,27 +103,29 @@ export default {
             });
         },
         novaRNC(){
-            var listaRNCs = this.detalhes.listaRNCs;
-            if(!listaRNCs){
-                listaRNCs = [];
-            }
+            if(this.crudType == 'c'){
+                var listaRNCs = this.detalhes.listaRNCs;
+                if(!listaRNCs){
+                    listaRNCs = [];
+                }
 
-            // if(!this.detalhes.listaRNCs){
-            //     this.$set(this.detalhes, 'listaRNCs', []);
-            // }
-            var rnc =  {
-                        id: null,
-                        motivo: null,
-                        descricao: null,
-                        tipo: null,
-                        resolvido: null,
-                        tratavel: false,
-                        listaIrregularidades: [
-                        ]
-                    };
-            // this.$set(this.detalhes.listaRNCs, this.detalhes.listaRNCs.length, rnc);
-            listaRNCs.push(rnc);
-            this.detalhes.listaRNCs = listaRNCs;
+                // if(!this.detalhes.listaRNCs){
+                //     this.$set(this.detalhes, 'listaRNCs', []);
+                // }
+                var rnc =  {
+                            id: null,
+                            motivo: null,
+                            descricao: null,
+                            tipo: null,
+                            resolvido: null,
+                            tratavel: false,
+                            listaIrregularidades: [
+                            ]
+                        };
+                // this.$set(this.detalhes.listaRNCs, this.detalhes.listaRNCs.length, rnc);
+                listaRNCs.push(rnc);
+                this.detalhes.listaRNCs = listaRNCs;
+            }
         },
         getAreasDemandantes(){
             var comboBox = [{ "value": null, "text": "Selecione uma àrea" }];

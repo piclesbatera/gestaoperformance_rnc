@@ -252,8 +252,8 @@ export default {
                             }
                         }
                     }
-                    // TRATAMENTO
-                    if(rnc.status == 4){
+
+                    if(rnc.status == 5){
                         if(rnc.listaEvidencias){
                             var listaEvidencias = rnc.listaEvidencias.filter(evidencia => { return this.novoObjetoUpload(evidencia) });
                             var evidencia = null;

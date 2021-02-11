@@ -153,7 +153,10 @@
                     <div class="scrollable">
                         <v-data-table :headers="headersConsulta" :items="listaConsulta" :search="consultaDataTable" :loading="loadingConsulta" loading-text="Carregando..." no-data-text="Sem dados disponíveis" no-results-text="Não foi encontrado dados para a pesquisa realizada">
                             <template v-slot:item.detail="{ item }">
-                                <i :title="titleDetail" @click="abreRegistroSelecionado(item);" class="openDetail fa fa-edit"></i>
+                                <v-btn :title="titleDetail" @click="abreRegistroSelecionado(item);" icon color="black">
+                                    <v-icon>fa fa-edit</v-icon>
+                                </v-btn>
+                                <!-- <i :title="titleDetail"  class="openDetail fa fa-edit"></i> -->
                             </template>
                             <template v-slot:item.outrasAreas="{ item }">
                                 <RncOutrasAreasDemandantes v-if="false" :registro="item" :clickAreaDemandante="abreRegistroSelecionado"/>
