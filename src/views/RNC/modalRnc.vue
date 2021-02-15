@@ -254,13 +254,17 @@ export default {
                     }
 
                     if(rnc.status == 5){
-                        if(rnc.listaEvidencias){
-                            var listaEvidencias = rnc.listaEvidencias.filter(evidencia => { return this.novoObjetoUpload(evidencia) });
-                            var evidencia = null;
-                            for(evidencia of listaEvidencias){
-                                formData.append('files-evidencias-'+rnc.id, evidencia.file);
-                                if(evidencia.descricaoAnexo && evidencia.descricaoAnexo.trim() == ""){
-                                    evidencia.descricaoAnexo = null;
+                        if(rnc.listaTratativas){    
+                            var ultimaTratativa = {}; 
+                            ultimaTratativa = rnc.listaTratativas.reduce((anterior, atual) => (anterior.numeracaoTratativa > atual.numeracaoTratativa) ? anterior : atual);
+                            if(ultimaTratativa && ultimaTratativa.listaEvidencias){
+                                var listaEvidencias = ultimaTratativa.listaEvidencias.filter(evidencia => { return this.novoObjetoUpload(evidencia) });
+                                var evidencia = null;
+                                for(evidencia of listaEvidencias){
+                                    formData.append('files-evidencias-'+rnc.id, evidencia.file);
+                                    if(evidencia.descricaoAnexo && evidencia.descricaoAnexo.trim() == ""){
+                                        evidencia.descricaoAnexo = null;
+                                    }
                                 }
                             }
                         }

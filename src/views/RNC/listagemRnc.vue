@@ -19,8 +19,8 @@
                                 </v-btn>
                             </div>
                         </div>
-                        <v-expansion-panel style="background-color: #f7f7f7;" v-for="(row, index) in listaRNCs" :key="index">
-                            <v-expansion-panel-header :disable-icon-rotate="row.resolvido != null">
+                        <v-expansion-panel style="background-color: #f7f7f7;" :class="{'resolvida': row.resolvido, 'naoResolvida': row.resolvido == false}" v-for="(row, index) in listaRNCs" :key="index">
+                            <v-expansion-panel-header :disable-icon-rotate="row.rncResolvida">
                                 <v-row no-gutters>
                                     <v-col cols="2" v-if="row.id">
                                         RNC: {{row.id}}
@@ -47,23 +47,24 @@
                                 </v-row>
 
                                 <!-- ICONS -->
-                                <template v-if="row.resolvido == null" v-slot:actions>
+
+                                <!-- <template v-if="row.resolvido == null" v-slot:actions>
                                     <v-icon color="primary">
                                         $expand
                                     </v-icon>
-                                </template>
+                                </template> -->
 
-                                <template v-else-if="row.resolvido" v-slot:actions>
+                                <template v-if="row.rncResolvida" v-slot:actions>
                                     <v-icon color="teal">
                                         mdi-check
                                     </v-icon>
                                 </template>
 
-                                <template v-else v-slot:actions>
+                                <!-- <template v-else v-slot:actions>
                                     <v-icon color="error">
                                         mdi-alert-circle
                                     </v-icon>
-                                </template>
+                                </template> -->
                                 <!-- ICONS -->
                             </v-expansion-panel-header>
                             <v-expansion-panel-content :eager="true">
@@ -108,12 +109,16 @@ export default {
         listaRNCs: Array
     },
     computed: {
-        ...mapState(["usuario"])
+        ...mapState(["usuario"]),
+        loading: function(){
+            return Boolean(!this.listaRNCs || this.loadingMotivo || this.loadingTipo);
+        }
     },
   data: function() {
     return {
         dataValue: null,
-        loadingDetalhe: true,
+        loadingMotivo: true,
+        loadingTipo: true,
         motivos: [
             { "value": null, "text": "Selecione um motivo" }
         ],
@@ -167,6 +172,7 @@ export default {
                 })
                 .finally(() => {
                     this.motivos = comboBox;
+                    this.loadingMotivo = false;
                 });
 
         },
@@ -192,6 +198,7 @@ export default {
                 })
                 .finally(() => {
                     this.tipos = comboBox;
+                    this.loadingTipo = false;
                 });
 
         },
@@ -206,3 +213,14 @@ export default {
 }
 </script>
 
+
+<style scoped>
+.resolvida{
+    border: 1px solid green;
+}
+.naoResolvida{
+    border: 1px solid red;
+}
+
+
+</style>

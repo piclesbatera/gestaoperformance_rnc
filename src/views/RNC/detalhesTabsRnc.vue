@@ -35,6 +35,26 @@
                                     <b-form-select disabled v-model="rnc.tipo" :options="tipos" ></b-form-select>
                                 </div>
                             </div>
+                            <div class="col-lg-5" v-if="tipo == 3">
+                                <div class="form-group">
+                                    <label class="bmd-label-floating label-text" for="tipo">Prazo</label><font color="red"> *</font>
+                                    <b-form-datepicker 
+                                        :disabled="criado"
+                                        :min="dataAtual"  
+                                        v-model="rnc.prazoGrave" 
+                                        v-bind="datePickerLabels" 
+                                        locale="pt-BR" 
+                                        class="mb-2"
+                                        today-button
+                                        reset-button
+                                        close-button
+                                        :date-format-options="{
+                                            year: 'numeric',
+                                            month: 'numeric',
+                                            day: 'numeric'}">
+                                    </b-form-datepicker>
+                                </div>
+                            </div>
                         </div>
                         <div class="row" v-if="completeRNCButtons">
                             <div class="col-lg-6">
@@ -46,6 +66,12 @@
                                             mdi-cancel
                                         </v-icon>
                                     </v-btn>
+                                    <b-form-invalid-feedback :state="rnc.resolvido">
+                                        Iniciar uma nova tratativa para essa RNC.
+                                    </b-form-invalid-feedback>
+                                    <b-form-valid-feedback :state="rnc.resolvido">
+                                        Finalizar a RNC como resolvida.
+                                    </b-form-valid-feedback>
                                 </div>
                             </div>
                             <div class="col-lg-6">
@@ -63,7 +89,7 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 <label class="bmd-label-floating label-text" for="observacoes">Observações</label><font color="red"> *</font>
-                                <b-form-textarea no-resize :disabled="!permissaoAlterarRnc" v-model="rnc.observacao" placeholder="Digite uma observação" rows="3" maxLength="200"></b-form-textarea>
+                                <b-form-textarea no-resize :disabled="!permissaoAlterarRnc || (crudType == 'c' && criado)" v-model="rnc.observacao" placeholder="Digite uma observação" rows="3" maxLength="200"></b-form-textarea>
                                 <a @click="showHistoricoObservacoes=true;" style="float: right;" title="Abrir o histórico de observações">
                                     <i class="fa fa-history"></i>
                                     Visualizar histórico</a>
@@ -205,26 +231,27 @@
                     <v-card-text>
                         <v-tabs v-model="evidenciasTab" light background-color="#f7f7f7" show-arrows>
                             <v-tabs-slider color="#cbc6c6"></v-tabs-slider>
-                            <v-tab :href="'#tratativa-1'">Tratativa 1
-                                <v-icon v-if="true" dark right color="red" small>
-                                    mdi-checkbox-blank-circle
+                            <v-tab v-for="(tratativa, index) in rnc.listaTratativas" :key="index">
+                                Tratativa {{tratativa.numeracaoTratativa}}
+                                <v-icon v-if="tratativa.leitura && crudType == 't'" color="primary" dark right medium>
+                                    mdi-arrow-right-bold-circle-outline
                                 </v-icon>
-                                <v-icon v-else dark right small>
+                                <v-icon v-if="tratativa.aceito != null" :color="(tratativa.aceito) ? 'primary' : 'red'" dark right medium>
                                     mdi-checkbox-blank-circle
                                 </v-icon>
                             </v-tab>
                         </v-tabs>
                         <v-tabs-items v-model="evidenciasTab" touchless>
-                            <v-tab-item :value="'tratativa-1'">
-                                <UploadForm :caixaConfirmacao="this.crudType == 't'" :validaConfirmacao="this.crudType == 'c' || this.crudType == 'v'" :marcaTodasCaixas="enviar" :id="rnc.id" :inicializaLinha="permissaoAlterarEvidencia" :novoObjetoString="novoObjetoEvidencia" :permissaoAlterarComponente="permissaoAlterarEvidencia" v-model="listaEvidencias" :tipoArquivo="'evidencias'">
-                                    <template v-if="rnc.status == 5" v-slot:iconesAdicionais>
-                                        <v-btn class="btn btn-primary" v-if="!enviar" @click="enviar = true" color="blue" dark >
+                            <v-tab-item eager v-for="(tratativa, index) in rnc.listaTratativas" :key="index">
+                                <UploadForm :id="tratativa.id" :inicializaLinha="permissaoAlterarEvidencia && (tratativa.leitura == false && tratativa.aceito == null)" :novoObjetoString="novoObjetoEvidencia" :permissaoAlterarComponente="permissaoAlterarEvidencia && (tratativa.leitura == false && tratativa.aceito == null)" v-model="tratativa.listaEvidencias" :tipoArquivo="'evidencias'">
+                                    <template v-if="rnc.status == 5 && !tratativa.leitura" v-slot:iconesAdicionais>
+                                        <v-btn class="btn btn-primary" v-if="!tratativa.enviar" @click="tratativa.enviar = true" color="blue" dark >
                                             <v-icon dark left>
                                                 mdi-send
                                             </v-icon>
                                             Enviar
                                         </v-btn>
-                                        <v-btn class="btn btn-danger" v-else @click="enviar = false" color="red" dark >
+                                        <v-btn class="btn btn-danger" v-else @click="tratativa.enviar = false" color="red" dark >
                                             <v-icon dark left>
                                                 mdi-send
                                             </v-icon>
@@ -264,21 +291,6 @@ export default {
         isLeitura: Boolean
     },
     computed: {
-        enviar: {
-            get(){
-                if(!this.rnc['enviar']){
-                    this.$set(this.rnc, 'enviar', false);
-                }
-                return this.rnc['enviar'];
-            },
-            set(enviar) {
-                if(this.rnc['enviar'] == undefined || this.rnc['enviar'] == null){
-                    this.$set(this.rnc, 'enviar', enviar);
-                } else {
-                    this.rnc['enviar'] = enviar;
-                }
-            }
-        },
         listaHistoricoPrazosDataTable: function(){
             return this.rnc.listaHistoricoPrazos.map(e => {
                 e['dataCriacaoLocalString'] = (e['dataCriacao']) ? moment(e['dataCriacao']).format('DD/MM/YYYY HH:mm:ss') : "";
@@ -312,7 +324,9 @@ export default {
             );
         },
         acessarTabManifestacao: function(){
-            return Boolean((!this.prazo.prazo && this.listaHistoricoPrazos.length == 0) || (this.rnc.manifestacaoRncRef.aceito == false));
+            return Boolean(((this.crudType == 'c' || this.crudType == 'v') && this.rnc.manifestacaoRncRef && this.rnc.manifestacaoRncRef.descricaoManifestacao)
+            ||
+            (this.crudType == 't' && (!this.prazo.prazo && this.listaHistoricoPrazos.length == 0) || (this.rnc.manifestacaoRncRef.aceito == false))   );
         },
         descricao: function(){
             return this.rnc.descricao;
@@ -329,8 +343,13 @@ export default {
         permissaoAlterarIrregularidade: function(){
             return ((this.permissaoAlterarRnc) && ( (this.crudType == 'c' && !this.isLeitura && this.rnc.status == null) || (this.crudType == 'v' && this.rnc.status == 2)));
         },
+        ultimaTratativa: function(){
+            var ultimaTratativa = {}; 
+            ultimaTratativa = this.rnc.listaTratativas.reduce((anterior, atual) => (anterior.numeracaoTratativa > atual.numeracaoTratativa) ? anterior : atual);
+            return ultimaTratativa;
+        },
         completeRNCButtons(){
-            return (this.crudType == 'v' && this.rnc.statusInicial == null && (Array.isArray(this.listaEvidencias) && this.listaEvidencias.length) && this.rnc.status == 6);
+            return (this.crudType == 'v' && (Array.isArray(this.ultimaTratativa.listaEvidencias) && this.ultimaTratativa.listaEvidencias.length) && this.rnc.status == 6);
         },
         manifestacaoRncButtons(){
             return (this.crudType == 'v' && this.rnc.status == 2 && this.rnc.manifestacaoRncRef && this.rnc.manifestacaoRncRef.descricaoManifestacao);
@@ -356,18 +375,6 @@ export default {
         visualizarTabManifestacao: function(){
             return Boolean(this.rnc.manifestacaoRncRef);
         },
-        listaEvidencias: {
-            get(){
-                if(this.rnc && this.rnc.listaEvidencias){
-                    return this.rnc.listaEvidencias;
-                } else {
-                    return [];
-                }
-            },
-            set(listaEvidencias){
-                this.rnc.listaEvidencias = listaEvidencias;
-            }
-        },
         listaIrregularidades: {
             get(){
                 if(this.rnc && this.rnc.listaIrregularidades){
@@ -389,14 +396,15 @@ export default {
         permissaoAlterarManifestacao: function(){
             return ((this.permissaoAlterarRnc) &&  (this.visualizarTabManifestacao) && (this.crudType == 't') && (this.rnc.status == 1));
         },
-        validaBotoesPrazo(){
+        validaBotoesPrazo: function(){
             return Boolean(this.crudType == 'v' && this.prazo.prazo && !this.prazo.dataSituacao && this.rnc.status == 4);
-        },
+        }
     },
   data: function() {
     return {
         rncTab: '',
         evidenciasTab: '',
+        dataAtual: moment(),
         prazo: {
                 prazo: "",
                 situacao: null,
@@ -462,6 +470,15 @@ export default {
                 });
             } else {
                 this.descricoes = comboBox;
+            }
+        },
+        iniciaDescricao(){
+            if(this.motivo){
+                if(this.rnc.descricaoRef.descricao && this.rnc.descricaoRef.tipo){
+                    var  comboBox = [{ "value": this.rnc.descricaoRef.id , "text": this.rnc.descricaoRef.descricao }];
+                    this.descricoes = comboBox;
+                    this.rnc.tipo = this.rnc.descricaoRef.tipo;
+                }
             }
         },
         setSituacaoPrazo(novaSituacao){
@@ -531,10 +548,8 @@ export default {
     }
   },
   created: function(){
-      this.iniciarPrazo();
-      if(this.motivo){
-          this.getDescricao();
-      }
+        this.iniciarPrazo();
+        this.iniciaDescricao();
   }
 }
 </script>
