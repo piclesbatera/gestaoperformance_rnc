@@ -28,8 +28,8 @@
                                     <v-col cols="10" class="text--secondary" >
                                         <v-row no-gutters style="width: 100%" >
                                             <v-col cols="4">
-                                                <span v-if="row.motivoRef">
-                                                    Motivo: {{ row.motivoRef.descricaoMotivo }}
+                                                <span v-if="row.descricaoRef && row.descricaoRef.motivoRef">
+                                                    Motivo: {{ row.descricaoRef.motivoRef.descricaoMotivo }}
                                                 </span>
                                             </v-col>
                                             <v-col cols="4">
@@ -79,7 +79,7 @@
                                     </div>
                                 </div>
                                 <!-- {{row}} -->
-                                <DetalhesTabsRnc :isLeitura="isLeitura" :rnc="row" :crudType="crudType" :motivos="motivos" :tipos="tipos" />
+                                <DetalhesTabsRnc :isLeitura="isLeitura" :rnc="row" :crudType="crudType" :motivos="motivos" :tipos="tipos" :registro="registro" />
                             </v-expansion-panel-content>
                         </v-expansion-panel>
                     </v-expansion-panels>
@@ -106,6 +106,7 @@ export default {
             type: Boolean,
             default: false
         },
+        registro: Object,
         listaRNCs: Array
     },
     computed: {
@@ -152,9 +153,12 @@ export default {
         },
         getMotivos(){
             var comboBox = [{ "value": null, "text": "Selecione um motivo" }];
+            var queryString = '?';
+            var contrato = this.registro.codigoContrato;
+            queryString += '&contrato='+contrato;
 
             return axios
-                .get(`${baseApi}/rnc/motivos?`)
+                .get(`${baseApi}/rnc/motivos${queryString}`)
                 .then(res => {
                 if(res.data && res.data.motivosRnc){
                     var motivos = res.data.motivosRnc;

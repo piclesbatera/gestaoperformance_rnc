@@ -16,7 +16,7 @@
                     </div>
                 </div>
             </div> 
-            <ListagemRnc :listaRNCs="detalhes.listaRNCs" :crudType="crudType" :isLeitura="isLeitura"/>
+            <ListagemRnc :listaRNCs="detalhes.listaRNCs" :crudType="crudType" :isLeitura="isLeitura" :registro="registro"/>
         </template>
     </div>
 </template>
@@ -35,6 +35,7 @@ export default {
         value: Object,
         crudType: String,
         identificadorRegistroSistemaAreaDemandanteRnc: Number,
+        registro: Object,
         isLeitura: Boolean
     },
     computed: {

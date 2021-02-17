@@ -7,7 +7,7 @@
             <v-tab :href="'#irregularidades'">Irregularidades</v-tab>
             <v-tab :href="'#prazos'" v-if="visualizarTabPrazo" :disabled="!acessarTabPrazo">Prazos</v-tab>
             <v-tab :href="'#manifestacao'" v-if="visualizarTabManifestacao" :disabled="!acessarTabManifestacao">Manifestação</v-tab>
-            <v-tab :href="'#evidencias'" v-if="visualizarTabEvidencias">Evidencias</v-tab>
+            <v-tab :href="'#evidencias'" v-if="visualizarTabEvidencias">Evidências</v-tab>
         </v-tabs>
         <v-tabs-items v-model="rncTab" touchless>
             <!-- rncs -->
@@ -243,7 +243,7 @@
                         </v-tabs>
                         <v-tabs-items v-model="evidenciasTab" touchless>
                             <v-tab-item eager v-for="(tratativa, index) in rnc.listaTratativas" :key="index">
-                                <UploadForm :id="tratativa.id" :inicializaLinha="permissaoAlterarEvidencia && (tratativa.leitura == false && tratativa.aceito == null)" :novoObjetoString="novoObjetoEvidencia" :permissaoAlterarComponente="permissaoAlterarEvidencia && (tratativa.leitura == false && tratativa.aceito == null)" v-model="tratativa.listaEvidencias" :tipoArquivo="'evidencias'">
+                                <UploadForm :id="tratativa.id" :permiteExclusao="true" :inicializaLinha="permissaoAlterarEvidencia && (tratativa.leitura == false && tratativa.aceito == null)" :novoObjetoString="novoObjetoEvidencia" :permissaoAlterarComponente="permissaoAlterarEvidencia && (tratativa.leitura == false && tratativa.aceito == null)" v-model="tratativa.listaEvidencias" :tipoArquivo="'evidencias'">
                                     <template v-if="rnc.status == 5 && !tratativa.leitura" v-slot:iconesAdicionais>
                                         <v-btn class="btn btn-primary" v-if="!tratativa.enviar" @click="tratativa.enviar = true" color="blue" dark >
                                             <v-icon dark left>
@@ -288,6 +288,7 @@ export default {
         crudType: String,
         motivos: Array,
         tipos: Array,
+        registro: Object,
         isLeitura: Boolean
     },
     computed: {
@@ -425,9 +426,9 @@ export default {
             { "value": null, "text": "Selecione uma descrição" }
         ],
         prazoParaAceitar: false,
-        novoObjetoEvidencia: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingArquivo": false, "new": true, "leitura": false }',
-        novoObjetoManifestacao: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingArquivo": false, "new": true }',
-        novoObjetoIrregularidade: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingArquivo": false, "new": true }'
+        novoObjetoEvidencia: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingArquivo": false }',
+        novoObjetoManifestacao: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingArquivo": false }',
+        novoObjetoIrregularidade: '{ "id": null,  "descricaoAnexo": null, "file": null, "nomeArquivo": null, "loadingArquivo": false }'
     }
   },
   methods: {
@@ -443,8 +444,13 @@ export default {
         getDescricao(){
             var comboBox = [{ "value": null, "text": "Selecione uma descrição" }];
             if(this.rnc.motivo){
+                var queryString = '?';
+                var contrato = this.registro.codigoContrato;
+                queryString += '&contrato='+contrato;
+                queryString += '&motivo='+this.rnc.motivo;
+
                 axios
-                .get(`${baseApi}/rnc/descricoes?motivo=${this.rnc.motivo}`)
+                .get(`${baseApi}/rnc/descricoes${queryString}`)
                 .then(res => {
                 if(res.data && res.data.descricoesRnc){
                     var descricoes = res.data.descricoesRnc;
@@ -473,6 +479,9 @@ export default {
             }
         },
         iniciaDescricao(){
+            if(this.rnc.descricaoRef && this.rnc.descricaoRef.motivo){
+                this.rnc.motivo=this.rnc.descricaoRef.motivo;
+            }
             if(this.motivo){
                 if(this.rnc.descricaoRef.descricao && this.rnc.descricaoRef.tipo){
                     var  comboBox = [{ "value": this.rnc.descricaoRef.id , "text": this.rnc.descricaoRef.descricao }];

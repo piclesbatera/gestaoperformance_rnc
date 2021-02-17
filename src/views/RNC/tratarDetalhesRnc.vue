@@ -6,7 +6,7 @@
             <v-progress-linear indeterminate color="blue" ></v-progress-linear>
         </div>
         <template v-else>
-            <ListagemRnc :listaRNCs="detalhes.listaRNCs" :crudType="crudType" :isLeitura="isLeitura"/>
+            <ListagemRnc :listaRNCs="detalhes.listaRNCs" :crudType="crudType" :isLeitura="isLeitura" :registro="registro"/>
         </template>
     </div>
 </template>
@@ -25,7 +25,8 @@ export default {
         value: Object,
         crudType: String,
         infosRegistro : Object,
-        isLeitura: Boolean
+        isLeitura: Boolean,
+        registro: Object
     },
     computed: {
         ...mapState(["usuario"]),

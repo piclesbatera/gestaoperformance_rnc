@@ -22,26 +22,26 @@
                     </div>
                 </div>
                 <div class="row">
-                    <b-input-group size="sm" class="m-2">
+                    <b-input-group size="sm" class="m-2" :class="{'exclusao': object[propExclusao]}">
                         <b-input-group-prepend is-text>
-                            <v-icon @click="deletarLinha(object);" :disabled="!permissaoAlterarComponente || (permissaoAlterarComponente && !object.new) || object.loadingArquivo" title="Remover">mdi-delete</v-icon>
+                            <v-icon @click="deletarLinha(object);" :disabled="!permissaoAlterarComponente || (permissaoAlterarComponente && !object.novo && !permiteExclusao) || object.loadingArquivo" title="Remover">mdi-delete</v-icon>
                         </b-input-group-prepend>
                         <b-input-group-prepend is-text>
                             <v-file-input
                                 v-if="!object.loadingArquivo"
                                 @change="changeObjectArquivo(object)"
                                 hide-input
-                                :disabled="!permissaoAlterarComponente || (permissaoAlterarComponente && !object.new) || object.loadingArquivo"
+                                :disabled="!permissaoAlterarComponente || (permissaoAlterarComponente && !object.novo) || object.loadingArquivo"
                                 v-model="object.file"
                                 :success="object.file != null"
                             ></v-file-input>
                             <v-progress-circular :size="24" v-else indeterminate color="primary" ></v-progress-circular>
                         </b-input-group-prepend>
                         <b-input-group-prepend is-text>
-                            <v-icon :disabled="object.new" v-if="!object.loadingDownloadAnexo" title="Download" @click="downloadArquivo(object);">mdi-download</v-icon>
+                            <v-icon :disabled="object.novo" v-if="!object.loadingDownloadAnexo" title="Download" @click="downloadArquivo(object);">mdi-download</v-icon>
                             <v-progress-circular v-else indeterminate color="primary" ></v-progress-circular>
                         </b-input-group-prepend>
-                        <b-form-input trim v-model="object.descricaoAnexo" :maxLength="descricaoLength" :disabled="!permissaoAlterarComponente || (permissaoAlterarComponente && !object.new) || object.loadingArquivo" placeholder="descrição" style="height: 100%;"></b-form-input>
+                        <b-form-input trim v-model="object.descricaoAnexo" :maxLength="descricaoLength" :disabled="!permissaoAlterarComponente || (permissaoAlterarComponente && !object.novo) || object.loadingArquivo" placeholder="descrição" style="height: 100%;"></b-form-input>
                         <b-input-group-append is-text v-if="caixaConfirmacao">
                             <v-icon :color="(object[propConfirmacao] || marcaTodasCaixas) ? 'blue' : ''">
                                 mdi-check
@@ -102,6 +102,14 @@ export default {
             type: String,
             default: "leitura"
         },
+        permiteExclusao: {
+            type: Boolean,
+            default: false
+        },
+        propExclusao: {
+            type: String,
+            default: "excluir"
+        }
     },
     computed: {
         listaObjeto: {
@@ -229,7 +237,8 @@ export default {
         },
         novaLinha(){
             if(this.permissaoAlterarComponente){
-                var objeto = (this.novoObjetoString) ? JSON.parse(this.novoObjetoString) : {};
+                var objeto = (this.novoObjetoString) ? JSON.parse(this.novoObjetoString) : JSON.parse('{ "id": null,  "descricaoAnexo": "", "file": null, "nomeArquivo": null, "loadingArquivo": false }');
+                objeto['novo'] = true;
                 if(!this.listaObjeto){
                     var listaObjeto = [];
                     listaObjeto.push(objeto);
@@ -242,7 +251,15 @@ export default {
         },
         deletarLinha(object){
             const index = this.listaObjeto.indexOf(object);
-            this.listaObjeto.splice(index, 1);
+            if(!this.permiteExclusao || object.novo){
+                this.listaObjeto.splice(index, 1);
+            } else {
+                if(object[this.propExclusao] == undefined){
+                    this.$set(object, this.propExclusao, true);
+                } else {
+                    this.$set(object, this.propExclusao, !object[this.propExclusao]);
+                }
+            }
         },
         inicializarLinha(){
             if(this.inicializaLinha && (!(Array.isArray(this.listaObjeto) && this.listaObjeto.length))){
@@ -279,5 +296,10 @@ hr{
 <style>
 .v-application--is-ltr .v-input__prepend-outer {
     margin: 0px;
+}
+</style>
+<style scoped>
+.exclusao{
+    border: 1px solid red;
 }
 </style>

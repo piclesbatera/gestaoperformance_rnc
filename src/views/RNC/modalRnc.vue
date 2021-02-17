@@ -54,8 +54,8 @@
                                         <v-card flat>
                                             <v-card-text>
                                                 <ListagemDetalhesPorMotivo v-if="tipoOutroValor == 'outraNatureza'" :infosRegistro="infosRegistro" :motivo="outroValor" :crudType="crudType"/>
-                                                <DetalhesRnc  v-else-if="crudType != 't'" v-model="detalhes" :identificadorRegistroSistemaAreaDemandanteRnc="identificadorRegistroSistemaAreaDemandanteRnc" :isLeitura="isLeitura" :crudType="crudType" />
-                                                <TratarDetalhesRnc v-else :infosRegistro="infosRegistro" v-model="detalhes" :isLeitura="isLeitura" :crudType="crudType" />
+                                                <DetalhesRnc v-else-if="crudType != 't'" v-model="detalhes" :identificadorRegistroSistemaAreaDemandanteRnc="identificadorRegistroSistemaAreaDemandanteRnc" :isLeitura="isLeitura" :crudType="crudType" :registro="registro" />
+                                                <TratarDetalhesRnc v-else :infosRegistro="infosRegistro" v-model="detalhes" :isLeitura="isLeitura" :crudType="crudType" :registro="registro" />
                                             </v-card-text>
                                         </v-card>
                                     </v-tab-item>
@@ -357,7 +357,7 @@ export default {
             }
         },
         novoObjetoUpload(objetoUpload){
-            return (objetoUpload.new && objetoUpload.nomeArquivo && objetoUpload.descricaoAnexo)
+            return (objetoUpload.novo && objetoUpload.nomeArquivo && objetoUpload.descricaoAnexo)
         }
   },
   created: function(){
