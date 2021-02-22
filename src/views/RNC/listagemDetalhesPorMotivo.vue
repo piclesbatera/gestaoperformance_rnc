@@ -30,7 +30,7 @@
                             </div>
                         </div>
                     </div> 
-                    <ListagemRnc :listaRNCs="area.listaRNCs" :crudType="crudType" :isLeitura="true"/>
+                    <ListagemRnc :listaRNCs="area.listaRNCs" :crudType="crudType" :isLeitura="true" :registro="registro"/>
                </v-tab-item>
            </v-tabs-items>
         </template>
@@ -50,7 +50,8 @@ export default {
     props: {
         crudType: String,
         motivo: Number,
-        infosRegistro: Object
+        infosRegistro: Object,
+        registro: Object
     },
     computed: {
         ...mapState(["usuario"]),

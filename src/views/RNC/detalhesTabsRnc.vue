@@ -6,7 +6,7 @@
             <v-tab :href="'#motivos'">Motivos</v-tab>
             <v-tab :href="'#irregularidades'">Irregularidades</v-tab>
             <v-tab :href="'#prazos'" v-if="visualizarTabPrazo" :disabled="!acessarTabPrazo">Prazos</v-tab>
-            <v-tab :href="'#manifestacao'" v-if="visualizarTabManifestacao" :disabled="!acessarTabManifestacao">Manifestação</v-tab>
+            <v-tab :href="'#manifestacao'" v-if="visualizarTabManifestacao" :disabled="!acessarTabManifestacao">Contestação</v-tab>
             <v-tab :href="'#evidencias'" v-if="visualizarTabEvidencias">Evidências</v-tab>
         </v-tabs>
         <v-tabs-items v-model="rncTab" touchless>
@@ -15,27 +15,29 @@
                 <v-card flat>
                     <v-card-text>
                         <div class="row">
-                            <div class="col-lg-5">
+                            <div class="col-lg-6">
                                 <div class="form-group">
                                     <label class="bmd-label-floating label-text" for="motivo">Motivo</label><font color="red"> *</font>
-                                    <b-form-select v-model="rnc.motivo" :disabled="criado" @change="carregaDescricoes()" :options="motivos" ></b-form-select>
+                                    <b-form-select v-model="rnc.motivo" v-if="!criado" :disabled="criado" @change="carregaDescricoes()" :options="motivos" ></b-form-select>
+                                    <b-form-textarea no-resize v-else :disabled="criado" v-model="rnc.descricaoRef.motivoRef.descricaoMotivo" placeholder="Digite uma observação" rows="3" maxLength="200"></b-form-textarea>
                                 </div>
                             </div>
-                            <div class="col-lg-5">
+                            <div class="col-lg-6">
                                 <div class="form-group">
                                     <label class="bmd-label-floating label-text" for="tipo">Descrição</label><font color="red"> *</font>
-                                    <b-form-select v-model="rnc.descricao" :disabled="criado" :options="descricoes" ></b-form-select>
+                                    <b-form-select v-model="rnc.descricao" v-if="!criado" :disabled="criado" :options="descricoes" ></b-form-select>
+                                    <b-form-textarea no-resize v-else :disabled="criado" v-model="rnc.descricaoRef.descricao" placeholder="Digite uma observação" rows="3" maxLength="200"></b-form-textarea>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-lg-5" >
+                            <div class="col-lg-6" >
                                 <div class="form-group">
                                     <label class="bmd-label-floating label-text" for="tipo">Tipo</label><font color="red"> *</font>
                                     <b-form-select disabled v-model="rnc.tipo" :options="tipos" ></b-form-select>
                                 </div>
                             </div>
-                            <div class="col-lg-5" v-if="tipo == 3">
+                            <div class="col-lg-6" v-if="rncPrazoGrave">
                                 <div class="form-group">
                                     <label class="bmd-label-floating label-text" for="tipo">Prazo</label><font color="red"> *</font>
                                     <b-form-datepicker 
@@ -179,7 +181,7 @@
                                         <v-text-field v-model="searchHistoricoPrazo" append-icon="mdi-magnify" label="Pesquisa" single-line hide-details></v-text-field>
                                     </v-card-title>
                                     <v-divider></v-divider>
-                                    <v-data-table :custom-sort="customSort" sort-by="dataCriacao" class="default_color_background" :headers="headersHistoricoPrazo" :items="listaHistoricoPrazosDataTable" :search="searchHistoricoPrazo" loading-text="Carregando..." no-data-text="Sem dados disponíveis" no-results-text="Não foi encontrado dados para a pesquisa realizada" items-per-page="5">
+                                    <v-data-table :custom-sort="customSort" sort-by="dataCriacao" class="default_color_background" :headers="headersHistoricoPrazo" :items="listaHistoricoPrazosDataTable" :search="searchHistoricoPrazo" loading-text="Carregando..." no-data-text="Sem dados disponíveis" no-results-text="Não foi encontrado dados para a pesquisa realizada" :items-per-page="5">
                                     </v-data-table>
                                 </v-container>
                             </v-card>
@@ -313,8 +315,8 @@ export default {
         alterarPrazo: function(){
             return Boolean(!(this.crudType == 't' && (this.rnc.status == 3 || this.rnc.status == 1) && !this.prazo.situacao));
         },
-        rncGrave: function(){
-            return this.rnc.tipo == 3;
+        rncPrazoGrave: function(){
+            return Boolean(this.rnc.tipo ==  3 || this.rnc.tipo == 4);
         },
         criado: function(){
             return Boolean(this.rnc.dataCriacao);
@@ -405,11 +407,11 @@ export default {
     return {
         rncTab: '',
         evidenciasTab: '',
-        dataAtual: moment(),
+        dataAtual: moment().format('YYYY-MM-DD'),
         prazo: {
                 prazo: "",
                 situacao: null,
-                minDate: moment(),
+                minDate: moment().format('YYYY-MM-DD'),
                 dataCriacao: null,
                 dataSituacao: null
             },
@@ -503,7 +505,7 @@ export default {
                     this.prazo.prazo = prazoAtual.prazo;
                     this.prazo.situacao = prazoAtual.situacao;
                     this.prazo.dataSituacao = prazoAtual.dataSituacao;
-                    this.prazo.minDate = moment();
+                    this.prazo.minDate = moment().format('YYYY-MM-DD');
                     this.prazo.dataCriacao = prazoAtual.dataCriacao;
                 }
                 this.rnc['prazo'] = this.prazo;

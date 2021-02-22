@@ -7,7 +7,7 @@
         </div>
         <div v-else class="container-fluid">
             <div class="row">
-                <div class="col-lg-10">
+                <div class="col-lg-12">
                     <v-expansion-panels  hover>
                         <div class="w-100 mb-1">
                             <div class="float-right">
@@ -27,14 +27,14 @@
                                     </v-col>
                                     <v-col cols="10" class="text--secondary" >
                                         <v-row no-gutters style="width: 100%" >
-                                            <v-col cols="4">
+                                            <v-col cols="2">
                                                 <span v-if="row.descricaoRef && row.descricaoRef.motivoRef">
-                                                    Motivo: {{ row.descricaoRef.motivoRef.descricaoMotivo }}
+                                                    Tipo: {{ row.descricaoRef.tipoRef.descricaoTipo }}
                                                 </span>
                                             </v-col>
-                                            <v-col cols="4">
+                                            <v-col cols="6">
                                                 <span v-if="row.descricaoRef">
-                                                    Tipo: {{  row.descricaoRef.descricao }}
+                                                    Motivo: {{ row.descricaoRef.motivoRef.descricaoMotivo }}
                                                 </span>
                                             </v-col>
                                             <v-col cols="4">

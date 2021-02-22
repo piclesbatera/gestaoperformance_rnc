@@ -1,6 +1,6 @@
 <template>
 <!-- INICIA RNC MODAL FORM -->
-<v-dialog v-model="show"  content-class="container dialog" >
+<v-dialog scrollable v-model="show"  >
   <v-layout justify-center>
       <v-flex>
         <v-toolbar color="blue" dark>
@@ -12,69 +12,73 @@
         </v-toolbar>
         
         <v-card>
-            <v-container fluid grid-list-md>
-                <form ref="controleRNCForm" @submit.prevent="salvar()">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <h6>
-                                {{descricaoTituloSg}}
-                            </h6>
-                        </div>
-                    </div>
-                    <v-divider></v-divider>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="float-right"> 
-                                <v-btn type="submit" v-if="!isLeitura" :disabled="!conteudoCarregado" :loading="loadingSalvar" class="btn btn-primary form-control" color="blue" >
-                                    <v-icon dark left>
-                                        mdi-content-save
-                                    </v-icon>
-                                    Salvar
-                                </v-btn>
+            <!-- <v-card-text> -->
+                <v-container fluid grid-list-md>
+                    <form ref="controleRNCForm" @submit.prevent="salvar()">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h6>
+                                    {{descricaoTituloSg}}
+                                </h6>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <v-card>
-                                <v-tabs
-                                    v-model="tab"
-                                    dark
-                                    background-color="blue"
-                                    show-arrows>
-                                    <v-tabs-slider color="teal lighten-4"></v-tabs-slider>
-                            
-                                    <v-tab :href="'#detalhes'">Detalhes</v-tab>
-                                    <v-tab :href="'#anexos'">Anexos</v-tab>
-                                    
-                                </v-tabs>
-                                <v-tabs-items v-model="tab" touchless>
-                                    <!-- Detalhes -->
-                                    <v-tab-item :value="'detalhes'">
-                                        <v-card flat>
-                                            <v-card-text>
-                                                <ListagemDetalhesPorMotivo v-if="tipoOutroValor == 'outraNatureza'" :infosRegistro="infosRegistro" :motivo="outroValor" :crudType="crudType"/>
-                                                <DetalhesRnc v-else-if="crudType != 't'" v-model="detalhes" :identificadorRegistroSistemaAreaDemandanteRnc="identificadorRegistroSistemaAreaDemandanteRnc" :isLeitura="isLeitura" :crudType="crudType" :registro="registro" />
-                                                <TratarDetalhesRnc v-else :infosRegistro="infosRegistro" v-model="detalhes" :isLeitura="isLeitura" :crudType="crudType" :registro="registro" />
-                                            </v-card-text>
-                                        </v-card>
-                                    </v-tab-item>
-
-
-                                    <!-- Anexos -->
-                                    <v-tab-item :value="'anexos'" :eager="true">
-                                        <v-card flat>
-                                            <v-card-text>
-                                                <DocumentacaoRnc :codigoGrupoFila="codigoGrupoFila" :sg="sg" :codigoSg="codigoSg"/>
-                                            </v-card-text>
-                                        </v-card>
-                                    </v-tab-item>
-                                </v-tabs-items>
-                            </v-card>
+                        <v-divider></v-divider>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="float-right"> 
+                                    <v-btn type="submit" v-if="!isLeitura" :disabled="!conteudoCarregado" :loading="loadingSalvar" class="btn btn-primary form-control" color="blue" >
+                                        <v-icon dark left>
+                                            mdi-content-save
+                                        </v-icon>
+                                        Salvar
+                                    </v-btn>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </form>
-            </v-container>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <v-card>
+                                    <v-tabs
+                                        v-model="tab"
+                                        dark
+                                        background-color="blue"
+                                        show-arrows>
+                                        <v-tabs-slider color="teal lighten-4"></v-tabs-slider>
+                                
+                                        <v-tab :href="'#detalhes'">Detalhes</v-tab>
+                                        <v-tab :href="'#anexos'">Anexos</v-tab>
+                                        
+                                    </v-tabs>
+                                    <v-tabs-items v-model="tab" touchless>
+                                        <v-card flat>
+                                            <v-card-text >
+                                                <v-tab-item :value="'detalhes'">
+                                                    <v-card flat>
+                                                        <v-card-text>
+                                                            <ListagemDetalhesPorMotivo v-if="tipoOutroValor == 'outraNatureza'" :infosRegistro="infosRegistro" :motivo="outroValor" :crudType="crudType" :registro="registro"/>
+                                                            <DetalhesRnc v-else-if="crudType != 't'" v-model="detalhes" :identificadorRegistroSistemaAreaDemandanteRnc="identificadorRegistroSistemaAreaDemandanteRnc" :isLeitura="isLeitura" :crudType="crudType" :registro="registro" />
+                                                            <TratarDetalhesRnc v-else :infosRegistro="infosRegistro" v-model="detalhes" :isLeitura="isLeitura" :crudType="crudType" :registro="registro" />
+                                                        </v-card-text>
+                                                    </v-card>
+                                                </v-tab-item>
+                                            </v-card-text>
+                                        </v-card>
+
+
+                                        <v-tab-item :value="'anexos'" :eager="true">
+                                            <v-card flat>
+                                                <v-card-text>
+                                                    <DocumentacaoRnc :codigoGrupoFila="codigoGrupoFila" :sg="sg" :codigoSg="codigoSg"/>
+                                                </v-card-text>
+                                            </v-card>
+                                        </v-tab-item>
+                                    </v-tabs-items>
+                                </v-card>
+                            </div>
+                        </div>
+                    </form>
+                </v-container>
+            <!-- </v-card-text> -->
         </v-card>
       </v-flex>
     </v-layout>
@@ -235,6 +239,8 @@ export default {
             requestData['codigo'] = this.codigo;
             requestData['codigoGL'] = this.codigoGL;
             requestData['codigoGrupoFila'] = this.codigoGrupoFila;
+            requestData['descricaoTituloSg'] = this.registro.descricaoTituloSg;
+            requestData['codigoContrato'] = this.registro.codigoContrato
 
             listaRNCsRequest.forEach( 
                 (rnc, index) => 

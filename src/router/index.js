@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
 import Login from "@/components/auth/Login";
+import error404 from "@/components/errors/404";
 
 Vue.use(VueRouter);
 
@@ -45,7 +46,9 @@ const routes = [
     name: "Gestao",
     component: () =>
       import(/*webpackChunkName: "profile" */ "@/views/Gestao/paginaGestao")
-  }
+  },
+  { path: '/404', component: error404 },  
+  { path: '*', redirect: '/404' },  
 ];
 
 const router = new VueRouter({

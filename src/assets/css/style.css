@@ -17,7 +17,7 @@ body {
     display: grid;
   
     grid-template-rows: 60px 1fr 40px;
-    grid-template-columns: 100vw;
+    grid-template-columns: 100%;
   
     grid-template-areas:
       "header"
@@ -46,7 +46,6 @@ a.v-tab:hover{
     color: #dc3545 !important;
 }
 
-  
 select.invalid-element,
 input.invalid-element{
     border-color: #dc3545 !important;
@@ -76,12 +75,12 @@ div.v-card.v-sheet{
     background-color: #f7f7f7;
 }
 
-div.v-dialog.v-dialog--active.dialog{
+/* div.v-dialog.v-dialog--active.dialog{
     padding: 0px;
     margin-right: 1rem;
     margin-left: 1rem;
     box-shadow: 0 0 black;
-}
+} */
   
 .containerPage{
       height: calc(100% - 60px);
@@ -90,6 +89,11 @@ div.v-dialog.v-dialog--active.dialog{
 
 div .theme--light.v-data-table tbody tr {
       background-color: white;
+}
+
+div .theme--light.v-data-table {
+    background-color: #f7f7f7;
+    color: rgba(0,0,0,.87);
 }
 
 .border_red{
@@ -104,17 +108,12 @@ div .theme--light.v-data-table tbody tr {
     background-color: #f7f7f7;
 }
 
-div .theme--light.v-data-table {
-    background-color: #f7f7f7;
-    color: rgba(0,0,0,.87);
-}
-
-.v-data-footer__icons-before button{
+/* .v-data-footer__icons-before button{
     outline: 0px;
 }
 .v-data-footer__icons-after button{
     outline: 0px;
-}
+} */
   
 div.v-card.v-sheet div.v-window{
     background-color: #f7f7f7;

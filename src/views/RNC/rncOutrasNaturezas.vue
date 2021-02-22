@@ -16,7 +16,7 @@
             </v-list-item>
         </v-list>
         <v-list v-else>
-            <v-list-item link v-for="(natureza, i) in outrasNaturezas" :key="i" @click="clickNatureza(registro, natureza.motivo, 'outraNatureza')" >
+            <v-list-item link v-for="(natureza, i) in outrasNaturezas" :key="i" @click="clickNatureza(registro, natureza.id, 'outraNatureza')" >
                 <v-list-item-title v-text="natureza.descricaoMotivo" ></v-list-item-title>
             </v-list-item>
         </v-list>

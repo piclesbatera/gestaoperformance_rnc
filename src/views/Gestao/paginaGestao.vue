@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card id="vuetify-tab-content">
     <v-toolbar color="blue" dark flat>
       <v-toolbar-title>Área da Gestão</v-toolbar-title>
 
@@ -11,6 +11,7 @@
             show-arrows>
             <v-tabs-slider color="teal lighten-4"></v-tabs-slider>
             <v-tab :href="'#usuarios'">Usuários</v-tab>
+            <v-tab :href="'#penalidadeRncs'">Penalidade RNCs</v-tab>
           </v-tabs>
       </template>
     </v-toolbar>
@@ -22,16 +23,24 @@
                 </v-card-text>
             </v-card>
         </v-tab-item>
+        <v-tab-item :value="'penalidadeRncs'">
+            <v-card flat>
+                <v-card-text>
+                  <PenalidadeRnc />
+                </v-card-text>
+            </v-card>
+        </v-tab-item>
     </v-tabs-items>
   </v-card>
 </template>
 
 <script>
 import { mapState } from "vuex";
-import Usuarios from './usuarios'
+import Usuarios from './usuarios' 
+import PenalidadeRnc from './penalidadeRnc'
 export default {
   name: "paginaGestao",
-  components: { Usuarios },
+  components: { Usuarios, PenalidadeRnc },
   computed: {
     ...mapState(["usuario"]),
     usuarioRegistrado: function() {
@@ -70,4 +79,22 @@ export default {
 </script>
 
 <style lang="css">
+</style>
+
+<style scoped>
+
+#vuetify-tab-content div.v-card.v-sheet{
+  min-height: 100%;
+}
+
+#vuetify-tab-content{
+    height: 100%;
+    max-width: 100%;
+}
+
+#vuetify-tab-content div.v-card.v-sheet div.v-window{
+  padding: 10px;
+}
+
+
 </style>

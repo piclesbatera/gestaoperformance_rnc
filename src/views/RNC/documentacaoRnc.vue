@@ -26,7 +26,9 @@
                                         {{documentacao.Quantidade}}
                                     </td>
                                     <td>
-                                        <i title="Visualizar anexos" @click="descricaoDocumentacaoClicked = documentacao.Documentacao; showAnexos_modalView=true" class="openDetail fa fa-folder-open"></i>  
+                                        <v-btn title="Visualizar anexos" @click="descricaoDocumentacaoClicked = documentacao.Documentacao; showAnexos_modalView=true" icon color="#ffa200a8">
+                                            <v-icon>fa fa-folder-open</v-icon>
+                                        </v-btn>
                                     </td>
                                 </tr>
                             </tbody>
