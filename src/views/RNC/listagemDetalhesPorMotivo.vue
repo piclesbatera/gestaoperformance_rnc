@@ -7,6 +7,7 @@
         </div>
         <template v-else>
             <v-tabs
+                v-if="listaAreas.length > 1"
                 v-model="tab"
                 light
                 background-color="#f7f7f7"
@@ -14,7 +15,7 @@
                 show-arrows>
                 <v-tabs-slider color="teal lighten-4"></v-tabs-slider>
         
-                <template v-if="listaAreas.length > 1">
+                <template>
                     <v-tab v-for="(area, index) in listaAreas" :key="area.id">{{index+1}}</v-tab>
                 </template>
             </v-tabs>
