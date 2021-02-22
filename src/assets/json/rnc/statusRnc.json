@@ -1,0 +1,12 @@
+[
+    { "value": "", "text": "Selecione um status" },
+    { "value": "1", "text": "Não Iniciado" },
+    { "value": "2", "text": "Análise da Manifestação" },
+    { "value": "3", "text": "Solicitado Prazo" },
+    { "value": "4", "text": "Análise de Prazo" },
+    { "value": "5", "text": "Prazo Aprovado" },
+    { "value": "6", "text": "Análise de Evidências" },
+    { "value": "7", "text": "Análise para Penalidade" },
+    { "value": "8", "text": "Abonado / Justificado" },
+    { "value": "9", "text": "Finalizado" }
+  ]

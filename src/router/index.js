@@ -27,8 +27,17 @@ const routes = [
     component: Login
   },
   {
+    path: "/gestaoperformance",
+    name: "GestaoPerformance",
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../views/GestaoPerformance/gestaoperformance.vue")
+  },
+  {
     path: "/rnc",
-    name: "rnc",
+    name: "Rnc",
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.

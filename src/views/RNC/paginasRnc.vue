@@ -101,6 +101,16 @@
                                                 <b-form-input id="consultaAvancadaSgiEmpreiteiraConstrucao" v-model="consultaAvancadaSgiEmpreiteiraConstrucao" name="consultaAvancadaSgiEmpreiteiraConstrucao" placeholder="Nome da Empreiteira Construção"></b-form-input>
                                             </div>
                                         </div>
+                                        <div class="col-lg-2" v-if="temRNC">
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating label-text" for="consultaAvancadaSgiStatusRnc">
+                                                    <span>
+                                                        Status
+                                                    </span>   
+                                                </label>
+                                                <b-form-select id="consultaAvancadaSgiStatusRnc" v-model="consultaAvancadaSgiStatusRnc" name="consultaAvancadaSgiStatusRnc" :options="StatusRncOptions" ></b-form-select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div v-else>
@@ -133,6 +143,16 @@
                                                     </span>   
                                                 </label>
                                                 <b-form-input id="consultaAvancadaSgpEmpreiteira" v-model="consultaAvancadaSgpEmpreiteira" name="consultaAvancadaSgpEmpreiteira" placeholder="Nome da Empreiteira"></b-form-input>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2" v-if="temRNC">
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating label-text" for="consultaAvancadaSgpStatusRnc">
+                                                    <span>
+                                                        Status
+                                                    </span>   
+                                                </label>
+                                                <b-form-select id="consultaAvancadaSgpStatusRnc" v-model="consultaAvancadaSgpStatusRnc" name="consultaAvancadaSgpStatusRnc" :options="StatusRncOptions" ></b-form-select>
                                             </div>
                                         </div>
                                     </div>
@@ -181,6 +201,7 @@ import { baseApi, showError, cleanErrorsScope } from "@/global";
 import axios from "axios";
 import tipoAcionamentoOptions from "@/assets/json/sgp/tipoAcionamento.json";
 import UFOptions from "@/assets/json/brasil/UF.json";
+import StatusRncOptions from "@/assets/json/rnc/statusRnc.json";
 
 export default {
     name: "paginasRnc",
@@ -277,6 +298,10 @@ export default {
                 queryString += '&codigoRNC=' + this.valorConsultaRNC;
             }
 
+            if(this.consultaAvancadaSgiStatusRnc && this.consultaAvancada && this.consultaPor == 'sgi'){
+                queryString += '&statusRnc=' + this.consultaAvancadaSgiStatusRnc;
+            }
+
             if(this.consultaAvancadaSgiUF && this.consultaAvancada && this.consultaPor == 'sgi'){
                 queryString += '&UF=' + this.consultaAvancadaSgiUF;
             }
@@ -295,6 +320,10 @@ export default {
     
             if(this.consultaAvancadaSgpUF && this.consultaAvancada && this.consultaPor == 'sgp'){
                 queryString += '&UF=' + this.consultaAvancadaSgpUF;
+            }
+
+            if(this.consultaAvancadaSgpStatusRnc && this.consultaAvancada && this.consultaPor == 'sgp'){
+                queryString += '&statusRnc=' + this.consultaAvancadaSgpStatusRnc;
             }
 
             if(this.consultaAvancadaSgpTipoAcionamento && this.consultaAvancada && this.consultaPor == 'sgp'){
@@ -319,6 +348,7 @@ export default {
             tipoOutroValor: null,
             consultaDataTable: "",
             UFOptions,
+            StatusRncOptions,
             tipoAcionamentoOptions,
             loadingConsulta: false,
             consultaPor: "sgi",
@@ -379,11 +409,13 @@ export default {
             consultaAvancadaSgiEmpreiteiraConstrucao: "",
             consultaAvancadaSgiUF: "",
             consultaAvancadaSgiProjeto: "",
+            consultaAvancadaSgiStatusRnc: "",
 
             // SGP
             consultaAvancadaSgpTipoAcionamento: "",
             consultaAvancadaSgpEmpreiteira: "",
             consultaAvancadaSgpUF: "",
+            consultaAvancadaSgpStatusRnc: "",
 
             registroSelecionado: null
         };
@@ -462,6 +494,16 @@ export default {
                 cleanErrorsScope(scope);
                 this.valorConsulta = "";
                 this.valorConsultaRNC = "";
+                this.consultaAvancadaSgiEmpreiteiraProjeto = "";
+                this.consultaAvancadaSgiEmpreiteiraConstrucao = "";
+                this.consultaAvancadaSgiUF = "";
+                this.consultaAvancadaSgiProjeto = "";
+                this.consultaAvancadaSgiStatusRnc = "";
+
+                this.consultaAvancadaSgpTipoAcionamento = "";
+                this.consultaAvancadaSgpEmpreiteira = "";
+                this.consultaAvancadaSgpUF = "";
+                this.consultaAvancadaSgpStatusRnc = "";
             }
         },
         valorConsulta: function(novoValor, antigoValor){

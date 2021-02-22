@@ -9,7 +9,7 @@
               <v-tabs-slider color="teal lighten-4"></v-tabs-slider>
       
               <!-- <v-tab to="/" style="display:none;">Home</v-tab> -->
-              <v-tab to="/gestaoPerformance">Gestão de Performance</v-tab>
+              <v-tab to="/gestaoperformance">Gestão de Performance</v-tab>
               <v-tab to="/rnc">RNC</v-tab>
           </v-tabs>
         </v-card>
