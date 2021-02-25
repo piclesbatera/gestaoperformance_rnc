@@ -17,14 +17,14 @@
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label class="bmd-label-floating label-text" for="motivo">Motivo</label><font color="red"> *</font>
+                                    <label class="bmd-label-floating " for="motivo">Motivo</label><font color="red"> *</font>
                                     <b-form-select v-model="rnc.motivo" v-if="!criado" :disabled="criado" @change="carregaDescricoes()" :options="motivos" ></b-form-select>
                                     <b-form-textarea no-resize v-else :disabled="criado" v-model="rnc.descricaoRef.motivoRef.descricaoMotivo" placeholder="Digite uma observação" rows="3" maxLength="200"></b-form-textarea>
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label class="bmd-label-floating label-text" for="tipo">Descrição</label><font color="red"> *</font>
+                                    <label class="bmd-label-floating " for="tipo">Descrição</label><font color="red"> *</font>
                                     <b-form-select v-model="rnc.descricao" v-if="!criado" :disabled="criado" :options="descricoes" ></b-form-select>
                                     <b-form-textarea no-resize v-else :disabled="criado" v-model="rnc.descricaoRef.descricao" placeholder="Digite uma observação" rows="3" maxLength="200"></b-form-textarea>
                                 </div>
@@ -33,13 +33,13 @@
                         <div class="row">
                             <div class="col-lg-6" >
                                 <div class="form-group">
-                                    <label class="bmd-label-floating label-text" for="tipo">Tipo</label><font color="red"> *</font>
+                                    <label class="bmd-label-floating " for="tipo">Tipo</label><font color="red"> *</font>
                                     <b-form-select disabled v-model="rnc.tipo" :options="tipos" ></b-form-select>
                                 </div>
                             </div>
                             <div class="col-lg-6" v-if="rncPrazoGrave">
                                 <div class="form-group">
-                                    <label class="bmd-label-floating label-text" for="tipo">Prazo</label><font color="red"> *</font>
+                                    <label class="bmd-label-floating " for="tipo">Prazo</label><font color="red"> *</font>
                                     <b-form-datepicker 
                                         :disabled="criado"
                                         :min="dataAtual"  
@@ -90,7 +90,7 @@
                         </div>
                         <div class="row">
                             <div class="col-lg-12">
-                                <label class="bmd-label-floating label-text" for="observacoes">Observações</label><font color="red"> *</font>
+                                <label class="bmd-label-floating " for="observacoes">Observações</label><font color="red"> *</font>
                                 <b-form-textarea no-resize :disabled="!permissaoAlterarRnc || (crudType == 'c' && criado)" v-model="rnc.observacao" placeholder="Digite uma observação" rows="3" maxLength="200"></b-form-textarea>
                                 <a @click="showHistoricoObservacoes=true;" style="float: right;" title="Abrir o histórico de observações">
                                     <i class="fa fa-history"></i>
@@ -117,9 +117,9 @@
                     <v-card-text>
                         <div class="container-fluid">
                             <div class="row">
-                                <div class="col-lg-6" >
+                                <div class="col-lg-4" >
                                     <div class="form-group">
-                                        <label class="bmd-label-floating label-text">Prazo</label><font color="red" v-if="crudType == 't'"> *</font>
+                                        <label class="bmd-label-floating ">Prazo</label><font color="red" v-if="crudType == 't'"> *</font>
                                         <b-form-datepicker 
                                             :min="prazo.minDate"
                                             :state="prazo.situacao" 
@@ -147,30 +147,53 @@
                                         </template>
                                     </div>
                                 </div>
-                                <template v-if="validaBotoesPrazo">
-                                    <div class="col-lg-3">
-                                        <div class="form-group">
-                                            <label class="bmd-label-floating blank-label"></label>
-                                            <v-btn class="btn btn-danger form-control" color="red" dark @click="setSituacaoPrazo(false);">
-                                                Rejeitar
-                                                <v-icon dark right >
-                                                    mdi-cancel
-                                                </v-icon>
-                                            </v-btn>
-                                        </div>
+                                <div class="col-lg-4" v-if="!(!(rnc.status == 1 || rnc.status == 3) && !rnc.arquivoCronograma)">
+                                    <div class="form-group">
+                                        <label class="bmd-label-floating ">Cronograma</label>
+                                        <b-input-group>
+                                            <b-input-group-prepend is-text>
+                                                <v-icon v-if="!rnc.loadingDownloadCronograma" :disabled="!rnc.cronogramaFile && !rnc.arquivoCronograma" title="Download" @click="downloadArquivoCronograma(rnc.arquivoCronograma);">mdi-download</v-icon>
+                                                <v-progress-circular v-else :size="24" indeterminate ></v-progress-circular>
+                                            </b-input-group-prepend>
+                                            <b-form-file
+                                                ref="cronogramaFileRef"
+                                                :disabled="!(rnc.status == 1 || rnc.status == 3)"
+                                                @input="insereCronograma(rnc.cronogramaFile)"
+                                                browse-text=""
+                                                v-model="rnc.cronogramaFile"
+                                                :placeholder="cronogramaName"
+                                                :drop-placeholder="cronogramaName">
+                                            </b-form-file>
+                                            <b-input-group-append is-text v-if="(rnc.arquivoCronograma || rnc.cronogramaFile) && crudType == 't' && (rnc.status == 1 || rnc.status == 3)">
+                                                <v-icon @click="removerCronograma()" title="Remover Arquivo">mdi-delete</v-icon>
+                                            </b-input-group-append>
+                                        </b-input-group>
                                     </div>
-                                    <div class="col-lg-3">
-                                        <div class="form-group">
-                                            <label class="bmd-label-floating blank-label"></label>
-                                            <v-btn class="btn btn-primary form-control" color="blue" dark @click="setSituacaoPrazo(true);">
-                                                Aceitar
-                                                <v-icon dark right >
-                                                    mdi-checkbox-marked-circle
-                                                </v-icon>
-                                            </v-btn>
-                                        </div>
+                                </div>
+                            </div>
+                            <div class="row" v-if="validaBotoesPrazo">
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label class="bmd-label-floating blank-label"></label>
+                                        <v-btn class="btn btn-danger form-control" color="red" dark @click="setSituacaoPrazo(false);">
+                                            Rejeitar
+                                            <v-icon dark right >
+                                                mdi-cancel
+                                            </v-icon>
+                                        </v-btn>
                                     </div>
-                                </template>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label class="bmd-label-floating blank-label"></label>
+                                        <v-btn class="btn btn-primary form-control" color="blue" dark @click="setSituacaoPrazo(true);">
+                                            Aceitar
+                                            <v-icon dark right >
+                                                mdi-checkbox-marked-circle
+                                            </v-icon>
+                                        </v-btn>
+                                    </div>
+                                </div>
                             </div>
                             <v-divider></v-divider>
                             <v-card>
@@ -194,7 +217,7 @@
             <v-tab-item :value="'manifestacao'" v-if="visualizarTabManifestacao">
                 <v-card flat>
                     <v-card-text>
-                        <label class="bmd-label-floating label-text">Contestação/Justificativa</label><font color="red"> *</font>
+                        <label class="bmd-label-floating ">Contestação/Justificativa</label><font color="red"> *</font>
                         <b-form-textarea no-resize v-model="rnc.manifestacaoRncRef.descricaoManifestacao" :state="rnc.manifestacaoRncRef.aceito" :disabled="!permissaoAlterarManifestacao" placeholder="Digite sua contestação/justificativa" rows="3" maxLength="200" class="mb-2"></b-form-textarea>
                         <template v-if="rnc.manifestacaoRncRef.aceito != null">
                             <b-form-invalid-feedback :state="rnc.manifestacaoRncRef.aceito">
@@ -228,7 +251,7 @@
             </v-tab-item>
 
             <!-- Evidências -->
-            <v-tab-item :value="'evidencias'" v-if="visualizarTabEvidencias">
+            <v-tab-item :value="'evidencias'" eager v-if="visualizarTabEvidencias">
                 <v-card flat>
                     <v-card-text>
                         <v-tabs v-model="evidenciasTab" light background-color="#f7f7f7" show-arrows>
@@ -294,6 +317,21 @@ export default {
         isLeitura: Boolean
     },
     computed: {
+        // cronogramaFileRnc: function(){
+        //     if(!this.rnc.cronogramaFile){
+        //         this.$set(this.rnc, 'cronogramaFile', null);
+        //     }
+        //     return this.rnc.cronogramaFile;
+        // },
+        cronogramaName: function(){
+            var cronogramaName = "";
+            if(this.rnc.arquivoCronograma){
+                cronogramaName = this.rnc.arquivoCronograma;
+            } else {
+                cronogramaName = "Escolha um arquivo ou solte-o aqui...";
+            }
+            return cronogramaName;
+        },
         listaHistoricoPrazosDataTable: function(){
             return this.rnc.listaHistoricoPrazos.map(e => {
                 e['dataCriacaoLocalString'] = (e['dataCriacao']) ? moment(e['dataCriacao']).format('DD/MM/YYYY HH:mm:ss') : "";
@@ -329,7 +367,7 @@ export default {
         acessarTabManifestacao: function(){
             return Boolean(((this.crudType == 'c' || this.crudType == 'v') && this.rnc.manifestacaoRncRef && this.rnc.manifestacaoRncRef.descricaoManifestacao)
             ||
-            (this.crudType == 't' && (!this.prazo.prazo && this.listaHistoricoPrazos.length == 0) || (this.rnc.manifestacaoRncRef.aceito == false))   );
+            (this.crudType == 't' && (!this.prazo.prazo && this.listaHistoricoPrazos.length == 0 && !this.rnc.cronogramaFile) || (this.rnc.manifestacaoRncRef.aceito == false))   );
         },
         descricao: function(){
             return this.rnc.descricao;
@@ -434,6 +472,76 @@ export default {
     }
   },
   methods: {
+        removerCronograma(){
+            this.$refs['cronogramaFileRef'].reset();
+            this.rnc.arquivoCronograma = null;
+        },
+        insereCronograma(objectFile){
+            if(objectFile){
+                this.rnc.arquivoCronograma = objectFile.name;
+                var highSize = false;
+                var maxLength = false;
+            
+                if(objectFile.size > 15728640){
+                    highSize = true;
+                }
+
+                if(objectFile.name.length > 200){
+                    maxLength = true;
+                }
+
+                if(highSize || maxLength){
+                    if(highSize){
+                        objectFile = undefined;
+                        showError('O arquivo não pode ser maior do que 15MB');
+                    }
+                    if(maxLength){
+                        objectFile = undefined;
+                        showError('O arquivo não pode conter mais de 200 caracteres');
+                    }
+                    return false;
+                }
+
+                return true;
+            } else {
+                this.rnc.arquivoCronograma = null;
+            }
+        },
+        downloadArquivoCronograma(nomeArquivo){
+            if(this.rnc.cronogramaFile){    
+                var blobFile = new Blob([this.rnc.cronogramaFile]);
+                const url = window.URL.createObjectURL(blobFile);
+
+                var a = document.createElement("a");
+                a.href = url;
+                a.download = this.rnc.cronogramaFile.name;
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } else {
+                var queryString = (this.rnc.id != null && this.rnc.id != undefined) ? `?id=${this.rnc.id}` : "";
+                var tipoArquivoAPI = `cronograma/`;
+                var url = `${baseApi}/download/${tipoArquivoAPI}${nomeArquivo}${queryString}`;
+
+                this.$set(this.rnc, 'loadingDownloadCronograma', true);
+
+                axios({ url: url, method: 'GET', responseType: 'blob',}).then((response) => {
+                    const url = window.URL.createObjectURL(response.data);
+
+                    var a = document.createElement("a");
+                    a.href = url;
+                    a.download = nomeArquivo;
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                }).catch(error => {
+                    showError(error);
+                }).finally(() => {
+                    this.rnc.loadingDownloadCronograma = false;
+                });
+            }
+
+        },
         apagaInfoPrazo(){
             this.prazo.id = null;
             this.prazo.situacao = null;
@@ -486,8 +594,6 @@ export default {
             }
             if(this.motivo){
                 if(this.rnc.descricaoRef.descricao && this.rnc.descricaoRef.tipo){
-                    var  comboBox = [{ "value": this.rnc.descricaoRef.id , "text": this.rnc.descricaoRef.descricao }];
-                    this.descricoes = comboBox;
                     this.rnc.tipo = this.rnc.descricaoRef.tipo;
                 }
             }

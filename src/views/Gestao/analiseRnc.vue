@@ -2,13 +2,6 @@
   <v-container fluid grid-list-md>
     <v-row>
       <template v-if="!loadingContagemObras">
-        <!-- selected: {{selected}}
-        <br>
-        sg: {{sg}}
-        <br>
-        identificadorTipo: {{identificadorTipo}}
-        <br>
-        header: {{headersConsulta}} -->
         <v-col v-for="contagemObra in contagemObras" :key="contagemObra.tipo">
           <v-card class="mx-auto" outlined elevation="2" >
             <v-list class="transparent" align="center" >
@@ -103,7 +96,7 @@ import { mapState } from "vuex";
 import axios from "axios";
 import { baseApi, showError } from "@/global";
 export default {
-  name: "usuarios",
+  name: "analiseRnc",
   computed: {
     ...mapState(["usuario"]),
     headersConsulta: function(){

@@ -11,7 +11,7 @@
             show-arrows>
             <v-tabs-slider color="teal lighten-4"></v-tabs-slider>
             <v-tab :href="'#usuarios'">Usuários</v-tab>
-            <v-tab :href="'#penalidadeRncs'">Penalidade RNCs</v-tab>
+            <v-tab :href="'#analiseRncs'">Penalidade RNCs</v-tab>
           </v-tabs>
       </template>
     </v-toolbar>
@@ -23,10 +23,10 @@
                 </v-card-text>
             </v-card>
         </v-tab-item>
-        <v-tab-item :value="'penalidadeRncs'">
+        <v-tab-item :value="'analiseRncs'">
             <v-card flat>
                 <v-card-text>
-                  <PenalidadeRnc />
+                  <AnaliseRnc />
                 </v-card-text>
             </v-card>
         </v-tab-item>
@@ -37,10 +37,10 @@
 <script>
 import { mapState } from "vuex";
 import Usuarios from './usuarios' 
-import PenalidadeRnc from './penalidadeRnc'
+import AnaliseRnc from './analiseRnc'
 export default {
   name: "paginaGestao",
-  components: { Usuarios, PenalidadeRnc },
+  components: { Usuarios, AnaliseRnc },
   computed: {
     ...mapState(["usuario"]),
     usuarioRegistrado: function() {

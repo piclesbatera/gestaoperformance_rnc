@@ -231,6 +231,13 @@ export default {
                         }
                     }
 
+                    if(rnc.status == 1 || rnc.status == 3){
+                        if(rnc.cronogramaFile){
+                            // rnc.arquivoCronograma = rnc.cronogramaFile.name;
+                            formData.append('files-cronograma-'+rnc.id, rnc.cronogramaFile);
+                        }
+                    }
+
                     if(rnc.status == 5){
                         if(rnc.listaTratativas){    
                             var ultimaTratativa = {}; 

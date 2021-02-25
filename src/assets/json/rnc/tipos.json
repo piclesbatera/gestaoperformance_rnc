@@ -1,0 +1,7 @@
+[
+    { "value": "", "text": "Selecione um tipo" },
+    { "value": "1", "text": "Leve" },
+    { "value": "2", "text": "Média" },
+    { "value": "3", "text": "Grave" },
+    { "value": "4", "text": "SNE" }
+  ]

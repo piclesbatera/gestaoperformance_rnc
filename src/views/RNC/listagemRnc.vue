@@ -94,6 +94,7 @@ import DetalhesTabsRnc from './detalhesTabsRnc'
 import { baseApi, showError } from "@/global";
 import axios from "axios";
 import { mapState } from "vuex";
+import tiposRnc from "@/assets/json/rnc/tipos.json";
 export default {
     name: "listagemRnc",
     components: {
@@ -123,9 +124,7 @@ export default {
         motivos: [
             { "value": null, "text": "Selecione um motivo" }
         ],
-        tipos: [
-            { "value": null, "text": "Selecione um tipo" }
-        ]
+        tipos: tiposRnc
     }
   },
   methods: {
@@ -207,7 +206,9 @@ export default {
 
         },
         async iniciar(){
-            this.getMotivos();
+            if(this.crudType == 'c'){
+                this.getMotivos();
+            }
             this.getTipos();
         }
   },

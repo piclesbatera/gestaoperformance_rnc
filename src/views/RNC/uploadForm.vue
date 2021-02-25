@@ -39,7 +39,8 @@
                         </b-input-group-prepend>
                         <b-input-group-prepend is-text>
                             <v-icon :disabled="object.novo" v-if="!object.loadingDownloadAnexo" title="Download" @click="downloadArquivo(object);">mdi-download</v-icon>
-                            <v-progress-circular v-else indeterminate color="primary" ></v-progress-circular>
+                            <!-- <v-progress-circular v-else indeterminate color="primary" ></v-progress-circular> -->
+                            <v-progress-circular v-else :size="24" indeterminate ></v-progress-circular>
                         </b-input-group-prepend>
                         <b-form-input trim v-model="object.descricaoAnexo" :maxLength="descricaoLength" :disabled="!permissaoAlterarComponente || (permissaoAlterarComponente && !object.novo) || object.loadingArquivo" placeholder="descrição" style="height: 100%;"></b-form-input>
                         <b-input-group-append is-text v-if="caixaConfirmacao">
@@ -201,16 +202,14 @@ export default {
         },
         downloadArquivo(object){
             var nomeArquivo = object.nomeArquivo;
-            // var index = this.listaObjeto.indexOf(object);
             var queryString = (this.id != null && this.id != undefined) ? `?id=${this.id}` : "";
             var tipoArquivoAPI = (this.tipoArquivo != null && this.tipoArquivo != undefined) ? `${this.tipoArquivo}/` : "";
             var url = `${baseApi}/download/${tipoArquivoAPI}${nomeArquivo}${queryString}`;
 
-            // this.listaObjeto[index]['loadingDownloadAnexo'] = true;
+            this.$set(object, 'loadingDownloadAnexo', true);
 
             axios({ url: url, method: 'GET', responseType: 'blob',}).then((response) => {
                 const url = window.URL.createObjectURL(response.data);
-                // this.listaObjeto[index].loadingDownloadAnexo = false;
 
                 var a = document.createElement("a");
                 a.href = url;
@@ -219,8 +218,9 @@ export default {
                 a.remove();
                 window.URL.revokeObjectURL(url);
             }).catch(error => {
-                // this.listaObjeto[index].loadingDownloadAnexo = false;
                 showError(error);
+            }).finally(() => {
+                object.loadingDownloadAnexo = false
             });
 
             // axios({ url: url, method: 'GET'}).then(function(response) {

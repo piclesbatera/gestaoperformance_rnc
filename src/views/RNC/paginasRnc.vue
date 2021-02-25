@@ -7,13 +7,13 @@
                     <div class="row">
                         <div class="col-lg-2">
                             <div class="form-group">
-                                <label class="bmd-label-floating label-text" for="consultaPor">Consulta por</label><font color="red"> *</font>
+                                <label class="bmd-label-floating " for="consultaPor">Consulta por</label><font color="red"> *</font>
                                 <b-form-select id="consultaPor" v-model="consultaPor" name="consultaPor" :options="consultaPorOptions" ></b-form-select>
                             </div>
                         </div>
                         <div class="col-lg-2" >
                             <div class="form-group">
-                                <label class="bmd-label-floating label-text" for="valorConsulta">
+                                <label class="bmd-label-floating " for="valorConsulta">
                                     <span>
                                         {{valorLabel}}
                                     </span>   
@@ -23,7 +23,7 @@
                         </div>
                         <div class="col-lg-2" v-if="temRNC">
                             <div class="form-group">
-                                <label class="bmd-label-floating label-text" for="valorConsultaRNC">
+                                <label class="bmd-label-floating " for="valorConsultaRNC">
                                     <span>
                                         RNC
                                     </span>   
@@ -63,7 +63,7 @@
                                     <div class="row">
                                         <div class="col-lg-2" >
                                             <div class="form-group">
-                                                <label class="bmd-label-floating label-text" for="consultaAvancadaSgiUF">
+                                                <label class="bmd-label-floating " for="consultaAvancadaSgiUF">
                                                     <span>
                                                         UF
                                                     </span>   
@@ -73,7 +73,7 @@
                                         </div>
                                         <div class="col-lg-2" >
                                             <div class="form-group">
-                                                <label class="bmd-label-floating label-text" for="consultaAvancadaSgiProjeto">
+                                                <label class="bmd-label-floating " for="consultaAvancadaSgiProjeto">
                                                     <span>
                                                         Projeto
                                                     </span>   
@@ -83,7 +83,7 @@
                                         </div>
                                         <div class="col-lg-2" >
                                             <div class="form-group">
-                                                <label class="bmd-label-floating label-text" for="consultaAvancadaSgiEmpreiteiraProjeto">
+                                                <label class="bmd-label-floating " for="consultaAvancadaSgiEmpreiteiraProjeto">
                                                     <span>
                                                         Empreiteira Projeto
                                                     </span>   
@@ -93,7 +93,7 @@
                                         </div>
                                         <div class="col-lg-2" >
                                             <div class="form-group">
-                                                <label class="bmd-label-floating label-text" for="consultaAvancadaSgiEmpreiteiraConstrucao">
+                                                <label class="bmd-label-floating " for="consultaAvancadaSgiEmpreiteiraConstrucao">
                                                     <span>
                                                         Empreiteira Construção
                                                     </span>   
@@ -103,7 +103,7 @@
                                         </div>
                                         <div class="col-lg-2" v-if="temRNC">
                                             <div class="form-group">
-                                                <label class="bmd-label-floating label-text" for="consultaAvancadaSgiStatusRnc">
+                                                <label class="bmd-label-floating " for="consultaAvancadaSgiStatusRnc">
                                                     <span>
                                                         Status
                                                     </span>   
@@ -117,7 +117,7 @@
                                     <div class="row">
                                         <div class="col-lg-2" >
                                             <div class="form-group">
-                                                <label class="bmd-label-floating label-text" for="consultaAvancadaSgpTipoAcionamento">
+                                                <label class="bmd-label-floating " for="consultaAvancadaSgpTipoAcionamento">
                                                     <span>
                                                         Tipo Acionamento
                                                     </span>   
@@ -127,7 +127,7 @@
                                         </div>
                                         <div class="col-lg-2" >
                                             <div class="form-group">
-                                                <label class="bmd-label-floating label-text" for="consultaAvancadaSgpUF">
+                                                <label class="bmd-label-floating " for="consultaAvancadaSgpUF">
                                                     <span>
                                                         UF
                                                     </span>   
@@ -137,7 +137,7 @@
                                         </div>
                                         <div class="col-lg-2" >
                                             <div class="form-group">
-                                                <label class="bmd-label-floating label-text" for="consultaAvancadaSgpEmpreiteira">
+                                                <label class="bmd-label-floating " for="consultaAvancadaSgpEmpreiteira">
                                                     <span>
                                                         Empreiteira
                                                     </span>   
@@ -147,7 +147,7 @@
                                         </div>
                                         <div class="col-lg-2" v-if="temRNC">
                                             <div class="form-group">
-                                                <label class="bmd-label-floating label-text" for="consultaAvancadaSgpStatusRnc">
+                                                <label class="bmd-label-floating " for="consultaAvancadaSgpStatusRnc">
                                                     <span>
                                                         Status
                                                     </span>   

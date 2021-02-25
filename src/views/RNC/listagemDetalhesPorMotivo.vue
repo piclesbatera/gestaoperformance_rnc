@@ -8,6 +8,7 @@
         <template v-else>
             <v-tabs
                 v-if="listaAreas.length > 1"
+                style="position: sticky;"
                 v-model="tab"
                 light
                 background-color="#f7f7f7"
@@ -16,21 +17,11 @@
                 <v-tabs-slider color="teal lighten-4"></v-tabs-slider>
         
                 <template>
-                    <v-tab v-for="(area, index) in listaAreas" :key="area.id">{{index+1}}</v-tab>
+                    <v-tab v-for="area in listaAreas" :key="area.id">{{area.areaDemandanteRef.descricaoAreaDemandante}}</v-tab>
                 </template>
             </v-tabs>
            <v-tabs-items v-model="tab" touchless>
-               <v-tab-item v-for="(area) in listaAreas" :key="area.id">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-lg-5">
-                                <div class="form-group">
-                                    <label class="bmd-label-floating label-text" for="areaDemandante">Área Demandante</label><font color="red"> *</font>
-                                    <b-form-select id="areaDemandante" disabled v-model="area.areaDemandante" :options="areasDemandantes" ></b-form-select>
-                                </div>
-                            </div>
-                        </div>
-                    </div> 
+               <v-tab-item v-for="(area) in listaAreas" :key="area.id" eager="true">
                     <ListagemRnc :listaRNCs="area.listaRNCs" :crudType="crudType" :isLeitura="true" :registro="registro"/>
                </v-tab-item>
            </v-tabs-items>
@@ -57,18 +48,14 @@ export default {
     computed: {
         ...mapState(["usuario"]),
         loadingAll: function(){
-            return this.loadingListaAreas || this.loadingAreasDemandantes; 
+            return this.loadingListaAreas; 
         }
     },
   data: function() {
     return {
         tab: 0,
         loadingListaAreas: true,
-        loadingAreasDemandantes: true,
-        listaAreas: [],
-        areasDemandantes: [
-            { "value": null, "text": "Selecione uma área demandante" }
-        ]
+        listaAreas: []
     }
   },
   methods: {
@@ -115,36 +102,7 @@ export default {
                 this.loadingListaAreas = false;
             });
         },
-        getAreasDemandantes(){
-            var comboBox = [{ "value": null, "text": "Selecione uma àrea" }];
-
-            this.loadingAreasDemandantes = true;
-
-            return axios
-                .get(`${baseApi}/usuario/areasDemandantes?`)
-                .then(res => {
-                if(res.data && res.data.areasDemandantes){
-                    var areasDemandantes = res.data.areasDemandantes;
-                    areasDemandantes.forEach((item) => 
-                    { 
-                        var areaDemandante = {};
-                        areaDemandante['value'] = item.id;
-                        areaDemandante['text'] = item.descricaoAreaDemandante;
-                        comboBox.push(areaDemandante);
-                    });
-                }
-                })
-                .catch(error => {
-                    showError(error);
-                })
-                .finally(() => {
-                    this.areasDemandantes = comboBox;
-                    this.loadingAreasDemandantes = false;
-                });
-
-        },
         async iniciar(){
-            await this.getAreasDemandantes();
             this.getListaAreas();
         }
   },

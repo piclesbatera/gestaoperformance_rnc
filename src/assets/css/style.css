@@ -25,6 +25,10 @@ body {
       "footer";
 }
 
+.custom-file-label::after {
+    display: none;
+}
+
 label.blank-label::after{
     content: "\a0";
 }
@@ -124,4 +128,8 @@ div.v-card.v-sheet div.v-window{
     width: 100%;
     position: absolute;
     z-index: 999;
+}
+
+.v-card__text {
+    font-size: initial !important;
 }
