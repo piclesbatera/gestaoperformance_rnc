@@ -63,7 +63,7 @@ export default {
   methods: {
         getDetalhesRNC(){
             var queryString = (this.identificadorRegistroSistemaAreaDemandanteRnc) ? `?id=${this.identificadorRegistroSistemaAreaDemandanteRnc}` : "";
-            var url = `${baseApi}/rnc${queryString}`;
+            var url = `${baseApi}/rnc/registroAreaDemandante${queryString}`;
 
             axios.get(url).then(res => {
                 var detalhes = res.data;

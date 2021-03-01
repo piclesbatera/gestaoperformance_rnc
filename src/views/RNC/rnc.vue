@@ -79,7 +79,7 @@
                     <v-tab-item v-for="(rnc) in controleRNC" :key="rnc.id" :value="'tab-'+rnc.id">
                         <v-card flat>
                             <v-card-text>
-                                <PaginasRnc :crudType="rnc.crudType"/>
+                                <RncConsultaObras :crudType="rnc.crudType"/>
                             </v-card-text>
                         </v-card>
                     </v-tab-item>
@@ -89,7 +89,7 @@
                     <v-tab-item v-for="(rnc) in empreiteiraRNC" :key="rnc.id" :value="'tab-'+rnc.id">
                         <v-card flat>
                             <v-card-text>
-                                <PaginasRnc :crudType="rnc.crudType"/>
+                                <RncConsultaObras :crudType="rnc.crudType"/>
                             </v-card-text>
                         </v-card>
                     </v-tab-item>
@@ -106,10 +106,10 @@
 </template>
 
 <script>
-import PaginasRnc from "./paginasRnc";
+import RncConsultaObras from "./rncConsultaObras";
 export default {
    name: "rnc",
-   components: { PaginasRnc },
+   components: { RncConsultaObras },
    data: function() {
     return {
         tab: null,

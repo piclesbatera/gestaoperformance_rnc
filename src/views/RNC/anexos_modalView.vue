@@ -1,6 +1,6 @@
 <template>
 <!-- INICIA RNC MODAL FORM -->
-<v-dialog v-model="show" content-class="container dialog" >
+<v-dialog v-model="show" >
   <v-layout justify-center>
       <v-flex>
         <v-toolbar color="blue" dark>
@@ -42,7 +42,7 @@ export default {
   name: "anexos_modalView",
   props: {
      value: Boolean,
-     codigoGrupoFila: String,
+     codigoGrupoFila: Number,
      sg: String,
      codigoSg: Number,
      descricaoDocumentacao: String

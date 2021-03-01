@@ -27,17 +27,17 @@
                                     </v-col>
                                     <v-col cols="10" class="text--secondary" >
                                         <v-row no-gutters style="width: 100%" >
-                                            <v-col cols="2">
+                                            <v-col cols="1">
                                                 <span v-if="row.descricaoRef && row.descricaoRef.motivoRef">
                                                     Tipo: {{ row.descricaoRef.tipoRef.descricaoTipo }}
                                                 </span>
                                             </v-col>
-                                            <v-col cols="6">
+                                            <v-col cols="9">
                                                 <span v-if="row.descricaoRef">
                                                     Motivo: {{ row.descricaoRef.motivoRef.descricaoMotivo }}
                                                 </span>
                                             </v-col>
-                                            <v-col cols="4">
+                                            <v-col cols="2">
                                                 <span v-if="row.statusRef">
                                                     Status: {{ row.statusRef.descricaoStatus }}
                                                 </span>
@@ -206,7 +206,7 @@ export default {
 
         },
         async iniciar(){
-            if(this.crudType == 'c'){
+            if(this.crudType == 'c' && !this.isLeitura){
                 this.getMotivos();
             }
             this.getTipos();

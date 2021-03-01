@@ -11,7 +11,7 @@
             show-arrows>
             <v-tabs-slider color="teal lighten-4"></v-tabs-slider>
             <v-tab :href="'#usuarios'">Usuários</v-tab>
-            <v-tab :href="'#analiseRncs'">Penalidade RNCs</v-tab>
+            <v-tab :href="'#analiseRncs'">Análise RNCs</v-tab>
           </v-tabs>
       </template>
     </v-toolbar>

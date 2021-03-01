@@ -1,60 +1,60 @@
 <template>
 <!-- INICIA RNC MODAL FORM -->
-<v-dialog v-model="show" scrollable transition="dialog-bottom-transition" >
-    <v-card tile >
-        <v-toolbar flat dark color="blue" >
-            <v-toolbar-title>{{pageTitle}}</v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-btn icon dark @click="show = false" >
-            <v-icon>mdi-close</v-icon>
-            </v-btn>
-        </v-toolbar>
-        <v-toolbar flat dense color="transparent" >
-            <v-toolbar-title>{{descricaoTituloSg}}</v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-btn @click="salvar()" v-if="!isLeitura" :disabled="!conteudoCarregado" class="ml-2 btn btn-primary" :loading="loadingSalvar" color="blue" >
-                <v-icon dark left>
-                    mdi-content-save
-                </v-icon>
-                Salvar
-            </v-btn>
-        </v-toolbar>
-        <v-toolbar flat dense color="transparent" >
-            <v-tabs
-                v-model="tab"
-                dark
-                background-color="blue"
-                show-arrows>
-                <v-tabs-slider color="teal lighten-4"></v-tabs-slider>
-        
-                <v-tab :href="'#detalhes'">Detalhes</v-tab>
-                <v-tab :href="'#anexos'">Anexos</v-tab>
-                
-            </v-tabs>
-        </v-toolbar>
-        
-        <v-card-text>
-            <v-tabs-items v-model="tab" touchless>
-                <v-tab-item :value="'detalhes'">
-                    <v-card flat>
-                        <v-card-text>
-                            <ListagemDetalhesPorMotivo v-if="tipoOutroValor == 'outraNatureza'" :infosRegistro="infosRegistro" :motivo="outroValor" :crudType="crudType" :registro="registro"/>
-                            <DetalhesRnc v-else-if="crudType != 't'" v-model="detalhes" :identificadorRegistroSistemaAreaDemandanteRnc="identificadorRegistroSistemaAreaDemandanteRnc" :isLeitura="isLeitura" :crudType="crudType" :registro="registro" />
-                            <TratarDetalhesRnc v-else :infosRegistro="infosRegistro" v-model="detalhes" :isLeitura="isLeitura" :crudType="crudType" :registro="registro" />
-                        </v-card-text>
-                    </v-card>
-                </v-tab-item>
-                <v-tab-item :value="'anexos'" :eager="true">
-                    <v-card flat>
-                        <v-card-text>
-                            <DocumentacaoRnc :codigoGrupoFila="codigoGrupoFila" :sg="sg" :codigoSg="codigoSg"/>
-                        </v-card-text>
-                    </v-card>
-                </v-tab-item>
-            </v-tabs-items>
-        </v-card-text>
-    </v-card>
-  </v-dialog>
+    <v-dialog v-model="show" scrollable transition="dialog-bottom-transition" >
+        <v-card tile >
+            <v-toolbar flat dark color="blue" >
+                <v-toolbar-title>{{pageTitle}}</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-btn icon dark @click="show = false" >
+                <v-icon>mdi-close</v-icon>
+                </v-btn>
+            </v-toolbar>
+            <v-toolbar flat dense color="transparent" >
+                <v-toolbar-title>{{descricaoTituloSg}}</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-btn @click="salvar()" v-if="!isLeitura" :disabled="!conteudoCarregado" class="ml-2 btn btn-primary" :loading="loadingSalvar" color="blue" >
+                    <v-icon dark left>
+                        mdi-content-save
+                    </v-icon>
+                    Salvar
+                </v-btn>
+            </v-toolbar>
+            <v-toolbar flat dense color="transparent" >
+                <v-tabs
+                    v-model="tab"
+                    dark
+                    background-color="blue"
+                    show-arrows>
+                    <v-tabs-slider color="teal lighten-4"></v-tabs-slider>
+            
+                    <v-tab :href="'#detalhes'">Detalhes</v-tab>
+                    <v-tab :href="'#anexos'">Anexos</v-tab>
+                    
+                </v-tabs>
+            </v-toolbar>
+            
+            <v-card-text>
+                <v-tabs-items v-model="tab" touchless>
+                    <v-tab-item :value="'detalhes'">
+                        <v-card flat>
+                            <v-card-text>
+                                <ListagemDetalhesPorMotivo v-if="tipoOutroValor == 'outraNatureza'" :infosRegistro="infosRegistro" :motivo="outroValor" :crudType="crudType" :registro="registro"/>
+                                <DetalhesRnc v-else-if="crudType != 't'" v-model="detalhes" :identificadorRegistroSistemaAreaDemandanteRnc="identificadorRegistroSistemaAreaDemandanteRnc" :isLeitura="isLeitura" :crudType="crudType" :registro="registro" />
+                                <TratarDetalhesRnc v-else :infosRegistro="infosRegistro" v-model="detalhes" :isLeitura="isLeitura" :crudType="crudType" :registro="registro" />
+                            </v-card-text>
+                        </v-card>
+                    </v-tab-item>
+                    <v-tab-item :value="'anexos'" :eager="true">
+                        <v-card flat>
+                            <v-card-text>
+                                <DocumentacaoRnc :codigoGrupoFila="codigoGrupoFila" :sg="sg" :codigoSg="codigoSg"/>
+                            </v-card-text>
+                        </v-card>
+                    </v-tab-item>
+                </v-tabs-items>
+            </v-card-text>
+        </v-card>
+    </v-dialog>
 </template>
 
 <script>
@@ -121,7 +121,7 @@ export default {
         codigoGrupoFila: function(){
             var codigoGrupoFila = null;
             if(this.sg == 'sgp' && this.registro.codigoGrupoFila){
-                codigoGrupoFila = this.registro.codigoGrupoFila;
+                codigoGrupoFila = Number(this.registro.codigoGrupoFila);
             }
             return codigoGrupoFila;
         },
@@ -129,10 +129,10 @@ export default {
             var codigoSg = null;
             if(this.registro){
                 if(this.sg == 'sgi'){
-                    codigoSg = this.registro.ID;
+                    codigoSg = Number(this.registro.ID);
                 } else
                 if(this.sg == 'sgp'){
-                    codigoSg = this.registro.GL;
+                    codigoSg = Number(this.registro.GL);
                 }
             }
             return codigoSg;
@@ -278,7 +278,7 @@ export default {
             var id = this.detalhes.id;
 
             if(this.crudType == 'c'){
-                requestURL = `${baseApi}/rnc`;
+                requestURL = `${baseApi}/rnc/criar`;
             } else
             if(this.crudType == 't'){
                 requestURL = `${baseApi}/rnc/tratar`;

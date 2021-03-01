@@ -1,5 +1,5 @@
 <template>
-    <div style="clear: right;">
+    <div style="clear: right;" v-if="rnc">
         <v-tabs v-model="rncTab" light background-color="#f7f7f7" show-arrows>
             <v-tabs-slider color="#cbc6c6"></v-tabs-slider>
     
@@ -293,6 +293,10 @@
             
         </v-tabs-items>
     </div>
+    <div v-else>
+        <span>Carregando...</span>
+        <v-progress-linear indeterminate color="blue" ></v-progress-linear>
+    </div>
 </template>
 
 <script>
@@ -317,12 +321,6 @@ export default {
         isLeitura: Boolean
     },
     computed: {
-        // cronogramaFileRnc: function(){
-        //     if(!this.rnc.cronogramaFile){
-        //         this.$set(this.rnc, 'cronogramaFile', null);
-        //     }
-        //     return this.rnc.cronogramaFile;
-        // },
         cronogramaName: function(){
             var cronogramaName = "";
             if(this.rnc.arquivoCronograma){
@@ -548,8 +546,10 @@ export default {
             this.prazo.dataCriacao = null;
         },
         carregaDescricoes(){
-            this.rnc.descricao = null;
-            this.getDescricao();
+            if(this.crudType == 'c'){
+                this.rnc.descricao = null;
+                this.getDescricao();
+            }
         },
         getDescricao(){
             var comboBox = [{ "value": null, "text": "Selecione uma descrição" }];

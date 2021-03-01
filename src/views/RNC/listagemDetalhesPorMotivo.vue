@@ -7,7 +7,6 @@
         </div>
         <template v-else>
             <v-tabs
-                v-if="listaAreas.length > 1"
                 style="position: sticky;"
                 v-model="tab"
                 light

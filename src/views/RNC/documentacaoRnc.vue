@@ -51,7 +51,7 @@ export default {
         Anexos_modalView
     },
     props: {
-        codigoGrupoFila: String,
+        codigoGrupoFila: Number,
         sg: String,
         codigoSg: Number
     },

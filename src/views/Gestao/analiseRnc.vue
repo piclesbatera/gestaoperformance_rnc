@@ -1,32 +1,20 @@
 <template>
   <v-container fluid grid-list-md>
     <v-row>
-      <template v-if="!loadingContagemObras">
-        <v-col v-for="contagemObra in contagemObras" :key="contagemObra.tipo">
-          <v-card class="mx-auto" outlined elevation="2" >
+      <template v-if="!loadingcontagemRNCs">
+        <v-col v-for="contagemRNC in contagemRNCs" :key="contagemRNC.tipo">
+          <v-card class="mx-auto contagemRNC-cards" outlined elevation="2" height="">
             <v-list class="transparent" align="center" >
               <div class="overline">
-                {{contagemObra.tipo}}
+                {{contagemRNC.tipo}}
               </div>
             </v-list>
             <v-divider style="margin: 0px;"></v-divider>
             <v-list class="transparent" align="center">
               <v-list-item-group v-model="selected">
-                <v-list-item :disabled="loadingObras" :value='JSON.stringify({"identificadorTipo": contagemObra.identificadorTipo, "sg": "sgi", "contagem": contagemObra.sgi})'>
+                <v-list-item class="contagemRNC-selectable" :disabled="loadingRNCs" :value='JSON.stringify({"identificadoresTipos": contagemRNC.identificadoresTipos, "contagemTotal": contagemRNC.contagemTotal})'>
                   <v-list-item-content>
-                    <v-list-item-title>SGI</v-list-item-title>
-                    <v-list-item-subtitle >
-                      {{contagemObra.sgi}}
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-divider style="margin: 0px;"></v-divider>
-                <v-list-item :disabled="loadingObras" :value='JSON.stringify({"identificadorTipo": contagemObra.identificadorTipo, "sg": "sgp", "contagem": contagemObra.sgp})'>
-                  <v-list-item-content>
-                    <v-list-item-title>SGP</v-list-item-title>
-                    <v-list-item-subtitle >
-                      {{contagemObra.sgp}}
-                    </v-list-item-subtitle>
+                    <v-list-item-title style="font-size: 2rem;">{{contagemRNC.contagemTotal}}</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
               </v-list-item-group>
@@ -39,28 +27,16 @@
           <v-skeleton-loader
             class="mx-auto"
             type="image"
-            max-height="150px"
+            max-width="60%"
+            max-height="20vh"
           ></v-skeleton-loader>
         </v-col>
         <v-col>
           <v-skeleton-loader
             class="mx-auto"
             type="image"
-            max-height="150px"
-          ></v-skeleton-loader>
-        </v-col>
-        <v-col>
-          <v-skeleton-loader
-            class="mx-auto"
-            type="image"
-            max-height="150px"
-          ></v-skeleton-loader>
-        </v-col>
-        <v-col>
-          <v-skeleton-loader
-            class="mx-auto"
-            type="image"
-            max-height="150px"
+            max-width="60%"
+            max-height="20vh"
           ></v-skeleton-loader>
         </v-col>
       </template>
@@ -72,143 +48,164 @@
               <v-text-field v-model="consultaDataTable" append-icon="mdi-magnify" label="Pesquisa" single-line hide-details></v-text-field>
           </v-card-title>
           <v-divider></v-divider>
-          <v-data-table show-expand single-expand :headers="headersConsulta" :items="obras" :search="consultaDataTable" :loading="loadingObras"
-                        loading-text="Carregando..." no-data-text="Sem dados disponíveis"
-                        item-key="ID">
-              <template v-slot:expanded-item="{ headers, item }">
-                  <td :colspan="headers.length" style="padding:0px">
-                    <v-data-table
-                      :headers="headerRncsObra"
-                      :items="item.rncs"
-                      hide-default-footer
-                      class="elevation-1"
-                    ></v-data-table>
-                  </td>
-              </template>
+          <v-data-table :custom-sort="customSort" :headers="headerRncs" :items="rncsDataTable" :search="consultaDataTable" :loading="loadingRNCs"
+            loading-text="Carregando..." no-data-text="Sem dados disponíveis"
+            item-key="id">
+            <template v-slot:item.view="{ item }">
+              <v-btn title="abrir RNC" v-if="!item.loading" @click="abreRegistroSelecionado(item);" icon color="black">
+                  <v-icon>fa fa-edit</v-icon>
+              </v-btn>
+              <v-progress-circular :size="24" v-else indeterminate ></v-progress-circular>
+            </template>
           </v-data-table>
       </v-col>
     </v-row>
+    <ModalAnaliseRnc :registroRnc="registroSelecionado" v-if="showModalRnc" @loadingRNC="updateLoadingRNC" v-model="showModalRnc"/>
   </v-container> 
 </template>
 
 <script>
 import { mapState } from "vuex";
+import ModalAnaliseRnc from './modalAnaliseRnc'
 import axios from "axios";
 import { baseApi, showError } from "@/global";
+import moment from 'moment';
 export default {
   name: "analiseRnc",
+  components: {
+    ModalAnaliseRnc
+  },
   computed: {
     ...mapState(["usuario"]),
-    headersConsulta: function(){
-      return (this.sg == 'sgp') ? this.headerObrasSgp : this.headerObrasSgi;
-    },
-    sg: function(){
-      var sg = "";
+    identificadoresTipos: function(){
+      var identificadoresTipos = null;
       if(this.selected){
         var selected = JSON.parse(this.selected);
-        sg = selected.sg;
+        identificadoresTipos = selected.identificadoresTipos;
       }
-      return sg;
+      return identificadoresTipos;
     },
-    identificadorTipo: function(){
-      var identificadorTipo = "";
+    contagemTotal: function(){
+      var contagemTotal = "";
       if(this.selected){
         var selected = JSON.parse(this.selected);
-        identificadorTipo = selected.identificadorTipo;
+        contagemTotal = selected.contagemTotal;
       }
-      return identificadorTipo;
+      return contagemTotal;
     },
-    contagem: function(){
-      var contagem = "";
-      if(this.selected){
-        var selected = JSON.parse(this.selected);
-        contagem = selected.contagem;
-      }
-      return contagem;
+    rncsDataTable: function(){
+      return this.rncs.map(e => {
+          e['dataCriacaoLocalString'] = (e['dataCriacao']) ? moment(e['dataCriacao'].replaceAll("Z", "")).format('DD/MM/YYYY HH:mm:ss') : "";
+          return e;
+      });
     }
   },
   data: function() {
     return {
+      showModalRnc: false,
+      registroSelecionado: null,
       selected: '',
-      loadingContagemObras: true,
-      loadingObras: false,
-      contagemObras: {},
-      obras: [],
+      loadingcontagemRNCs: true,
+      loadingRNCs: false,
+      contagemRNCs: {},
+      rncs: [],
       consultaDataTable: '',
-      headerObrasSgi: [
-                { text: 'Fila', value: 'Status' },
-                { text: 'ID', value: 'ID' },
-                { text: 'Projeto', value: 'Projeto' },
-                { text: 'UF', value: 'UF' },
-                { text: 'ID OPD', value: 'ID_OPD' },
-                { text: 'Empreiteira Projeto', value: 'Empreiteira' },
-                { text: 'Empreiteira Construção', value: 'EmpreiteiraConstrucao' },
-                { text: '', value: 'data-table-expand' },
-            ],
-        headerObrasSgp: [
-                { text: 'Tipo Acionamento', value: 'Tipo Acionamento' },
-                { text: 'GL', value: 'GL' },
-                { text: 'Projeto', value: 'Projeto' },
-                { text: 'UF', value: 'UF' },
-                { text: 'Cliente', value: 'Cliente' },
-                { text: 'GP Cliente', value: 'GPCliente' },
-                { text: 'Empreiteira', value: 'Empreiteira' },
-                { text: '', value: 'data-table-expand' },
-            ],
-      headerRncsObra: [
+      headerRncs: [
         { text: 'RNC', value: 'id' },
-        { text: 'Motivo', value: 'descricaoMotivo' },
+        { text: 'Data de Criação', value: 'dataCriacaoLocalString' },
+        { text: 'Motivo', value: 'motivo' },
         { text: 'Descrição', value: 'descricao' },
-        { text: 'Tipo', value: 'descricaoTipo' },
+        { text: 'Tipo', value: 'tipo' },
         { text: 'Status', value: 'descricaoStatus' },
+        { text: 'Penalização', value: 'penalizacao' },
+        {
+          text: '', sortable: false, value: 'view', filterable: false
+        }
       ]
         
     };
   },
   created: function() {
-    this.getContagemObras();
-    this.getObras();
+    this.getcontagemRNCs();
+    this.getRNCs();
   },
   methods: {
-    getContagemObras() {
-      this.loadingContagemObras = true;
+    updateLoadingRNC(loading){
+      this.registroSelecionado.loading = loading;
+    },
+    abreRegistroSelecionado(rnc){
+        this.$set(rnc, 'loading', false);
+        this.registroSelecionado = rnc;
+        this.showModalRnc=true;
+      },
+    customSort(items, index, isDesc) {
+      items.sort((a, b) => {
+        if (index[0] === "dataCriacaoLocalString") {
+          if (!isDesc[0]) {
+            return moment(a[index], "DD/MM/YYYY HH:mm:ss").valueOf() - moment(b[index], "DD/MM/YYYY HH:mm:ss").valueOf();
+          } else {
+            return moment(b[index], "DD/MM/YYYY HH:mm:ss").valueOf() - moment(a[index], "DD/MM/YYYY HH:mm:ss").valueOf();
+          }
+        } else if (!(isNaN(a[index[0]]))) {
+          if (!isDesc[0]) {
+              return (a[index[0]] - b[index[0]]);
+          } else {
+              return (b[index[0]] - a[index[0]]);
+          }
+        } else {
+            if (!isDesc[0]) {
+                return (a[index[0]] < b[index[0]]) ? -1 : 1;
+            } else {
+                return (b[index[0]] < a[index[0]]) ? -1 : 1;
+            }
+        }
+      });
+      return items;
+    },
+    getcontagemRNCs() {
+      this.loadingcontagemRNCs = true;
       axios
-        .get(`${baseApi}/gestao/contagemObras/tipo`)
+        .get(`${baseApi}/gestao/contagemRNCs/tipo`)
         .then(res => {
-          var contagemObras = res.data;
-          this.contagemObras = contagemObras;
+          var contagemRNCs = res.data;
+          this.contagemRNCs = contagemRNCs;
         })
         .catch(error => {
           showError(error);
         }).finally(() => {
-            this.loadingContagemObras = false;
+            this.loadingcontagemRNCs = false;
         });
     },
-    getObras() {
-      if(this.sg && this.identificadorTipo){
-        this.loadingObras = true;
-        this.obras = [];
+    getRNCs() {
+      if(this.identificadoresTipos){
+        this.loadingRNCs = true;
+        this.rncs = [];
+        var identificadoresTipos = "";
+        this.identificadoresTipos.forEach(identificadorTipo => {
+          identificadoresTipos += "&identificadoresTipos="+identificadorTipo;
+        });
+        var queryString = (identificadoresTipos) ? `?${identificadoresTipos}` : "";
         axios
-          .get(`${baseApi}/gestao/obras/tipo/${this.sg}/${this.identificadorTipo}`)
+          .get(`${baseApi}/gestao/rnc/tipos${queryString}`)
           .then(res => {
-            var obras = res.data;
-            this.obras = obras;
+            var rncs = res.data;
+            this.rncs = rncs;
           })
           .catch(error => {
             showError(error);
           }).finally(() => {
-              this.loadingObras = false;
+              this.loadingRNCs = false;
           });
       } else {
-        this.obras = [];
+        this.rncs = [];
       }
     }
   },
   watch: {
       selected: function(novoValor, antigoValor){
         if(novoValor != antigoValor && novoValor != ""){
-          if(!this.loadingObras){
-            this.getObras();
+          if(!this.loadingRNCs){
+            this.getRNCs();
           } 
         }
       }
@@ -217,6 +214,12 @@ export default {
 </script>
 
 <style scoped>
+.contagemRNC-cards{
+    width: 40%;
+}
+.contagemRNC-selectable{
+  height: 10vh;
+}
 .overline{
     font-size: 1rem!important;
 }
