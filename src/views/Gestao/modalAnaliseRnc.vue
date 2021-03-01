@@ -11,11 +11,16 @@
         <v-toolbar flat dense color="transparent" >
             <v-toolbar-title>{{rnc.registroObra.descricaoTituloSg}}</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn @click="salvar()" class="ml-2 btn btn-primary"  color="blue" >
+            <v-select
+              v-model="penalizar"
+              :items="penalizarOptions"
+              hide-details
+            ></v-select>
+            <v-btn @click="Enviar()" class="ml-2 btn btn-primary"  color="blue" >
                 <v-icon dark left>
-                    mdi-content-save
+                    mdi-file-send
                 </v-icon>
-                Salvar
+                Enviar
             </v-btn>
         </v-toolbar>
         
@@ -55,6 +60,11 @@ export default {
   },
   data: function() {
     return {
+        penalizar: 0,
+        penalizarOptions: [
+          { "value": 0, "text": "Não penalizar RNC"},
+          { "value": 1, "text": "Penalizar RNC em " + this.registroRnc.penalizacaoPorcentagem }
+        ],
         rnc: null,
         motivos: [
             { "value": null, "text": "Selecione um motivo" }

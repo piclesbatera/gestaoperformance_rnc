@@ -27,7 +27,7 @@
           <v-skeleton-loader
             class="mx-auto"
             type="image"
-            max-width="60%"
+            max-width="40%"
             max-height="20vh"
           ></v-skeleton-loader>
         </v-col>
@@ -35,7 +35,7 @@
           <v-skeleton-loader
             class="mx-auto"
             type="image"
-            max-width="60%"
+            max-width="40%"
             max-height="20vh"
           ></v-skeleton-loader>
         </v-col>
@@ -96,6 +96,7 @@ export default {
     rncsDataTable: function(){
       return this.rncs.map(e => {
           e['dataCriacaoLocalString'] = (e['dataCriacao']) ? moment(e['dataCriacao'].replaceAll("Z", "")).format('DD/MM/YYYY HH:mm:ss') : "";
+          e['penalizacaoPorcentagem'] = (e['penalizacao']) ? e['penalizacao'] + '%' : "";
           return e;
       });
     }
@@ -117,7 +118,7 @@ export default {
         { text: 'Descrição', value: 'descricao' },
         { text: 'Tipo', value: 'tipo' },
         { text: 'Status', value: 'descricaoStatus' },
-        { text: 'Penalização', value: 'penalizacao' },
+        { text: 'Penalização', value: 'penalizacaoPorcentagem', align: 'end'},
         {
           text: '', sortable: false, value: 'view', filterable: false
         }
@@ -146,7 +147,14 @@ export default {
           } else {
             return moment(b[index], "DD/MM/YYYY HH:mm:ss").valueOf() - moment(a[index], "DD/MM/YYYY HH:mm:ss").valueOf();
           }
-        } else if (!(isNaN(a[index[0]]))) {
+        } else if(index[0] === "penalizacaoPorcentagem"){
+          if (!isDesc[0]) {
+              return (a['penalizacao'] - b['penalizacao']);
+          } else {
+              return (b['penalizacao'] - a['penalizacao']);
+          }
+        }
+        else if (!(isNaN(a[index[0]]))) {
           if (!isDesc[0]) {
               return (a[index[0]] - b[index[0]]);
           } else {

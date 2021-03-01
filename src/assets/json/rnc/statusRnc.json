@@ -1,7 +1,7 @@
 [
     { "value": "", "text": "Selecione um status" },
     { "value": "1", "text": "Não Iniciado" },
-    { "value": "2", "text": "Análise da Manifestação" },
+    { "value": "2", "text": "Análise da Contestação" },
     { "value": "3", "text": "Solicitado Prazo" },
     { "value": "4", "text": "Análise de Prazo" },
     { "value": "5", "text": "Prazo Aprovado" },
